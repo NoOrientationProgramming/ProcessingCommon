@@ -9,5 +9,5 @@ GPLv3 see file LICENSE
 
 ## How to add to your project
 
-git submodule add https://github.com/NoOrientationProgramming/ProcessingCommon.git
+`git submodule add https://github.com/NoOrientationProgramming/ProcessingCommon.git`
 
