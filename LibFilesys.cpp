@@ -55,7 +55,7 @@ void pipeInit(PairFd &pair)
 
 // - https://man7.org/linux/man-pages/man2/open.2.html
 // - https://man7.org/linux/man-pages/man3/fopen.3.html
-int fdCreate(const std::string &path, const std::string &mode)
+int fdCreate(const std::string &path, const std::string &mode, bool closeOnExec)
 {
 	if (!path.size() or !mode.size())
 		return -1;
@@ -97,6 +97,9 @@ int fdCreate(const std::string &path, const std::string &mode)
 				return -1;
 		}
 	}
+
+	if (closeOnExec)
+		flags |= O_CLOEXEC;
 
 	return open(path.c_str(), flags);
 }

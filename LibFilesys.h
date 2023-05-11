@@ -50,7 +50,7 @@ struct PairFd
 void pipeInit(PairFd &pair);
 void pipeClose(PairFd &pair, bool deInit = true);
 
-int fdCreate(const std::string &path, const std::string &mode);
+int fdCreate(const std::string &path, const std::string &mode, bool closeOnExec = true);
 void fdClose(int &fd, bool deInit = true);
 
 bool fileExists(const std::string &path);
