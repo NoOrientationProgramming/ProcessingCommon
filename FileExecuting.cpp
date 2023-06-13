@@ -69,6 +69,7 @@ FileExecuting::FileExecuting()
 	// container
 	, mMsStart(0)
 	, mMsTimeout(0)
+	, mNodeIn()
 	, mInternalsStarted(false)
 	, mConfigClosed(false)
 	// internal
@@ -81,6 +82,8 @@ FileExecuting::FileExecuting()
 	, mpResult(&mResult)
 	, mBytesRead(0)
 	, mBytesSent(0)
+	, mNodeOut()
+	, mNodeErr()
 	, mDoneAck(false)
 {
 	mLstExec.reserve(4);
