@@ -28,20 +28,6 @@
 #include <signal.h>
 #include <sys/wait.h>
 
-#ifdef _WIN32
-/* See http://stackoverflow.com/questions/12765743/getaddrinfo-on-win32 */
-#ifndef _WIN32_WINNT
-#define _WIN32_WINNT 0x0501  /* Windows XP. */
-#endif
-#include <winsock2.h>
-#include <ws2tcpip.h>
-#else
-#include <sys/socket.h>
-#include <netinet/in.h>
-#include <arpa/inet.h>
-#include <fcntl.h>
-#endif
-
 #include "FileExecuting.h"
 #include "LibTime.h"
 
