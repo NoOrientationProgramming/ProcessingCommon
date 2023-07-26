@@ -53,6 +53,12 @@ void pipeInit(PairFd &pair)
 	pair.fdWrite = -1;
 }
 
+void pipeClose(PairFd &pair, bool deInit)
+{
+	fdClose(pair.fdRead, deInit);
+	fdClose(pair.fdWrite, deInit);
+}
+
 // - https://man7.org/linux/man-pages/man2/open.2.html
 // - https://man7.org/linux/man-pages/man3/fopen.3.html
 int fdCreate(const std::string &path, const std::string &mode, bool closeOnExec)
@@ -102,12 +108,6 @@ int fdCreate(const std::string &path, const std::string &mode, bool closeOnExec)
 		flags |= O_CLOEXEC;
 
 	return open(path.c_str(), flags);
-}
-
-void pipeClose(PairFd &pair, bool deInit)
-{
-	fdClose(pair.fdRead, deInit);
-	fdClose(pair.fdWrite, deInit);
 }
 
 void fdClose(int &fd, bool deInit)
