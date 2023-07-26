@@ -31,6 +31,7 @@
 #include <unistd.h>
 #include <sys/stat.h>
 #include <sys/file.h>
+#include <sys/resource.h>
 
 #include "Processing.h"
 
@@ -47,6 +48,8 @@ struct PairFd
 	int fdRead;
 	int fdWrite;
 };
+
+bool maxFdsSet(rlim_t val);
 
 void pipeInit(PairFd &pair);
 void pipeClose(PairFd &pair, bool deInit = true);

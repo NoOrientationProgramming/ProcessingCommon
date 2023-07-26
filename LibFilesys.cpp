@@ -47,6 +47,34 @@ static int fdLockDefault = 0;
 static mutex globalLocksMtx;
 static map<string, GlobalLock> globalLocks;
 
+// - https://linux.die.net/man/2/setrlimit
+// - https://www.man7.org/linux/man-pages/man3/getrlimit.3p.html
+bool maxFdsSet(rlim_t val)
+{
+	struct rlimit lim;
+	int res;
+
+	res = getrlimit(RLIMIT_NOFILE, &lim);
+	if (res)
+	{
+		int numErr = errno;
+		errLog(-1, "getrlimit() failed: %s (%d)", strerror(numErr), numErr);
+		return false;
+	}
+
+	lim.rlim_cur = val;
+
+	res = setrlimit(RLIMIT_NOFILE, &lim);
+	if (res)
+	{
+		int numErr = errno;
+		errLog(-1, "setrlimit(%u) failed: %s (%d)", val, strerror(numErr), numErr);
+		return false;
+	}
+
+	return true;
+}
+
 void pipeInit(PairFd &pair)
 {
 	pair.fdRead = -1;
