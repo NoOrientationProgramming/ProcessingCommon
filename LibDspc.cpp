@@ -101,7 +101,15 @@ string appVersion()
 	if (!pHistory)
 		return err;
 
-	const char *pVersStart = strchr(pHistory->pSrc, 'T');
+	const char *pVersStart;
+
+	pVersStart = strchr(pHistory->pSrc, 'T');
+	if (!pVersStart)
+		return err;
+
+	++pVersStart;
+
+	pVersStart = strchr(pVersStart, 'T');
 	if (!pVersStart)
 		return err;
 
