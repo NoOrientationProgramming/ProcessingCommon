@@ -255,10 +255,11 @@ bool lockDirDefaultOpen(const string &dirBase)
 
 	string fileLock = dirBaseLocal + ".lock";
 
-	fdLockDefault = open(fileLock.c_str(), O_RDONLY | O_CREAT,
-					S_IRUSR | S_IWUSR,
-					S_IRGRP | S_IWGRP,
-					S_IROTH | S_IWOTH);
+	fdLockDefault = open(fileLock.c_str(),
+					/* flags */
+					O_RDONLY | O_CREAT,
+					/* mode */
+					S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP | S_IROTH | S_IWOTH);
 
 	if (fdLockDefault < 0)
 		return false;
