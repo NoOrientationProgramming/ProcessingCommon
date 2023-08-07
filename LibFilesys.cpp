@@ -75,6 +75,32 @@ bool maxFdsSet(rlim_t val)
 	return true;
 }
 
+bool coreDumpsEnable()
+{
+	struct rlimit lim;
+	int res;
+
+	res = getrlimit(RLIMIT_CORE, &lim);
+	if (res)
+	{
+		int numErr = errno;
+		errLog(-1, "getrlimit(CORE) failed: %s (%d)", strerror(numErr), numErr);
+		return false;
+	}
+
+	lim.rlim_cur = RLIM64_INFINITY;
+
+	res = setrlimit(RLIMIT_CORE, &lim);
+	if (res)
+	{
+		int numErr = errno;
+		errLog(-1, "setrlimit(CORE, unlimited) failed: %s (%d)", strerror(numErr), numErr);
+		return false;
+	}
+
+	return true;
+}
+
 void pipeInit(PairFd &pair)
 {
 	pair.fdRead = -1;
