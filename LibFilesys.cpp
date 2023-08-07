@@ -58,7 +58,7 @@ bool maxFdsSet(rlim_t val)
 	if (res)
 	{
 		int numErr = errno;
-		errLog(-1, "getrlimit() failed: %s (%d)", strerror(numErr), numErr);
+		errLog(-1, "getrlimit(NOFILE) failed: %s (%d)", strerror(numErr), numErr);
 		return false;
 	}
 
@@ -68,7 +68,7 @@ bool maxFdsSet(rlim_t val)
 	if (res)
 	{
 		int numErr = errno;
-		errLog(-1, "setrlimit(%u) failed: %s (%d)", val, strerror(numErr), numErr);
+		errLog(-1, "setrlimit(NOFILE, %u) failed: %s (%d)", val, strerror(numErr), numErr);
 		return false;
 	}
 
