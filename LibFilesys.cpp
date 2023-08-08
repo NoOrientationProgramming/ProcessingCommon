@@ -27,7 +27,9 @@
 #include <cstdio>
 #include <mutex>
 #include <stdarg.h>
+
 #include <unistd.h>
+#include <sys/prctl.h>
 
 #include "LibFilesys.h"
 
@@ -98,6 +100,14 @@ bool coreDumpsEnable()
 	{
 		int numErr = errno;
 		errLog(-1, "setrlimit(CORE, unlimited) failed: %s (%d)", strerror(numErr), numErr);
+		return false;
+	}
+
+	res = prctl(PR_SET_DUMPABLE, 1);
+	if (res)
+	{
+		int numErr = errno;
+		errLog(-1, "prctl(PR_SET_DUMPABLE) failed: %s (%d)", strerror(numErr), numErr);
 		return false;
 	}
 
