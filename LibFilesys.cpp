@@ -75,6 +75,9 @@ bool maxFdsSet(rlim_t val)
 	return true;
 }
 
+// - https://man7.org/linux/man-pages/man2/prctl.2.html
+// - https://man7.org/linux/man-pages/man5/core.5.html
+// - https://man7.org/linux/man-pages/man5/proc.5.html
 bool coreDumpsEnable()
 {
 	struct rlimit lim;
