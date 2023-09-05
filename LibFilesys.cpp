@@ -27,6 +27,7 @@
 #include <cstdio>
 #include <mutex>
 #include <stdarg.h>
+#include <signal.h>
 
 #include <unistd.h>
 #include <sys/prctl.h>
@@ -80,10 +81,19 @@ bool maxFdsSet(rlim_t val)
 // - https://man7.org/linux/man-pages/man2/prctl.2.html
 // - https://man7.org/linux/man-pages/man5/core.5.html
 // - https://man7.org/linux/man-pages/man5/proc.5.html
-bool coreDumpsEnable()
+bool coreDumpsEnable(void (*pFctReq)(int signum))
 {
 	struct rlimit lim;
 	int res;
+
+	if (pFctReq)
+	{
+		signal(SIGILL, pFctReq);
+		signal(SIGFPE, pFctReq);
+		signal(SIGSEGV, pFctReq);
+		signal(SIGBUS, pFctReq);
+		signal(SIGTRAP, pFctReq);
+	}
 
 	res = getrlimit(RLIMIT_CORE, &lim);
 	if (res)
