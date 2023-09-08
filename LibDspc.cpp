@@ -133,6 +133,9 @@ void hexDump(const void *pData, size_t len, size_t colWidth)
 	uint8_t numBytesPerLine = colWidth;
 	size_t i = 0;
 
+	if (!pData)
+		return;
+
 	while (len)
 	{
 		pBuf = bufLine;
