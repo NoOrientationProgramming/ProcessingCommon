@@ -51,7 +51,7 @@ void curlGlobalDeInit();
 
 // Debugging
 std::string appVersion();
-void hexDump(const void *pData, size_t len, size_t colWidth = 0x10);
+void hexDump(const void *pData, size_t len, const char *pName = NULL, size_t colWidth = 0x10);
 std::string toHexStr(const std::string &strIn);
 size_t strReplace(std::string &strIn, const std::string &strFind, const std::string &strReplacement);
 void jsonPrint(const Json::Value &val);

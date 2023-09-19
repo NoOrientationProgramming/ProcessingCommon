@@ -121,8 +121,12 @@ string appVersion()
 	return string(pVersStart, len);
 }
 
-void hexDump(const void *pData, size_t len, size_t colWidth)
+void hexDump(const void *pData, size_t len,
+			const char *pName, size_t colWidth)
 {
+	if (!pData)
+		return;
+
 	const char *pByte = (const char *)pData;
 	uint32_t addressAbs = 0;
 	char bufLine[256];
@@ -133,8 +137,8 @@ void hexDump(const void *pData, size_t len, size_t colWidth)
 	uint8_t numBytesPerLine = colWidth;
 	size_t i = 0;
 
-	if (!pData)
-		return;
+	dInfo("%p  %s", pData, pName ? pName : "Data");
+	cout << bufLine << endl;
 
 	while (len)
 	{
