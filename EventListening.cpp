@@ -77,7 +77,7 @@ Success EventListening::process()
 		if (!mpLst)
 			procErrLog(-1, "could not create process");
 
-		mpLst->portSet(4050);
+		mpLst->portSet(4050, true);
 		//mpLst->procTreeDisplaySet(true);
 
 		start(mpLst);
