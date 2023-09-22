@@ -211,6 +211,9 @@ Success EventListening::msgEnqueue(TcpTransfering *pConn)
 	if (!ok)
 		return procErrLog(-1, "could not parse event message");
 
+	if (!msgEvent.isObject() and !msgEvent.isNull())
+		return procErrLog(-1, "unsupported message format");
+
 	if (!msgEvent.isMember("refMsg"))
 		return procErrLog(-1, "could not find message reference");
 
