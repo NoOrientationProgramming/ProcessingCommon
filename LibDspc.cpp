@@ -342,3 +342,15 @@ void strToVecStr(const string &str, VecStr &vStr, char delim)
 		vStr.push_back(line);
 }
 
+// Json
+
+bool jKeyFind(const Value &val, const string &nameKey)
+{
+	bool searchable = val.isObject() or val.isNull();
+
+	if (!searchable or !val.isMember(nameKey))
+		return false;
+
+	return true;
+}
+

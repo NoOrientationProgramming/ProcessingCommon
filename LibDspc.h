@@ -69,5 +69,8 @@ std::string remoteAddr(int socketFd);
 // Strings
 void strToVecStr(const std::string &str, VecStr &vStr, char delim = '\n');
 
+// Json
+bool jKeyFind(const Json::Value &val, const std::string &nameKey);
+
 #endif
 
