@@ -27,10 +27,10 @@
 #include <cstdio>
 #include <mutex>
 #include <stdarg.h>
-#include <signal.h>
 
 #include <unistd.h>
 #include <sys/prctl.h>
+#include <signal.h>
 
 #include "LibFilesys.h"
 
