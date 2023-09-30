@@ -27,6 +27,7 @@
 #include <cstdio>
 #include <mutex>
 #include <stdarg.h>
+#include <string.h>
 
 #include <unistd.h>
 #include <sys/prctl.h>
