@@ -225,7 +225,6 @@ private:
 
 	// container & internal
 
-	uint32_t mState;
 	bool mIsInternal;
 
 	// container

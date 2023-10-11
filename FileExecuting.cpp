@@ -64,7 +64,6 @@ using namespace std;
 FileExecuting::FileExecuting()
 	: Transfering("FileExecuting")
 	// container & internal
-	, mState(StStart)
 	, mIsInternal(false)
 	// container
 	, mMsStart(0)
@@ -86,6 +85,7 @@ FileExecuting::FileExecuting()
 	, mNodeErr()
 	, mDoneAck(false)
 {
+	mState = StStart;
 	mLstExec.reserve(4);
 	mResult.idChild = -1;
 
@@ -107,7 +107,7 @@ Success FileExecuting::process()
 	vector<FileExecuting *>::iterator iter;
 	FileExecuting *pExec;
 #if 0
-	procWrnLog("mState = %s", ProcStateString[mState]);
+	dStateTrace;
 #endif
 	switch (mState)
 	{
