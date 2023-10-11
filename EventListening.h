@@ -80,7 +80,6 @@ private:
 	void dequeueTimeoutsCheck();
 
 	/* member variables */
-	uint32_t mState;
 	uint32_t mStartMs;
 	TcpListening *mpLst;
 	std::list<OpenEventConn> mConnsOpen;

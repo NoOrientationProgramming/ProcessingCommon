@@ -53,11 +53,12 @@ const uint32_t cMsDelayDequeueMax = 600;
 
 EventListening::EventListening()
 	: Processing("EventListening")
-	, mState(StStart)
 	, mStartMs(0)
 	, mpLst(NULL)
 	, mLenBuf(0)
-{}
+{
+	mState = StStart;
+}
 
 /* member functions */
 
@@ -67,7 +68,7 @@ Success EventListening::process()
 	//uint32_t diffMs = curTimeMs - mStartMs;
 	//Success success;
 #if 0
-	procWrnLog("mState = %s", ProcStateString[mState]);
+	dStateTrace;
 #endif
 	switch (mState)
 	{
