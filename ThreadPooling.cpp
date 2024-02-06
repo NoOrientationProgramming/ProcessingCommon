@@ -31,7 +31,6 @@
 		gen(StBrokerMain) \
 		gen(StInternalStart) \
 		gen(StInternalMain) \
-		gen(StTmp) \
 
 #define dGenProcStateEnum(s) s,
 dProcessStateEnum(ProcState);
@@ -45,12 +44,15 @@ using namespace std;
 
 #define LOG_LVL	0
 
+Pipe<PoolRequest> ThreadPooling::ppPoolRequests;
+
 ThreadPooling::ThreadPooling()
 	: Processing("ThreadPooling")
 	, mStartMs(0)
-	, mCntWorker(0)
+	, mCntInternals(0)
 	, mpFctDriverCreate(NULL)
 	, mIsInternal(false)
+	, mNumFinished(0)
 {
 	mState = StStart;
 }
@@ -59,7 +61,7 @@ ThreadPooling::ThreadPooling()
 
 void ThreadPooling::workerCntSet(uint16_t cnt)
 {
-	mCntWorker = cnt;
+	mCntInternals = cnt;
 }
 
 void ThreadPooling::driverCreateFctSet(FctDriverCreate pFctDriverCreate)
@@ -72,6 +74,7 @@ Success ThreadPooling::process()
 	//uint32_t curTimeMs = millis();
 	//uint32_t diffMs = curTimeMs - mStartMs;
 	//Success success;
+	int32_t idDriver = 0;
 #if 0
 	dStateTrace;
 #endif
@@ -90,32 +93,51 @@ Success ThreadPooling::process()
 		break;
 	case StBrokerStart:
 
-		if (!mCntWorker)
+		if (!mCntInternals)
 			return procErrLog(-1, "no workers configured");
 
-		for (uint16_t i = 0; i < mCntWorker; ++i)
-		{
-			ThreadPooling *pWorker;
+		mVecInternals.reserve(mCntInternals);
 
-			pWorker = ThreadPooling::create();
-			if (!pWorker)
+		for (uint16_t i = 0; i < mCntInternals; ++i)
+		{
+			ThreadPooling *pInternal;
+
+			pInternal = ThreadPooling::create();
+			if (!pInternal)
 				return procErrLog(-1, "could not create thread pool worker");
 
-			pWorker->mIsInternal = true;
+			pInternal->mIsInternal = true;
+			mVecInternals.push_back(pInternal);
 
 			if (mpFctDriverCreate)
 			{
-				start(pWorker, DrivenByExternalDriver);
-				mpFctDriverCreate(pWorker, i);
+				start(pInternal, DrivenByExternalDriver);
+				mpFctDriverCreate(pInternal, i);
 			}
 			else
-				start(pWorker, DrivenByNewInternalDriver);
+				start(pInternal, DrivenByNewInternalDriver);
 		}
 
 		mState = StBrokerMain;
 
 		break;
 	case StBrokerMain:
+
+		PipeEntry<PoolRequest> entryReq;
+		PoolRequest req;
+
+		if (!ppPoolRequests.get(entryReq))
+			break;
+		req = entryReq.particle;
+
+		procWrnLog("pool request received");
+
+		if (req.idDriverDesired >= 0 and req.idDriverDesired < mCntInternals)
+			idDriver = req.idDriverDesired;
+		else
+			idDriver = idDriverNextGet();
+
+		mVecInternals[idDriver]->mListProcs.push_back(req.pProc);
 
 		break;
 	case StInternalStart:
@@ -125,8 +147,7 @@ Success ThreadPooling::process()
 		break;
 	case StInternalMain:
 
-		break;
-	case StTmp:
+		procsDrive();
 
 		break;
 	default:
@@ -136,9 +157,55 @@ Success ThreadPooling::process()
 	return Pending;
 }
 
-void ThreadPooling::procAdd(Processing *pProc)
+void ThreadPooling::procsDrive()
 {
+	list<Processing *>::iterator iter;
+	Processing *pProc;
+
+	iter = mListProcs.begin();
+	while (iter != mListProcs.end())
+	{
+		pProc = *iter;
+
+		pProc->treeTick();
+
+		if (pProc->progress())
+		{
+			++iter;
+			continue;
+		}
+
+		procWrnLog("finished driving process %p", pProc);
+		++mNumFinished;
+
+		undrivenSet(pProc);
+		iter = mListProcs.erase(iter);
+	}
+}
+
+int32_t ThreadPooling::idDriverNextGet()
+{
+	int32_t idSelected = 0;
+
+	for (size_t i = 1; i < mVecInternals.size(); ++i)
+	{
+		if (mVecInternals[i]->mListProcs.size() <
+			mVecInternals[idSelected]->mListProcs.size())
+			idSelected = i;
+	}
+
+	return idSelected;
+}
+
+void ThreadPooling::procAdd(Processing *pProc, int32_t idDriver)
+{
+	PoolRequest req;
+
+	req.pProc = pProc;
+	req.idDriverDesired = idDriver;
+
 	infLog("adding proc %p to queue", pProc);
+	ppPoolRequests.commit(req);
 }
 
 void ThreadPooling::processInfo(char *pBuf, char *pBufEnd)
@@ -146,6 +213,11 @@ void ThreadPooling::processInfo(char *pBuf, char *pBufEnd)
 #if 1
 	dInfo("State\t\t\t%s\n", ProcStateString[mState]);
 #endif
+	if (mIsInternal)
+	{
+		dInfo("Num working\t\t%zu\n", mListProcs.size());
+		dInfo("Num finished\t\t%lu\n", mNumFinished);
+	}
 }
 
 /* static functions */

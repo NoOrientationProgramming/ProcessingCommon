@@ -27,8 +27,15 @@
 #define THREAD_POOLING_H
 
 #include "Processing.h"
+#include "Pipe.h"
 
 typedef void (*FctDriverCreate)(Processing *pProc, uint16_t idProc);
+
+struct PoolRequest
+{
+	Processing *pProc;
+	int32_t idDriverDesired;
+};
 
 class ThreadPooling : public Processing
 {
@@ -43,7 +50,7 @@ public:
 	void workerCntSet(uint16_t cnt);
 	void driverCreateFctSet(FctDriverCreate pFctDriverCreate);
 
-	static void procAdd(Processing *pProc);
+	static void procAdd(Processing *pProc, int32_t idDriver = -1);
 
 protected:
 
@@ -64,22 +71,28 @@ private:
 	Success process();
 	void processInfo(char *pBuf, char *pBufEnd);
 
+	int32_t idDriverNextGet();
+	void procsDrive();
+
 	/* member variables */
 	uint32_t mStartMs;
 
 	// Common
 
 	// Broker
-	uint16_t mCntWorker;
-	std::list<ThreadPooling *> mListWorkers;
+	uint16_t mCntInternals;
+	std::vector<ThreadPooling *> mVecInternals;
 	FctDriverCreate mpFctDriverCreate;
 
 	// Internal
 	bool mIsInternal;
+	uint32_t mNumFinished;
+	std::list<Processing *> mListProcs;
 
 	/* static functions */
 
 	/* static variables */
+	static Pipe<PoolRequest> ppPoolRequests;
 
 	/* constants */
 
