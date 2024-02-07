@@ -25,7 +25,7 @@
 
 #include <cinttypes>
 
-#include "LedPulsing.h"
+#include "EspLedPulsing.h"
 #include "LibTime.h"
 
 #define dForEach_ProcState(gen) \
@@ -48,8 +48,8 @@ using namespace std;
 
 #define LOG_LVL	0
 
-LedPulsing::LedPulsing()
-	: Processing("LedPulsing")
+EspLedPulsing::EspLedPulsing()
+	: Processing("EspLedPulsing")
 	, mStartMs(0)
 	, mPin(0)
 	, mCount(1)
@@ -64,7 +64,7 @@ LedPulsing::LedPulsing()
 
 /* member functions */
 
-void LedPulsing::pinSet(uint8_t id)
+void EspLedPulsing::pinSet(uint8_t id)
 {
 	mPin = id;
 }
@@ -78,7 +78,7 @@ void LedPulsing::pinSet(uint8_t id)
 //  |        | .. Period
 //  |  | .. Width
 //
-void LedPulsing::paramSet(uint32_t width, uint32_t period, uint8_t count, uint32_t gap)
+void EspLedPulsing::paramSet(uint32_t width, uint32_t period, uint8_t count, uint32_t gap)
 {
 	mWidth = width;
 	mPeriod = period;
@@ -86,7 +86,7 @@ void LedPulsing::paramSet(uint32_t width, uint32_t period, uint8_t count, uint32
 	mGap = gap;
 }
 
-Success LedPulsing::process()
+Success EspLedPulsing::process()
 {
 	uint32_t curTimeMs = millis();
 	uint32_t diffMs = curTimeMs - mStartMs;
@@ -167,7 +167,7 @@ Success LedPulsing::process()
 	return Pending;
 }
 
-Success LedPulsing::shutdown()
+Success EspLedPulsing::shutdown()
 {
 	if (mPin)
 		gpio_set_level((gpio_num_t)mPin, 0);
@@ -175,7 +175,7 @@ Success LedPulsing::shutdown()
 	return Positive;
 }
 
-Success LedPulsing::gpioInit()
+Success EspLedPulsing::gpioInit()
 {
 	gpio_config_t ioConf = {};
 	esp_err_t res;
@@ -194,7 +194,7 @@ Success LedPulsing::gpioInit()
 	return Positive;
 }
 
-void LedPulsing::processInfo(char *pBuf, char *pBufEnd)
+void EspLedPulsing::processInfo(char *pBuf, char *pBufEnd)
 {
 #if 0
 	dInfo("State\t\t\t%s\n", ProcStateString[mState]);

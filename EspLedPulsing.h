@@ -23,21 +23,21 @@
   along with this program. If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef LED_PULSING_H
-#define LED_PULSING_H
+#ifndef ESP_LED_PULSING_H
+#define ESP_LED_PULSING_H
 
 #include <driver/gpio.h>
 
 #include "Processing.h"
 
-class LedPulsing : public Processing
+class EspLedPulsing : public Processing
 {
 
 public:
 
-	static LedPulsing *create()
+	static EspLedPulsing *create()
 	{
-		return new (std::nothrow) LedPulsing;
+		return new (std::nothrow) EspLedPulsing;
 	}
 
 	void pinSet(uint8_t id);
@@ -47,13 +47,13 @@ public:
 
 protected:
 
-	LedPulsing();
-	virtual ~LedPulsing() {}
+	EspLedPulsing();
+	virtual ~EspLedPulsing() {}
 
 private:
 
-	LedPulsing(const LedPulsing &) : Processing("") {}
-	LedPulsing &operator=(const LedPulsing &) { return *this; }
+	EspLedPulsing(const EspLedPulsing &) : Processing("") {}
+	EspLedPulsing &operator=(const EspLedPulsing &) { return *this; }
 
 	/*
 	 * Naming of functions:  objectVerb()
