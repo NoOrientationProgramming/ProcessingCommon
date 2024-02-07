@@ -3,7 +3,7 @@ idf_component_register(
 	SRCS
 	"ThreadPooling.cpp"
 	"LibTime.cpp"
-	"LedPulsing.cpp"
+	"EspLedPulsing.cpp"
 	INCLUDE_DIRS
 	"."
 	REQUIRES
