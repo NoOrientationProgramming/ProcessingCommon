@@ -69,15 +69,15 @@ private:
 
 	/* member functions */
 	Success process();
+	Success shutdown();
 	void processInfo(char *pBuf, char *pBufEnd);
 
 	int32_t idDriverNextGet();
 	void procsDrive();
 
 	/* member variables */
+	uint32_t mStateSd;
 	uint32_t mStartMs;
-
-	// Common
 
 	// Broker
 	uint16_t mCntInternals;

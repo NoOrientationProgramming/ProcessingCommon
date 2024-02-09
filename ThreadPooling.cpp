@@ -35,19 +35,31 @@
 #define dGenProcStateEnum(s) s,
 dProcessStateEnum(ProcState);
 
+#define dForEach_SdState(gen) \
+		gen(StSdStart) \
+		gen(StBrokerSdStart) \
+		gen(StInternalSdStart) \
+		gen(StInternalSdMain) \
+
+#define dGenSdStateEnum(s) s,
+dProcessStateEnum(SdState);
+
 #if 1
 #define dGenProcStateString(s) #s,
 dProcessStateStr(ProcState);
+#define dGenSdStateString(s) #s,
+dProcessStateStr(SdState);
 #endif
 
 using namespace std;
 
-#define LOG_LVL	0
+#define LOG_LVL	1
 
 Pipe<PoolRequest> ThreadPooling::ppPoolRequests;
 
 ThreadPooling::ThreadPooling()
 	: Processing("ThreadPooling")
+	, mStateSd(StSdStart)
 	, mStartMs(0)
 	, mCntInternals(0)
 	, mpFctDriverCreate(NULL)
@@ -130,7 +142,7 @@ Success ThreadPooling::process()
 			break;
 		req = entryReq.particle;
 
-		procWrnLog("pool request received");
+		procDbgLog(LOG_LVL, "pool request received");
 
 		if (req.idDriverDesired >= 0 and req.idDriverDesired < mCntInternals)
 			idDriver = req.idDriverDesired;
@@ -148,6 +160,56 @@ Success ThreadPooling::process()
 	case StInternalMain:
 
 		procsDrive();
+
+		break;
+	default:
+		break;
+	}
+
+	return Pending;
+}
+
+Success ThreadPooling::shutdown()
+{
+	switch (mStateSd)
+	{
+	case StSdStart:
+
+		if (mIsInternal)
+		{
+			mStateSd = StInternalSdStart;
+			break;
+		}
+
+		mStateSd = StBrokerSdStart;
+
+		break;
+	case StBrokerSdStart:
+
+		return Positive;
+
+		break;
+	case StInternalSdStart:
+
+		if (mListProcs.size())
+		{
+			procWrnLog("driving not finished");
+
+			mStateSd = StInternalSdMain;
+			break;
+		}
+
+		return Positive;
+
+		break;
+	case StInternalSdMain:
+
+		procsDrive();
+
+		if (mListProcs.size())
+			break;
+
+		return Positive;
 
 		break;
 	default:
@@ -175,7 +237,7 @@ void ThreadPooling::procsDrive()
 			continue;
 		}
 
-		procWrnLog("finished driving process %p", pProc);
+		procDbgLog(LOG_LVL, "finished driving process %p", pProc);
 		++mNumFinished;
 
 		undrivenSet(pProc);
@@ -204,7 +266,7 @@ void ThreadPooling::procAdd(Processing *pProc, int32_t idDriver)
 	req.pProc = pProc;
 	req.idDriverDesired = idDriver;
 
-	infLog("adding proc %p to queue", pProc);
+	dbgLog(LOG_LVL, "adding proc %p to queue", pProc);
 	ppPoolRequests.commit(req);
 }
 
@@ -212,12 +274,13 @@ void ThreadPooling::processInfo(char *pBuf, char *pBufEnd)
 {
 #if 1
 	dInfo("State\t\t\t%s\n", ProcStateString[mState]);
+	dInfo("State shutdown\t\t%s\n", SdStateString[mStateSd]);
 #endif
-	if (mIsInternal)
-	{
-		dInfo("Num working\t\t%zu\n", mListProcs.size());
-		dInfo("Num finished\t\t%lu\n", mNumFinished);
-	}
+	if (!mIsInternal)
+		return;
+
+	dInfo("Processing\t\t%zu\n", mListProcs.size());
+	//dInfo("Finished\t\t%lu\n", mNumFinished);
 }
 
 /* static functions */
