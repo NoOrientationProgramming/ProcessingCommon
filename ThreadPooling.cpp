@@ -168,6 +168,8 @@ Success ThreadPooling::process()
 
 Success ThreadPooling::shutdown()
 {
+	uint16_t i;
+
 	switch (mStateSd)
 	{
 	case StSdStart:
@@ -178,10 +180,19 @@ Success ThreadPooling::shutdown()
 			break;
 		}
 
+		for (i = 0; i < mCntInternals; ++i)
+			cancel(mVecInternals[i]);
+
 		mStateSd = StBrokerSdStart;
 
 		break;
 	case StBrokerSdStart:
+
+		for (i = 0; i < mCntInternals; ++i)
+		{
+			if (!mVecInternals[i]->shutdownDone())
+				return Pending;
+		}
 
 		return Positive;
 
