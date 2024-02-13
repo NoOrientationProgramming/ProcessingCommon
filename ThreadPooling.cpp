@@ -44,7 +44,7 @@ dProcessStateEnum(ProcState);
 #define dGenSdStateEnum(s) s,
 dProcessStateEnum(SdState);
 
-#if 1
+#if 0
 #define dGenProcStateString(s) #s,
 dProcessStateStr(ProcState);
 #define dGenSdStateString(s) #s,
@@ -281,7 +281,7 @@ void ThreadPooling::procAdd(Processing *pProc, int32_t idDriver)
 
 void ThreadPooling::processInfo(char *pBuf, char *pBufEnd)
 {
-#if 1
+#if 0
 	dInfo("State\t\t\t%s\n", ProcStateString[mState]);
 	dInfo("State shutdown\t\t%s\n", SdStateString[mStateSd]);
 #endif
