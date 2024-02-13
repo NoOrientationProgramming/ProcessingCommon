@@ -77,7 +77,6 @@ private:
 
 	/* member variables */
 	uint32_t mStateSd;
-	uint32_t mStartMs;
 
 	// Broker
 	uint16_t mCntInternals;

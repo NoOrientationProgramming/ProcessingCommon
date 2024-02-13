@@ -60,7 +60,6 @@ Pipe<PoolRequest> ThreadPooling::ppPoolRequests;
 ThreadPooling::ThreadPooling()
 	: Processing("ThreadPooling")
 	, mStateSd(StSdStart)
-	, mStartMs(0)
 	, mCntInternals(0)
 	, mpFctDriverCreate(NULL)
 	, mIsInternal(false)
@@ -83,8 +82,6 @@ void ThreadPooling::driverCreateFctSet(FctDriverCreate pFctDriverCreate)
 
 Success ThreadPooling::process()
 {
-	//uint32_t curTimeMs = millis();
-	//uint32_t diffMs = curTimeMs - mStartMs;
 	//Success success;
 	int32_t idDriver = 0;
 #if 0
