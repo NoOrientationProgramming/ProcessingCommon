@@ -63,7 +63,9 @@ ThreadPooling::ThreadPooling()
 	, mCntInternals(0)
 	, mpFctDriverCreate(NULL)
 	, mIsInternal(false)
+	, mNumProcessing(0)
 	, mNumFinished(0)
+	, mMtxBrokerInternal()
 {
 	mState = StStart;
 }
@@ -146,8 +148,7 @@ Success ThreadPooling::process()
 		else
 			idDriver = idDriverNextGet();
 
-		// TODO: Lock!
-		mVecInternals[idDriver]->mListProcs.push_back(req.pProc);
+		mVecInternals[idDriver]->procInternalAdd(req.pProc);
 
 		break;
 	case StInternalStart:
@@ -200,6 +201,8 @@ Success ThreadPooling::shutdown()
 		break;
 	case StInternalSdStart:
 
+		procsDrive();
+
 		if (mListProcs.size())
 		{
 			procWrnLog("driving not finished");
@@ -233,6 +236,11 @@ void ThreadPooling::procsDrive()
 	list<Processing *>::iterator iter;
 	Processing *pProc;
 
+	{
+		Guard lock(mMtxBrokerInternal);
+		mListProcs.splice(mListProcs.end(), mListProcsReq);
+	}
+
 	iter = mListProcs.begin();
 	while (iter != mListProcs.end())
 	{
@@ -247,6 +255,10 @@ void ThreadPooling::procsDrive()
 		}
 
 		procDbgLog(LOG_LVL, "finished driving process %p", pProc);
+		{
+			Guard lock(mMtxBrokerInternal);
+			--mNumProcessing;
+		}
 		++mNumFinished;
 
 		undrivenSet(pProc);
@@ -260,12 +272,26 @@ int32_t ThreadPooling::idDriverNextGet()
 
 	for (size_t i = 1; i < mVecInternals.size(); ++i)
 	{
-		if (mVecInternals[i]->mListProcs.size() <
-			mVecInternals[idSelected]->mListProcs.size())
+		if (mVecInternals[i]->numProcessingGet() <
+			mVecInternals[idSelected]->numProcessingGet())
 			idSelected = i;
 	}
 
 	return idSelected;
+}
+
+size_t ThreadPooling::numProcessingGet()
+{
+	Guard lock(mMtxBrokerInternal);
+	return mNumProcessing;
+}
+
+// Executed by broker (different driver)
+void ThreadPooling::procInternalAdd(Processing *pProc)
+{
+	Guard lock(mMtxBrokerInternal);
+	mListProcsReq.push_back(pProc);
+	++mNumProcessing;
 }
 
 void ThreadPooling::procAdd(Processing *pProc, int32_t idDriver)
@@ -288,8 +314,8 @@ void ThreadPooling::processInfo(char *pBuf, char *pBufEnd)
 	if (!mIsInternal)
 		return;
 
-	dInfo("Processing\t\t%zu\n", mListProcs.size());
-	//dInfo("Finished\t\t%lu\n", mNumFinished);
+	dInfo("Processing\t\t%zu\n", mNumProcessing);
+	//dInfo("Finished\t\t%zu\n", mNumFinished);
 }
 
 /* static functions */

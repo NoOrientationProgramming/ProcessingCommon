@@ -26,6 +26,10 @@
 #ifndef THREAD_POOLING_H
 #define THREAD_POOLING_H
 
+#include <vector>
+#include <list>
+#include <mutex>
+
 #include "Processing.h"
 #include "Pipe.h"
 
@@ -74,6 +78,8 @@ private:
 
 	int32_t idDriverNextGet();
 	void procsDrive();
+	size_t numProcessingGet();
+	void procInternalAdd(Processing *pProc);
 
 	/* member variables */
 	uint32_t mStateSd;
@@ -85,8 +91,11 @@ private:
 
 	// Internal
 	bool mIsInternal;
-	uint32_t mNumFinished;
+	size_t mNumProcessing;
+	size_t mNumFinished;
+	std::list<Processing *> mListProcsReq;
 	std::list<Processing *> mListProcs;
+	std::mutex mMtxBrokerInternal;
 
 	/* static functions */
 
