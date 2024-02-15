@@ -268,13 +268,22 @@ void ThreadPooling::procsDrive()
 
 int32_t ThreadPooling::idDriverNextGet()
 {
+	size_t idCurrent = 1;
+	size_t numProcessingCurrent;
 	int32_t idSelected = 0;
+	size_t numProcessingSelected =
+			mVecInternals[idSelected]->numProcessingGet();
 
-	for (size_t i = 1; i < mVecInternals.size(); ++i)
+	for (; idCurrent < mVecInternals.size(); ++idCurrent)
 	{
-		if (mVecInternals[i]->numProcessingGet() <
-			mVecInternals[idSelected]->numProcessingGet())
-			idSelected = i;
+		numProcessingCurrent =
+			mVecInternals[idCurrent]->numProcessingGet();
+
+		if (numProcessingCurrent >= numProcessingSelected)
+			continue;
+		numProcessingSelected = numProcessingCurrent;
+
+		idSelected = idCurrent;
 	}
 
 	return idSelected;
