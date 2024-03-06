@@ -165,7 +165,7 @@ Success FileExecuting::process()
 		if (res < 0)
 			return procErrLog(-1, "could not create pipe (stdin): %s", strerror(errno));
 
-		pipeUsed = mNodeOut.manualEnabled or mNodeOut.autoEnabled;
+		pipeUsed = mNodeOut.manualEnabled || mNodeOut.autoEnabled;
 		if (pipeUsed)
 			res = pipe(&mNodeOut.pipe.fdRead);
 		else
@@ -176,7 +176,7 @@ Success FileExecuting::process()
 					pipeUsed ? "pipe" : "write fd",
 					strerror(errno));
 
-		pipeUsed = mNodeErr.manualEnabled or mNodeErr.autoEnabled;
+		pipeUsed = mNodeErr.manualEnabled || mNodeErr.autoEnabled;
 		if (pipeUsed)
 			res = pipe(&mNodeErr.pipe.fdRead);
 		else
@@ -275,7 +275,7 @@ Success FileExecuting::process()
 		fdClose(mNodeOut.pipe.fdWrite);
 		fdClose(mNodeErr.pipe.fdWrite);
 
-		pipeUsed = mNodeIn.manualEnabled or mNodeIn.autoEnabled;
+		pipeUsed = mNodeIn.manualEnabled || mNodeIn.autoEnabled;
 		if (!pipeUsed)
 			fdClose(mNodeIn.pipe.fdWrite);
 
@@ -306,7 +306,7 @@ Success FileExecuting::process()
 		break;
 	case StSinksReadyWait:
 
-		ok = sinksReady(&mNodeOut) and sinksReady(&mNodeErr);
+		ok = sinksReady(&mNodeOut) && sinksReady(&mNodeErr);
 		if (!ok)
 			break;
 
@@ -315,7 +315,7 @@ Success FileExecuting::process()
 		break;
 	case StChildSupervise:
 
-		if (mDone and not mDoneAck)
+		if (mDone && !mDoneAck)
 		{
 			autoSourceDone();
 			mDoneAck = true;
@@ -327,7 +327,7 @@ Success FileExecuting::process()
 		autoSink(&mNodeErr);
 
 		success = childStateRecord();
-		if (success != Pending and success != Positive)
+		if (success != Pending && success != Positive)
 			return procErrLog(-1, "chould not record child state");
 
 		if (!mpResult->childTerminated)
@@ -349,10 +349,10 @@ Success FileExecuting::process()
 		break;
 	case StInternalsSupervise:
 
-		if (!mSendReady and mLstExec.front()->mSendReady)
+		if (!mSendReady && mLstExec.front()->mSendReady)
 			mSendReady = true;
 
-		if (!mReadReady and mLstExec.back()->mReadReady)
+		if (!mReadReady && mLstExec.back()->mReadReady)
 			mReadReady = true;
 
 		if (mDone)
@@ -400,10 +400,10 @@ Success FileExecuting::childStateRecord()
 
 	idProc = waitpid(mpResult->idChild, &res, WNOHANG | WUNTRACED | WCONTINUED);
 
-	if (idProc < 0 and errno != EAGAIN)
+	if (idProc < 0 && errno != EAGAIN)
 		return procErrLog(-1, "could not wait for child: %s", strerror(errno));
 
-	if (!idProc or (idProc < 0 and errno == EAGAIN))
+	if (!idProc || (idProc < 0 && errno == EAGAIN))
 		return Pending;
 
 	//procWrnLog("state of child changed");
@@ -452,7 +452,7 @@ Success FileExecuting::childStateRecord()
 
 void FileExecuting::autoSource(FeNode *pNode)
 {
-	if (!pNode or !pNode->autoEnabled)
+	if (!pNode || !pNode->autoEnabled)
 		return;
 
 	if (pNode->autoDone)
@@ -503,9 +503,9 @@ void FileExecuting::autoSource(FeNode *pNode)
 			lenDone = ::read(pFd->fd, buf, lenPlanned);
 
 			isErr = lenDone < 0;
-			wouldBlock = isErr and ((errno == EAGAIN) or (errno == EWOULDBLOCK));
-			isErrFinal = isErr and not wouldBlock;
-			isDone = !lenDone or wouldBlock or isErrFinal;
+			wouldBlock = isErr && ((errno == EAGAIN) || (errno == EWOULDBLOCK));
+			isErrFinal = isErr && !wouldBlock;
+			isDone = !lenDone || wouldBlock || isErrFinal;
 
 			if (isDone)
 			{
@@ -603,7 +603,7 @@ void FileExecuting::autoSourceDone()
 
 void FileExecuting::autoSink(FeNode *pNode)
 {
-	if (!pNode or !pNode->autoEnabled)
+	if (!pNode || !pNode->autoEnabled)
 		return;
 
 	if (pNode->autoDone)
@@ -1001,7 +1001,7 @@ FileExecuting &FileExecuting::envSet(const VecConstChar &envv, bool dropOld)
 
 	FileExecuting *pExec = mLstExec[idx];
 
-	for (char **pEnv = environ; (not dropOld) and *pEnv; ++pEnv)
+	for (char **pEnv = environ; (!dropOld) && *pEnv; ++pEnv)
 		pExec->mEnv.push_back(*pEnv);
 
 	pExec->mEnv.insert(pExec->mEnv.end(), envv.begin(), envv.end());
@@ -1256,7 +1256,7 @@ int FileExecuting::intRet(ssize_t idx, size_t offs)
 
 ssize_t FileExecuting::send(const void *pData, size_t lenReq)
 {
-	if (!mIsInternal and mLstExec.size())
+	if (!mIsInternal && mLstExec.size())
 		return mLstExec.front()->send(pData, lenReq);
 
 	if (mNodeIn.autoEnabled)
@@ -1270,7 +1270,7 @@ ssize_t FileExecuting::send(const void *pData, size_t lenReq)
 
 ssize_t FileExecuting::intSend(const void *pData, size_t lenReq)
 {
-	if (!pData or !lenReq)
+	if (!pData || !lenReq)
 		return procErrLog(-1, "could not send data. Buffer not set");
 
 	Guard lock(mMtxWrite);
@@ -1322,7 +1322,7 @@ ssize_t FileExecuting::sinkRead(void *pBuf, size_t lenReq, int fdSel)
 {
 	FeNode *pNode = fdSel == STDOUT_FILENO ? &mNodeOut : &mNodeErr;
 
-	if (!mIsInternal and mLstExec.size())
+	if (!mIsInternal && mLstExec.size())
 		return mLstExec.back()->sinkRead(pBuf, lenReq, fdSel);
 
 	if (pNode->autoEnabled)
@@ -1336,7 +1336,7 @@ ssize_t FileExecuting::sinkRead(void *pBuf, size_t lenReq, int fdSel)
 
 ssize_t FileExecuting::intSinkRead(void *pBuf, size_t lenReq, FeNode *pNode)
 {
-	if (!pBuf or !lenReq)
+	if (!pBuf || !lenReq)
 		return -1;
 
 	Guard lock(mMtxRead);
@@ -1357,9 +1357,9 @@ ssize_t FileExecuting::intSinkRead(void *pBuf, size_t lenReq, FeNode *pNode)
 	lenRead = ::read(fdRead, (char *)pBuf, lenReq);
 
 	bool isErr = lenRead < 0;
-	bool wouldBlock = isErr and ((errno == EAGAIN) or (errno == EWOULDBLOCK));
-	bool isErrFinal = isErr and not wouldBlock;
-	bool isDone = !lenRead or (wouldBlock and mpResult->childTerminated) or isErrFinal;
+	bool wouldBlock = isErr && ((errno == EAGAIN) || (errno == EWOULDBLOCK));
+	bool isErrFinal = isErr && !wouldBlock;
+	bool isDone = !lenRead || (wouldBlock && mpResult->childTerminated) || isErrFinal;
 
 	if (isDone)
 		fdClose(fdRead);

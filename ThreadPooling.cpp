@@ -143,7 +143,7 @@ Success ThreadPooling::process()
 
 		procDbgLog(LOG_LVL, "pool request received");
 
-		if (req.idDriverDesired >= 0 and req.idDriverDesired < mCntInternals)
+		if (req.idDriverDesired >= 0 && req.idDriverDesired < mCntInternals)
 			idDriver = req.idDriverDesired;
 		else
 			idDriver = idDriverNextGet();

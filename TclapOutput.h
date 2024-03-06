@@ -48,7 +48,7 @@ public:
 		std::list<TCLAP::Arg*> args = c.getArgList();
 		for (TCLAP::ArgListIterator it = args.begin(); it != args.end(); it++) {
 			tmp = (*it)->longID();
-			if ((*it)->isRequired() and tmp.find(",") != std::string::npos) {
+			if ((*it)->isRequired() && tmp.find(",") != std::string::npos) {
 				tmp.erase(2, tmp.find(",") - 2);
 				std::cout << std::setw(2) << " ";
 				std::cout << std::setw(35) << std::left << tmp;
@@ -59,7 +59,7 @@ public:
 		}
 		for (TCLAP::ArgListIterator it = args.begin(); it != args.end(); it++) {
 			tmp = (*it)->longID();
-			if ((*it)->isRequired() and tmp.find(",") == std::string::npos) {
+			if ((*it)->isRequired() && tmp.find(",") == std::string::npos) {
 				std::cout << std::setw(7) << " ";
 				std::cout << std::setw(30) << std::left << tmp;
 				tmp = (*it)->getDescription();
@@ -74,7 +74,7 @@ public:
 
 		for (TCLAP::ArgListIterator it = args.begin(); it != args.end(); it++) {
 			tmp = (*it)->longID();
-			if (!(*it)->isRequired() and tmp.find(",") != std::string::npos) {
+			if (!(*it)->isRequired() && tmp.find(",") != std::string::npos) {
 				tmp.erase(2, tmp.find(",") - 2);
 				std::cout << std::setw(2) << " ";
 				std::cout << std::setw(35) << std::left << tmp;
@@ -83,7 +83,7 @@ public:
 		}
 		for (TCLAP::ArgListIterator it = args.begin(); it != args.end(); it++) {
 			tmp = (*it)->longID();
-			if (!(*it)->isRequired() and tmp.find(",") == std::string::npos) {
+			if (!(*it)->isRequired() && tmp.find(",") == std::string::npos) {
 				std::cout << std::setw(7) << " ";
 				std::cout << std::setw(30) << std::left << tmp;
 				std::cout << (*it)->getDescription() << std::endl;

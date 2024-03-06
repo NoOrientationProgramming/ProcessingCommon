@@ -141,7 +141,7 @@ void pipeClose(PairFd &pair, bool deInit)
 // - https://man7.org/linux/man-pages/man3/fopen.3.html
 int fdCreate(const std::string &path, const std::string &mode, bool closeOnExec)
 {
-	if (!path.size() or !mode.size())
+	if (!path.size() || !mode.size())
 		return -1;
 
 	int flags = 0;
@@ -368,7 +368,7 @@ Success sysFlagsIntLock(void *pRequester, const char *filename, const char *func
 		res = flock(fdLockDefault, LOCK_EX | LOCK_NB);
 	}
 
-	if (res and errno == EWOULDBLOCK)
+	if (res && errno == EWOULDBLOCK)
 		return Pending;
 
 	if (res)

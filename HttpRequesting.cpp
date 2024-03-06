@@ -314,7 +314,7 @@ Success HttpRequesting::easyHandleCreate()
 		curl_easy_setopt(mpCurl, CURLOPT_HTTPHEADER, mpHeaderList);
 	}
 
-	if (mType == "post" or mType == "put")
+	if (mType == "post" || mType == "put")
 		curl_easy_setopt(mpCurl, CURLOPT_POSTFIELDS, mData.c_str());
 
 	if (mUserPw.size())
@@ -395,7 +395,7 @@ Success HttpRequesting::sessionCreate(const std::string &address, const uint16_t
 	{
 		procDbgLog(LOG_LVL, "%d %s %d", iter->numReferences, iter->address.c_str(), iter->port);
 
-		if (iter->address == address and iter->port == port)
+		if (iter->address == address && iter->port == port)
 		{
 			mSession = iter;
 			sessionFound = true;
@@ -499,7 +499,7 @@ void HttpRequesting::sessionTerminate()
 void HttpRequesting::sharedDataMtxListDelete()
 {
 	size_t i = 0;
-	while (i < numSharedDataTypes and mSession->sharedDataMtxList[i])
+	while (i < numSharedDataTypes && mSession->sharedDataMtxList[i])
 		delete mSession->sharedDataMtxList[i++];
 }
 

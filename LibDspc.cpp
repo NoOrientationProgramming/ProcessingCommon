@@ -173,7 +173,7 @@ void hexDump(const void *pData, size_t len,
 		{
 			char c = *pLine;
 
-			if (c < 32 or c > 126)
+			if (c < 32 || c > 126)
 			{
 				*pBuf = '.';
 				continue;
@@ -271,13 +271,13 @@ bool isValidSha256(const string &digest)
 
 	for (size_t i = 0; i < digest.size(); ++i, ++pCh)
 	{
-		if (*pCh >= '0' and *pCh <= '9')
+		if (*pCh >= '0' && *pCh <= '9')
 			continue;
 
-		if (*pCh >= 'a' and *pCh <= 'f')
+		if (*pCh >= 'a' && *pCh <= 'f')
 			continue;
 
-		if (*pCh >= 'A' and *pCh <= 'F')
+		if (*pCh >= 'A' && *pCh <= 'F')
 			continue;
 
 		return false;
@@ -312,7 +312,7 @@ bool isValidIp4(const string &ip)
 	if (res != 4)
 		return false;
 
-	if (!n1 or (n1 > 255) or (n2 > 255) or (n3 > 255) or (n4 > 255))
+	if (!n1 || (n1 > 255) || (n2 > 255) || (n3 > 255) || (n4 > 255))
 		return false;
 
 	return true;
@@ -346,9 +346,9 @@ void strToVecStr(const string &str, VecStr &vStr, char delim)
 
 bool jKeyFind(const Value &val, const string &nameKey)
 {
-	bool searchable = val.isObject() or val.isNull();
+	bool searchable = val.isObject() || val.isNull();
 
-	if (!searchable or !val.isMember(nameKey))
+	if (!searchable || !val.isMember(nameKey))
 		return false;
 
 	return true;
