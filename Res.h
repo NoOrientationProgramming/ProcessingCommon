@@ -26,8 +26,16 @@
 #ifndef RES_H
 #define RES_H
 
-#include "resources.h"
+#include <cstddef>
 
+typedef struct
+{
+	const char *name;
+	const char *pSrc;
+	const size_t size;
+} Resource;
+
+bool resourceTableAdd(const Resource *pStart, const Resource *pEnd);
 const Resource *resourceFind(const char *pName);
 
 #endif

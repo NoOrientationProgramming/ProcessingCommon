@@ -25,16 +25,37 @@
 
 #include "Res.h"
 
+static const Resource *pTableStart = NULL;
+static const Resource *pTableEnd = NULL;
+
+bool resourceTableAdd(const Resource *pStart, const Resource *pEnd)
+{
+	if (!pStart || !pEnd)
+		return false;
+
+	if (pStart >= pEnd)
+		return false;
+
+	if (pTableStart || pTableEnd)
+		return false;
+
+	pTableStart = pStart;
+	pTableEnd = pEnd;
+
+	return true;
+}
+
 const Resource *resourceFind(const char *pName)
 {
-	const Resource *pRes = resources;
+	if (!pTableStart || !pTableEnd)
+		return NULL;
 
-	while (pRes != pResourcesEnd)
+	const Resource *pRes = pTableStart;
+
+	for (; pRes != pTableEnd; ++pRes)
 	{
 		if (!strcmp(pRes->name, pName))
 			return pRes;
-
-		++pRes;
 	}
 
 	return NULL;
