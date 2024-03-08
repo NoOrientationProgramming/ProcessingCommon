@@ -25,6 +25,7 @@
 
 #include <iostream>
 #include <chrono>
+#include <cinttypes>
 #include <string.h>
 
 #ifdef _WIN32
