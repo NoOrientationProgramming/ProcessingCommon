@@ -72,9 +72,9 @@ bool strToFile(const std::string &str, const std::string &path);
 bool lockDirDefaultOpen(const std::string &dirBase);
 void lockDirDefaultClose();
 Success sysFlagsIntLock(void *pRequester, const char *filename, const char *function, const int line, UserLocks &locks, ...);
-#define sysFlagsLock(...)			sysFlagsIntLock(this, __FILENAME__, __FUNCTION__, __LINE__, mLocks, ##__VA_ARGS__, NULL)
+#define sysFlagsLock(...)			sysFlagsIntLock(this, __PROC_FILENAME__, __FUNCTION__, __LINE__, mLocks, ##__VA_ARGS__, NULL)
 void sysFlagsIntUnlock(void *pRequester, const char *filename, const char *function, const int line, UserLocks &locks);
-#define sysFlagsUnlock()				sysFlagsIntUnlock(this, __FILENAME__, __FUNCTION__, __LINE__, mLocks)
+#define sysFlagsUnlock()				sysFlagsIntUnlock(this, __PROC_FILENAME__, __FUNCTION__, __LINE__, mLocks)
 
 #endif
 
