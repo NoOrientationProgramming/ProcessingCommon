@@ -28,10 +28,17 @@
 
 #include <string>
 #include <mutex>
+#include <vector>
+#if CONFIG_LIB_DSPC_HAVE_JSONCPP
 #include <jsoncpp/json/json.h>
+#endif
+#if CONFIG_LIB_DSPC_HAVE_CRYPTOPP
 #include <cryptopp/secblock.h>
 #include <cryptopp/sha.h>
+#endif
+#if CONFIG_LIB_DSPC_HAVE_CURL
 #include <curl/curl.h>
+#endif
 
 #include "Processing.h"
 #include "Res.h"
@@ -46,20 +53,35 @@ typedef std::list<std::string> ListStr;
 typedef ListStr::iterator ListStrIter;
 typedef ListStr::const_iterator ListStrConstIter;
 
-void curlGlobalInit();
-void curlGlobalDeInit();
-
 // Debugging
 std::string appVersion();
 void hexDump(const void *pData, size_t len, const char *pName = NULL, size_t colWidth = 0x10);
+#if 0
+size_t hexDumpPrint(char *pBuf, char *pBufEnd,
+				const void *pData, size_t len,
+				const char *pName = NULL, size_t colWidth = 0x10);
+#endif
 std::string toHexStr(const std::string &strIn);
 size_t strReplace(std::string &strIn, const std::string &strFind, const std::string &strReplacement);
+
+// Json
+#if CONFIG_LIB_DSPC_HAVE_JSONCPP
+bool jKeyFind(const Json::Value &val, const std::string &nameKey);
 void jsonPrint(const Json::Value &val);
+#endif
 
 // Cryptography
+#if CONFIG_LIB_DSPC_HAVE_CRYPTOPP
 std::string sha256(const std::string &msg, const std::string &prefix = "");
 std::string sha256(const CryptoPP::SecByteBlock &msg, const std::string &prefix = "");
 bool isValidSha256(const std::string &digest);
+#endif
+
+// Curl
+#if CONFIG_LIB_DSPC_HAVE_CURL
+void curlGlobalInit();
+void curlGlobalDeInit();
+#endif
 
 // Internet
 bool isValidEmail(const std::string &mail);
@@ -68,9 +90,6 @@ std::string remoteAddr(int socketFd);
 
 // Strings
 void strToVecStr(const std::string &str, VecStr &vStr, char delim = '\n');
-
-// Json
-bool jKeyFind(const Json::Value &val, const std::string &nameKey);
 
 #endif
 

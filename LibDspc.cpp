@@ -44,52 +44,22 @@
 #include "LibDspc.h"
 
 using namespace std;
-using namespace Json;
 using namespace chrono;
+#if CONFIG_LIB_DSPC_HAVE_JSONCPP
+using namespace Json;
+#endif
+#if CONFIG_LIB_DSPC_HAVE_CRYPTOPP
 using namespace CryptoPP;
+#endif
 
 #define dLenIp4Max		15
 
 const char *hexDigits = "0123456789abcdef";
 
+#if CONFIG_LIB_DSPC_HAVE_CURL
 static mutex mtxCurlGlobal;
 static bool curlGlobalInitDone = false;
-
-void curlGlobalInit()
-{
-	lock_guard<mutex> lock(mtxCurlGlobal);
-
-	if (curlGlobalInitDone)
-		return;
-
-	Processing::globalDestructorRegister(curlGlobalDeInit);
-
-	curl_global_init(CURL_GLOBAL_ALL);
-	curlGlobalInitDone = true;
-
-	dbgLog(0, "global curl init done");
-}
-
-/*
-Literature
-- https://curl.haxx.se/mail/lib-2016-09/0047.html
-- https://stackoverflow.com/questions/29845527/how-to-properly-uninitialize-openssl
-- https://wiki.openssl.org/index.php/Library_Initialization
-- Wichtig
-  - https://rachelbythebay.com/w/2012/12/14/quiet/
-*/
-void curlGlobalDeInit()
-{
-	lock_guard<mutex> lock(mtxCurlGlobal);
-
-	if (!curlGlobalInitDone)
-		return;
-
-	curl_global_cleanup();
-	curlGlobalInitDone = false;
-
-	dbgLog(0, "global curl deinit done");
-}
+#endif
 
 // Debugging
 
@@ -147,7 +117,7 @@ void hexDump(const void *pData, size_t len,
 		pLine = pByte;
 		lenPrinted = 0;
 
-		dInfo("%08x", addressAbs);
+		dInfo("%08" PRIx32, addressAbs);
 
 		for (i = 0; i < numBytesPerLine; ++i)
 		{
@@ -160,7 +130,7 @@ void hexDump(const void *pData, size_t len,
 				continue;
 			}
 
-			dInfo(" %02x", (uint8_t)*pByte);
+			dInfo(" %02" PRIx8, (uint8_t)*pByte);
 
 			++pByte;
 			--len;
@@ -222,14 +192,29 @@ size_t strReplace(string &strIn, const string &strFind, const string &strReplace
 	return pos;
 }
 
+// Json
+
+#if CONFIG_LIB_DSPC_HAVE_JSONCPP
+bool jKeyFind(const Value &val, const string &nameKey)
+{
+	bool searchable = val.isObject() || val.isNull();
+
+	if (!searchable || !val.isMember(nameKey))
+		return false;
+
+	return true;
+}
+
 void jsonPrint(const Value &val)
 {
 	StyledWriter jWriter;
 	cout << endl << jWriter.write(val) << endl;
 }
+#endif
 
 // Cryptography
 
+#if CONFIG_LIB_DSPC_HAVE_CRYPTOPP
 string sha256(const string &msg, const string &prefix)
 {
 	SHA256 hasher;
@@ -285,6 +270,47 @@ bool isValidSha256(const string &digest)
 
 	return true;
 }
+#endif
+
+// Curl
+
+#if CONFIG_LIB_DSPC_HAVE_CURL
+void curlGlobalInit()
+{
+	lock_guard<mutex> lock(mtxCurlGlobal);
+
+	if (curlGlobalInitDone)
+		return;
+
+	Processing::globalDestructorRegister(curlGlobalDeInit);
+
+	curl_global_init(CURL_GLOBAL_ALL);
+	curlGlobalInitDone = true;
+
+	dbgLog(0, "global curl init done");
+}
+
+/*
+Literature
+- https://curl.haxx.se/mail/lib-2016-09/0047.html
+- https://stackoverflow.com/questions/29845527/how-to-properly-uninitialize-openssl
+- https://wiki.openssl.org/index.php/Library_Initialization
+- Wichtig
+  - https://rachelbythebay.com/w/2012/12/14/quiet/
+*/
+void curlGlobalDeInit()
+{
+	lock_guard<mutex> lock(mtxCurlGlobal);
+
+	if (!curlGlobalInitDone)
+		return;
+
+	curl_global_cleanup();
+	curlGlobalInitDone = false;
+
+	dbgLog(0, "global curl deinit done");
+}
+#endif
 
 // Internet
 
@@ -307,7 +333,9 @@ bool isValidIp4(const string &ip)
 	if (ip.size() > dLenIp4Max)
 		return false;
 
-	res = sscanf(ip.c_str(), "%u.%u.%u.%u", &n1, &n2, &n3, &n4);
+	res = sscanf(ip.c_str(),
+				"%" PRIu32 ".%" PRIu32 ".%" PRIu32 ".%" PRIu32,
+				&n1, &n2, &n3, &n4);
 
 	if (res != 4)
 		return false;
@@ -340,17 +368,5 @@ void strToVecStr(const string &str, VecStr &vStr, char delim)
 
 	while (getline(ss, line, delim))
 		vStr.push_back(line);
-}
-
-// Json
-
-bool jKeyFind(const Value &val, const string &nameKey)
-{
-	bool searchable = val.isObject() || val.isNull();
-
-	if (!searchable || !val.isMember(nameKey))
-		return false;
-
-	return true;
 }
 
