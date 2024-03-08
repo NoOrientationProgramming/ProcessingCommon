@@ -1,8 +1,10 @@
 
 idf_component_register(
 	SRCS
-	"ThreadPooling.cpp"
 	"LibTime.cpp"
+	"LibFilesys.cpp"
+	"LibDspc.cpp"
+	"ThreadPooling.cpp"
 	"EspLedPulsing.cpp"
 	INCLUDE_DIRS
 	"."
