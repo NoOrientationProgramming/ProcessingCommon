@@ -161,6 +161,71 @@ void hexDump(const void *pData, size_t len,
 	}
 }
 
+size_t hexDumpPrint(char *pBuf, char *pBufEnd,
+			const void *pData, size_t len,
+			const char *pName, size_t colWidth)
+{
+	if (!pData)
+		return 0;
+
+	char *pBufStart = pBuf;
+	const char *pByte = (const char *)pData;
+	uint32_t addressAbs = 0;
+	const char *pLine = pByte;
+	uint8_t lenPrinted;
+	uint8_t numBytesPerLine = colWidth;
+	size_t i = 0;
+
+	dInfo("%p  %s\n", pData, pName ? pName : "Data");
+
+	while (len)
+	{
+		pLine = pByte;
+		lenPrinted = 0;
+
+		dInfo("%08" PRIx32, addressAbs);
+
+		for (i = 0; i < numBytesPerLine; ++i)
+		{
+			if (!(i & 7))
+				dInfo(" ");
+
+			if (!len)
+			{
+				dInfo("   ");
+				continue;
+			}
+
+			dInfo(" %02" PRIx8, (uint8_t)*pByte);
+
+			++pByte;
+			--len;
+			++lenPrinted;
+		}
+
+		dInfo("  |");
+
+		for (i = 0; i < lenPrinted; ++i, ++pLine, ++pBuf)
+		{
+			char c = *pLine;
+
+			if (c < 32 || c > 126)
+			{
+				*pBuf = '.';
+				continue;
+			}
+
+			*pBuf = c;
+		}
+
+		dInfo("|\n");
+
+		addressAbs += lenPrinted;
+	}
+
+	return pBuf - pBufStart;
+}
+
 string toHexStr(const string &strIn)
 {
 	string strOut;

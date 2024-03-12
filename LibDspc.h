@@ -56,11 +56,9 @@ typedef ListStr::const_iterator ListStrConstIter;
 // Debugging
 std::string appVersion();
 void hexDump(const void *pData, size_t len, const char *pName = NULL, size_t colWidth = 0x10);
-#if 0
 size_t hexDumpPrint(char *pBuf, char *pBufEnd,
 				const void *pData, size_t len,
 				const char *pName = NULL, size_t colWidth = 0x10);
-#endif
 std::string toHexStr(const std::string &strIn);
 size_t strReplace(std::string &strIn, const std::string &strFind, const std::string &strReplacement);
 
