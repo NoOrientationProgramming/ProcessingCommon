@@ -112,7 +112,11 @@ Success PhyAnimating::process()
 Success PhyAnimating::shutdown()
 {
 	procDbgLog(LOG_LVL, "Deleting Qt window");
-	delete mpWindow;
+	if (mpWindow)
+	{
+		delete mpWindow;
+		mpWindow = NULL;
+	}
 
 	procDbgLog(LOG_LVL, "Quitting Qt application");
 	QApplication::quit();
