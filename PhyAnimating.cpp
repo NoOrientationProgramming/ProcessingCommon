@@ -96,7 +96,7 @@ Success PhyAnimating::process()
 		ok = mpWindow->isVisible();
 		if (mWinVisibleOld && !ok)
 		{
-			procInfLog("Qt window isn't visible anymore. Shutting down");
+			procDbgLog(LOG_LVL, "Qt window isn't visible anymore. Shutting down");
 			return Positive;
 		}
 		mWinVisibleOld = ok;
@@ -111,10 +111,10 @@ Success PhyAnimating::process()
 
 Success PhyAnimating::shutdown()
 {
-	procInfLog("Deleting Qt window");
+	procDbgLog(LOG_LVL, "Deleting Qt window");
 	delete mpWindow;
 
-	procInfLog("Quitting Qt application");
+	procDbgLog(LOG_LVL, "Quitting Qt application");
 	QApplication::quit();
 
 	return Positive;
