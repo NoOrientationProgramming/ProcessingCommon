@@ -31,13 +31,10 @@
  * - Qt6
  *   - Install: apt install qt6-base-dev
  *   - License: https://doc.qt.io/qt-6/licensing.html
- * - Matplotlib => QtCharts?
- *   - License: https://matplotlib.org/stable/users/project/license.html
  */
 
 #include <map>
 
-#include <Python.h>
 #include <QApplication>
 #include <QGridLayout>
 #include <QLabel>
