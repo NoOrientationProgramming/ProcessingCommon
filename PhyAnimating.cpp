@@ -195,6 +195,33 @@ QSlider *PhyAnimating::uiSliderAdd(float valMax, float valStart,
 	return pSlider;
 }
 
+QLineEdit *PhyAnimating::uiLineEditAdd(const std::string &strLabel)
+{
+	QLineEdit *pLine;
+	QLabel *pLabel = NULL;
+
+	pLine = new QLineEdit();
+	if (!pLine)
+		return NULL;
+
+	if (strLabel.size())
+		pLabel = new QLabel(strLabel.c_str());
+
+	if (strLabel.size() && !pLabel)
+	{
+		delete pLine;
+		return NULL;
+	}
+
+	// Show
+	mpOpt->addWidget(pLine);
+
+	if (pLabel)
+		mpOpt->addWidget(pLabel);
+
+	return pLine;
+}
+
 void PhyAnimating::sliderUpdated(int value)
 {
 	QSlider *pSlider = (QSlider *)sender();

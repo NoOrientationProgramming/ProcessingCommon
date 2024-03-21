@@ -40,6 +40,7 @@
 #include <QLabel>
 #include <QPushButton>
 #include <QSlider>
+#include <QLineEdit>
 
 #include "Processing.h"
 
@@ -65,6 +66,7 @@ protected:
 				const std::string &strPrefix,
 				const std::string &strUnit = "",
 				bool isTwoSided = false);
+	QLineEdit *uiLineEditAdd(const std::string &strLabel = "");
 
 	QWidget *mpWindow;
 	QVBoxLayout *mpOpt;
