@@ -33,11 +33,13 @@
 dProcessStateEnum(ProcState);
 
 using namespace std;
+using namespace Qt;
 
 #define LOG_LVL	0
 
 PhyAnimating::PhyAnimating(const char *name)
 	: Processing(name)
+	, QObject()
 	, mpWindow(NULL)
 	, mpOpt(NULL)
 	, mArgc(0)
@@ -111,6 +113,14 @@ Success PhyAnimating::process()
 
 Success PhyAnimating::shutdown()
 {
+	Success success;
+
+	success = animShutdown();
+	if (success == Pending)
+		return Pending;
+
+	mMapLabels.clear();
+
 	procDbgLog(LOG_LVL, "Deleting Qt window");
 	if (mpWindow)
 	{
@@ -122,6 +132,87 @@ Success PhyAnimating::shutdown()
 	QApplication::quit();
 
 	return Positive;
+}
+
+Success PhyAnimating::animShutdown()
+{
+	return Positive;
+}
+
+QSlider *PhyAnimating::uiSliderAdd(float valMax, float valStart,
+			const std::string &strPrefix,
+			const std::string &strUnit,
+			bool isTwoSided)
+{
+	QSlider *pSlider;
+	QLabel *pLabel;
+
+	pSlider = new QSlider(Orientation::Horizontal);
+	if (!pSlider)
+		return NULL;
+
+	pLabel = new QLabel();
+	if (!pLabel)
+	{
+		delete pSlider;
+		return NULL;
+	}
+
+	// Slider config
+	if (isTwoSided)
+		pSlider->setRange(-100, 100);
+	else
+		pSlider->setRange(0, 100);
+
+	pSlider->setSingleStep(25);
+	pSlider->setValue((int)((100 * valStart) / valMax));
+
+	// Label config
+	snprintf(mBufLabel, sizeof(mBufLabel),
+			"%-40s %.2f [%s]",
+			strPrefix.c_str(),
+			valStart,
+			strUnit.c_str());
+
+	pLabel->setText(mBufLabel);
+
+	// Connect
+	LabelInfo inf;
+
+	inf.pLabel = pLabel;
+	inf.prefix = strPrefix;
+	inf.unit = strUnit;
+	inf.valMax = valMax;
+
+	mMapLabels[pSlider] = inf;
+	QObject::connect(pSlider, &QSlider::valueChanged,
+				this, &PhyAnimating::sliderUpdated);
+
+	// Show
+	mpOpt->addWidget(pSlider);
+	mpOpt->addWidget(pLabel);
+
+	return pSlider;
+}
+
+void PhyAnimating::sliderUpdated(int value)
+{
+	QSlider *pSlider = (QSlider *)sender();
+	map<QWidget *, LabelInfo>::iterator iter;
+
+	iter = mMapLabels.find(pSlider);
+	if (iter == mMapLabels.end())
+		return;
+
+	LabelInfo inf = iter->second;
+
+	snprintf(mBufLabel, sizeof(mBufLabel),
+			"%-40s %.2f [%s]",
+			inf.prefix.c_str(),
+			inf.valMax * value / 100,
+			inf.unit.c_str());
+
+	inf.pLabel->setText(mBufLabel);
 }
 
 /* static functions */

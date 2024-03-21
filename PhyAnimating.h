@@ -35,14 +35,26 @@
  *   - License: https://matplotlib.org/stable/users/project/license.html
  */
 
+#include <map>
+
 #include <Python.h>
 #include <QApplication>
 #include <QGridLayout>
+#include <QLabel>
 #include <QPushButton>
+#include <QSlider>
 
 #include "Processing.h"
 
-class PhyAnimating : public Processing
+struct LabelInfo
+{
+	QLabel *pLabel;
+	std::string prefix;
+	std::string unit;
+	float valMax;
+};
+
+class PhyAnimating : public Processing, public QObject
 {
 
 public:
@@ -52,6 +64,11 @@ protected:
 	PhyAnimating(const char *name);
 	virtual ~PhyAnimating() {}
 
+	QSlider *uiSliderAdd(float valMax, float valStart,
+				const std::string &strPrefix,
+				const std::string &strUnit = "",
+				bool isTwoSided = false);
+
 	QWidget *mpWindow;
 	QVBoxLayout *mpOpt;
 
@@ -59,12 +76,14 @@ private:
 
 	PhyAnimating()
 		: Processing("")
+		, QObject()
 		, mArgc(0)
 		, mArgv(NULL)
 		, mAppQt(mArgc, mArgv)
 	{}
 	PhyAnimating(const PhyAnimating &)
 		: Processing("")
+		, QObject()
 		, mArgc(0)
 		, mArgv(NULL)
 		, mAppQt(mArgc, mArgv)
@@ -80,6 +99,9 @@ private:
 	Success process();
 	Success shutdown();
 	virtual Success animate() = 0;
+	virtual Success animShutdown();
+
+	void sliderUpdated(int value);
 
 	/* member variables */
 	uint32_t mStateBase;
@@ -88,6 +110,8 @@ private:
 	QApplication mAppQt;
 	QGridLayout *mpGrid;
 	bool mWinVisibleOld;
+	std::map<QWidget * /* src widget */, LabelInfo> mMapLabels;
+	char mBufLabel[64];
 
 	/* static functions */
 
