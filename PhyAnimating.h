@@ -29,7 +29,7 @@
 /*
  * Dependencies
  * - Qt6
- *   - Install: apt install qt6-base-dev
+ *   - Install: apt install qt6-base-dev libqt6charts6-dev
  *   - License: https://doc.qt.io/qt-6/licensing.html
  */
 
@@ -37,6 +37,7 @@
 
 #include <QApplication>
 #include <QGridLayout>
+#include <QtCharts>
 #include <QLabel>
 #include <QPushButton>
 #include <QSlider>
@@ -70,6 +71,7 @@ protected:
 
 	QWidget *mpWindow;
 	QVBoxLayout *mpOpt;
+	QChart *mpChart;
 
 private:
 
@@ -108,6 +110,7 @@ private:
 	char **mArgv;
 	QApplication mAppQt;
 	QGridLayout *mpGrid;
+	QChartView *mpView;
 	bool mWinVisibleOld;
 	std::map<QWidget * /* src widget */, LabelInfo> mMapLabels;
 	char mBufLabel[64];

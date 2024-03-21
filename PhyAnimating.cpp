@@ -42,10 +42,12 @@ PhyAnimating::PhyAnimating(const char *name)
 	, QObject()
 	, mpWindow(NULL)
 	, mpOpt(NULL)
+	, mpChart(NULL)
 	, mArgc(0)
 	, mArgv(NULL)
 	, mAppQt(mArgc, mArgv)
 	, mpGrid(NULL)
+	, mpView(NULL)
 	, mWinVisibleOld(false)
 {
 	mStateBase = StStart;
@@ -80,6 +82,19 @@ Success PhyAnimating::process()
 			return procErrLog(-1, "could not create vertical box");
 
 		mpGrid->addLayout(mpOpt, 0, 0, 1, 1);
+
+		mpChart = new QChart();
+		if (!mpChart)
+			return procErrLog(-1, "could not create chart");
+
+		mpView = new QChartView(mpChart);
+		if (!mpView)
+		{
+			delete mpChart;
+			return procErrLog(-1, "could not create chart view");
+		}
+
+		mpGrid->addWidget(mpView, 0, 1, 1, 1);
 
 		mpGrid->setColumnStretch(0, 1);
 		mpGrid->setColumnStretch(1, 3);
