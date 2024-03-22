@@ -53,9 +53,7 @@ PhyAnimating::PhyAnimating(const char *name)
 	, QObject()
 	, mpWindow(NULL)
 	, mpOpt(NULL)
-	, mpChart(NULL)
 	, mpGrid(NULL)
-	, mpView(NULL)
 	, mWinVisibleOld(false)
 	, mBaseInitDone(false)
 {
@@ -100,29 +98,14 @@ Success PhyAnimating::process()
 
 		mpWindow->setLayout(mpGrid);
 
+		mpGrid->setColumnStretch(0, 1);
+		mpGrid->setColumnStretch(1, 3);
+
 		mpOpt = new (nothrow) QVBoxLayout();
 		if (!mpOpt)
 			return procErrLog(-1, "could not create vertical box");
 
 		mpGrid->addLayout(mpOpt, 0, 0, 1, 1);
-
-		mpChart = new (nothrow) QChart();
-		if (!mpChart)
-			return procErrLog(-1, "could not create chart");
-
-		mpView = new (nothrow) QChartView(mpChart);
-		if (!mpView)
-		{
-			delete mpChart;
-			return procErrLog(-1, "could not create chart view");
-		}
-
-		mpView->setFocusPolicy(FocusPolicy::ClickFocus);
-
-		mpGrid->addWidget(mpView, 0, 1, 1, 1);
-
-		mpGrid->setColumnStretch(0, 1);
-		mpGrid->setColumnStretch(1, 3);
 
 		mBaseInitDone = true;
 
@@ -474,6 +457,32 @@ QProgressBar *PhyAnimating::uiProgressAdd(const string &strLabel)
 	mpOpt->addWidget(pLabel);
 
 	return pProgress;
+}
+
+QChart *PhyAnimating::uiChartAdd()
+{
+	QChartView *pView;
+	QChart *pChart;
+
+	pView = new (nothrow) QChartView();
+	if (!pView)
+		return NULL;
+
+	pView->setFocusPolicy(FocusPolicy::ClickFocus);
+
+	pChart = new (nothrow) QChart();
+	if (!pChart)
+	{
+		delete pView;
+		return NULL;
+	}
+
+	pView->setChart(pChart);
+
+	// Show
+	mpGrid->addWidget(pView, 0, 1, 1, 1);
+
+	return pChart;
 }
 
 void PhyAnimating::sliderUpdated(int value)

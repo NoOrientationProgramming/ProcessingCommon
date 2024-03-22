@@ -77,9 +77,10 @@ protected:
 	QLineEdit *uiLineEditAdd(const std::string &strLabel = "");
 	QProgressBar *uiProgressAdd(const std::string &strLabel);
 
+	QChart *uiChartAdd();
+
 	QWidget *mpWindow;
 	QVBoxLayout *mpOpt;
-	QChart *mpChart;
 
 private:
 
