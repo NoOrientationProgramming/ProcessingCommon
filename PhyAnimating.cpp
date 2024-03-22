@@ -256,18 +256,49 @@ QSlider *PhyAnimating::uiSliderAdd(float valMax, float valStart,
 			const string &strUnit,
 			bool isTwoSided)
 {
-	QSlider *pSlider;
-	QLabel *pLabel;
+	QSlider *pSlider = NULL;
+	QHBoxLayout *pLayout = NULL;
+	QLabel *pLabelPrefix = NULL;
+	QLabel *pLabelValue = NULL;
+	QLabel *pLabelUnit = NULL;
+	LabelInfo inf;
 
 	pSlider = new (nothrow) QSlider(Orientation::Horizontal);
 	if (!pSlider)
-		return NULL;
+		goto exitErr;
 
-	pLabel = new (nothrow) QLabel();
-	if (!pLabel)
+	pLayout = new (nothrow) QHBoxLayout();
+	if (!pLayout)
+		goto exitErr;
+
+	pLabelPrefix = new (nothrow) QLabel();
+	if (!pLabelPrefix)
+		goto exitErr;
+
+	pLabelPrefix->setText(strPrefix.c_str());
+
+	pLabelValue = new (nothrow) QLabel();
+	if (!pLabelValue)
+		goto exitErr;
+
+	snprintf(mBufLabel, sizeof(mBufLabel), "%.2f", valStart);
+	pLabelValue->setText(mBufLabel);
+
+	if (strUnit.size())
+		pLabelUnit = new (nothrow) QLabel();
+
+	if (strUnit.size() && !pLabelUnit)
+		goto exitErr;
+
+	if (pLabelUnit)
 	{
-		delete pSlider;
-		return NULL;
+		string str;
+
+		str.append("[");
+		str.append(strUnit);
+		str.append("]");
+
+		pLabelUnit->setText(str.c_str());
 	}
 
 	// Slider config
@@ -279,19 +310,8 @@ QSlider *PhyAnimating::uiSliderAdd(float valMax, float valStart,
 	pSlider->setSingleStep(25);
 	pSlider->setValue((int)((100 * valStart) / valMax));
 
-	// Label config
-	snprintf(mBufLabel, sizeof(mBufLabel),
-			"%-40s %.2f [%s]",
-			strPrefix.c_str(),
-			valStart,
-			strUnit.c_str());
-
-	pLabel->setText(mBufLabel);
-
 	// Connect
-	LabelInfo inf;
-
-	inf.pLabel = pLabel;
+	inf.pLabel = pLabelValue;
 	inf.prefix = strPrefix;
 	inf.unit = strUnit;
 	inf.valMax = valMax;
@@ -301,10 +321,32 @@ QSlider *PhyAnimating::uiSliderAdd(float valMax, float valStart,
 				this, &PhyAnimating::sliderUpdated);
 
 	// Show
+	pLayout->addWidget(pLabelPrefix);
+	pLayout->addStretch(1);
+	pLayout->addWidget(pLabelValue);
+
+	if (pLabelUnit)
+		pLayout->addWidget(pLabelUnit);
+
 	mpOpt->addWidget(pSlider);
-	mpOpt->addWidget(pLabel);
+	mpOpt->addLayout(pLayout);
 
 	return pSlider;
+
+exitErr:
+	if (pLabelValue)
+		delete pLabelValue;
+
+	if (pLabelPrefix)
+		delete pLabelPrefix;
+
+	if (pLayout)
+		delete pLayout;
+
+	if (pSlider)
+		delete pSlider;
+
+	return NULL;
 }
 
 QLineEdit *PhyAnimating::uiLineEditAdd(const string &strLabel)
@@ -371,10 +413,8 @@ void PhyAnimating::sliderUpdated(int value)
 	LabelInfo inf = iter->second;
 
 	snprintf(mBufLabel, sizeof(mBufLabel),
-			"%-40s %.2f [%s]",
-			inf.prefix.c_str(),
-			inf.valMax * value / 100,
-			inf.unit.c_str());
+			"%.2f",
+			inf.valMax * value / 100);
 
 	inf.pLabel->setText(mBufLabel);
 }
