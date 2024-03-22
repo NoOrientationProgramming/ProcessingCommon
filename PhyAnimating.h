@@ -41,6 +41,7 @@
 #include <QLabel>
 #include <QFrame>
 #include <QPushButton>
+#include <QCheckBox>
 #include <QSlider>
 #include <QLineEdit>
 
@@ -66,6 +67,7 @@ protected:
 
 	void uiLineAdd(const std::string &strLabel = "");
 	QPushButton *uiButtonAdd(const std::string &strText);
+	QCheckBox *uiSwitchAdd(const std::string &strLabel);
 	QSlider *uiSliderAdd(float valMax, float valStart,
 				const std::string &strPrefix,
 				const std::string &strUnit = "",

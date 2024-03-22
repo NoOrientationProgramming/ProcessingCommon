@@ -215,6 +215,42 @@ QPushButton *PhyAnimating::uiButtonAdd(const string &strText)
 	return pButton;
 }
 
+QCheckBox *PhyAnimating::uiSwitchAdd(const std::string &strLabel)
+{
+	QHBoxLayout *pLayout;
+	QLabel *pLabel;
+	QCheckBox *pSwitch;
+
+	pLayout = new (nothrow) QHBoxLayout();
+	if (!pLayout)
+		return NULL;
+
+	pLabel = new (nothrow) QLabel();
+	if (!pLabel)
+	{
+		delete pLayout;
+		return NULL;
+	}
+
+	pLabel->setText(strLabel.c_str());
+
+	pSwitch = new (nothrow) QCheckBox();
+	if (!pSwitch)
+	{
+		delete pLabel;
+		delete pLayout;
+		return NULL;
+	}
+
+	pLayout->addWidget(pLabel);
+	pLayout->addStretch(1);
+	pLayout->addWidget(pSwitch);
+
+	mpOpt->addLayout(pLayout);
+
+	return pSwitch;
+}
+
 QSlider *PhyAnimating::uiSliderAdd(float valMax, float valStart,
 			const string &strPrefix,
 			const string &strUnit,
