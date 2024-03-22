@@ -86,16 +86,10 @@ private:
 	PhyAnimating()
 		: Processing("")
 		, QObject()
-		, mArgc(0)
-		, mArgv(NULL)
-		, mAppQt(mArgc, mArgv)
 	{}
 	PhyAnimating(const PhyAnimating &)
 		: Processing("")
 		, QObject()
-		, mArgc(0)
-		, mArgv(NULL)
-		, mAppQt(mArgc, mArgv)
 	{}
 	PhyAnimating &operator=(const PhyAnimating &) { return *this; }
 
@@ -111,21 +105,25 @@ private:
 	virtual Success animShutdown();
 
 	void sliderUpdated(int value);
+	bool qtInit();
 
 	/* member variables */
 	uint32_t mStateBase;
-	int mArgc;
-	char **mArgv;
-	QApplication mAppQt;
 	QGridLayout *mpGrid;
 	QChartView *mpView;
 	bool mWinVisibleOld;
+	bool mBaseInitDone;
 	std::map<QWidget * /* src widget */, LabelInfo> mMapLabels;
-	char mBufLabel[64];
+	char mBufLabel[19];
 
 	/* static functions */
+	static void globalQtDestruct();
 
 	/* static variables */
+#if CONFIG_PROC_HAVE_DRIVERS
+	static std::mutex mtxGlobalInit;
+#endif
+	static bool globalInitDone;
 
 	/* constants */
 

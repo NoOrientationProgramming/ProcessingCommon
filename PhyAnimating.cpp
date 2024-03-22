@@ -27,6 +27,8 @@
 
 #define dForEach_ProcState(gen) \
 		gen(StStart) \
+		gen(StQtInit) \
+		gen(StMainStart) \
 		gen(StMain) \
 
 #define dGenProcStateEnum(s) s,
@@ -37,18 +39,25 @@ using namespace Qt;
 
 #define LOG_LVL	0
 
+#if CONFIG_PROC_HAVE_DRIVERS
+mutex PhyAnimating::mtxGlobalInit;
+#endif
+bool PhyAnimating::globalInitDone = false;
+
+int qtArgc = 0;
+char **qtArgv = NULL;
+QApplication appQt(qtArgc, qtArgv);
+
 PhyAnimating::PhyAnimating(const char *name)
 	: Processing(name)
 	, QObject()
 	, mpWindow(NULL)
 	, mpOpt(NULL)
 	, mpChart(NULL)
-	, mArgc(0)
-	, mArgv(NULL)
-	, mAppQt(mArgc, mArgv)
 	, mpGrid(NULL)
 	, mpView(NULL)
 	, mWinVisibleOld(false)
+	, mBaseInitDone(false)
 {
 	mStateBase = StStart;
 }
@@ -63,6 +72,20 @@ Success PhyAnimating::process()
 	switch (mStateBase)
 	{
 	case StStart:
+
+		mStateBase = StQtInit;
+
+		break;
+	case StQtInit:
+
+		ok = qtInit();
+		if (!ok)
+			return procErrLog(-1, "could not init Qt");
+
+		mStateBase = StMainStart;
+
+		break;
+	case StMainStart:
 
 		mpWindow = new (nothrow) QWidget();
 		if (!mpWindow)
@@ -101,6 +124,8 @@ Success PhyAnimating::process()
 		mpGrid->setColumnStretch(0, 1);
 		mpGrid->setColumnStretch(1, 3);
 
+		mBaseInitDone = true;
+
 		mStateBase = StMain;
 
 		break;
@@ -130,23 +155,24 @@ Success PhyAnimating::process()
 
 Success PhyAnimating::shutdown()
 {
-	Success success;
+	Success success = Positive;
 
-	success = animShutdown();
+	if (mBaseInitDone)
+		success = animShutdown();
+
 	if (success == Pending)
 		return Pending;
 
 	mMapLabels.clear();
 
-	procDbgLog(LOG_LVL, "Deleting Qt window");
-	if (mpWindow)
-	{
-		delete mpWindow;
-		mpWindow = NULL;
-	}
+	if (!mpWindow)
+		return Positive;
 
-	procDbgLog(LOG_LVL, "Quitting Qt application");
-	QApplication::quit();
+	procDbgLog(LOG_LVL, "deleting Qt window");
+
+	// Will be deleted by QApplication() destructor
+	//delete mpWindow;
+	mpWindow = NULL;
 
 	return Positive;
 }
@@ -468,5 +494,34 @@ void PhyAnimating::sliderUpdated(int value)
 	inf.pLabel->setText(mBufLabel);
 }
 
+bool PhyAnimating::qtInit()
+{
+#if CONFIG_PROC_HAVE_DRIVERS
+	Guard lock(mtxGlobalInit);
+#endif
+	if (globalInitDone)
+	{
+		//procErrLog(-1, "multiple instances of PhyAnimating() not supported");
+		return true;
+	}
+
+	procDbgLog(LOG_LVL, "global Qt init");
+
+	Processing::globalDestructorRegister(globalQtDestruct);
+
+	globalInitDone = true;
+
+	return true;
+}
+
 /* static functions */
+
+void PhyAnimating::globalQtDestruct()
+{
+	dbgLog(LOG_LVL, "global Qt deinit");
+
+	dbgLog(LOG_LVL, "Quitting Qt application");
+
+	//QApplication::quit();
+}
 
