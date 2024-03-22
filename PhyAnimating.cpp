@@ -94,6 +94,8 @@ Success PhyAnimating::process()
 			return procErrLog(-1, "could not create chart view");
 		}
 
+		mpView->setFocusPolicy(FocusPolicy::ClickFocus);
+
 		mpGrid->addWidget(mpView, 0, 1, 1, 1);
 
 		mpGrid->setColumnStretch(0, 1);
