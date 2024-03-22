@@ -154,6 +154,19 @@ Success PhyAnimating::animShutdown()
 	return Positive;
 }
 
+QPushButton *PhyAnimating::uiPushButtonAdd(const string &strText)
+{
+	QPushButton *pButton;
+
+	pButton = new (nothrow) QPushButton(strText.c_str());
+	if (!pButton)
+		return NULL;
+
+	mpOpt->addWidget(pButton);
+
+	return pButton;
+}
+
 QSlider *PhyAnimating::uiSliderAdd(float valMax, float valStart,
 			const string &strPrefix,
 			const string &strUnit,
