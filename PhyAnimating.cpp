@@ -215,7 +215,7 @@ QPushButton *PhyAnimating::uiButtonAdd(const string &strText)
 	return pButton;
 }
 
-QCheckBox *PhyAnimating::uiSwitchAdd(const std::string &strLabel)
+QCheckBox *PhyAnimating::uiSwitchAdd(const string &strLabel)
 {
 	QHBoxLayout *pLayout;
 	QLabel *pLabel;
