@@ -155,8 +155,8 @@ Success PhyAnimating::animShutdown()
 }
 
 QSlider *PhyAnimating::uiSliderAdd(float valMax, float valStart,
-			const std::string &strPrefix,
-			const std::string &strUnit,
+			const string &strPrefix,
+			const string &strUnit,
 			bool isTwoSided)
 {
 	QSlider *pSlider;
@@ -210,7 +210,7 @@ QSlider *PhyAnimating::uiSliderAdd(float valMax, float valStart,
 	return pSlider;
 }
 
-QLineEdit *PhyAnimating::uiLineEditAdd(const std::string &strLabel)
+QLineEdit *PhyAnimating::uiLineEditAdd(const string &strLabel)
 {
 	QLineEdit *pLine;
 	QLabel *pLabel = NULL;
