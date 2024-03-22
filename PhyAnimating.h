@@ -124,6 +124,9 @@ private:
 #if CONFIG_PROC_HAVE_DRIVERS
 	static std::mutex mtxGlobalInit;
 #endif
+	static int qtArgc;
+	static char **pQtArgv;
+	static QApplication *pAppQt;
 	static bool globalInitDone;
 
 	/* constants */

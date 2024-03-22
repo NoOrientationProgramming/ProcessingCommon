@@ -42,11 +42,10 @@ using namespace Qt;
 #if CONFIG_PROC_HAVE_DRIVERS
 mutex PhyAnimating::mtxGlobalInit;
 #endif
+int PhyAnimating::qtArgc = 0;
+char **PhyAnimating::pQtArgv = NULL;
+QApplication *PhyAnimating::pAppQt = NULL;
 bool PhyAnimating::globalInitDone = false;
-
-int qtArgc = 0;
-char **qtArgv = NULL;
-QApplication appQt(qtArgc, qtArgv);
 
 PhyAnimating::PhyAnimating(const char *name)
 	: Processing(name)
@@ -152,10 +151,9 @@ Success PhyAnimating::shutdown()
 		return Positive;
 
 	procDbgLog(LOG_LVL, "deleting Qt window");
-
-	// Will be deleted by QApplication() destructor
-	//delete mpWindow;
+	delete mpWindow;
 	mpWindow = NULL;
+	procDbgLog(LOG_LVL, "deleting Qt window. Done");
 
 	return Positive;
 }
@@ -516,6 +514,13 @@ bool PhyAnimating::qtInit()
 
 	procDbgLog(LOG_LVL, "global Qt init");
 
+	pAppQt = new (nothrow) QApplication(qtArgc, pQtArgv);
+	if (!pAppQt)
+	{
+		procErrLog(-1, "could not create Qt application");
+		return false;
+	}
+
 	Processing::globalDestructorRegister(globalQtDestruct);
 
 	globalInitDone = true;
@@ -529,8 +534,12 @@ void PhyAnimating::globalQtDestruct()
 {
 	dbgLog(LOG_LVL, "global Qt deinit");
 
-	dbgLog(LOG_LVL, "Quitting Qt application");
+	dbgLog(LOG_LVL, "quitting Qt application");
+	QApplication::quit();
+	dbgLog(LOG_LVL, "quitting Qt application. Done");
 
-	//QApplication::quit();
+	dbgLog(LOG_LVL, "deleting Qt application");
+	delete pAppQt;
+	dbgLog(LOG_LVL, "deleting Qt application. Done");
 }
 
