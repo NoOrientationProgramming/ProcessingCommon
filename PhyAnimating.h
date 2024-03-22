@@ -39,6 +39,7 @@
 #include <QGridLayout>
 #include <QtCharts>
 #include <QLabel>
+#include <QFrame>
 #include <QPushButton>
 #include <QSlider>
 #include <QLineEdit>
@@ -63,7 +64,8 @@ protected:
 	PhyAnimating(const char *name);
 	virtual ~PhyAnimating() {}
 
-	QPushButton *uiPushButtonAdd(const std::string &strText);
+	void uiLineAdd(const std::string &strLabel = "");
+	QPushButton *uiButtonAdd(const std::string &strText);
 	QSlider *uiSliderAdd(float valMax, float valStart,
 				const std::string &strPrefix,
 				const std::string &strUnit = "",

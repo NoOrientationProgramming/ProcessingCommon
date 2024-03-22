@@ -154,7 +154,55 @@ Success PhyAnimating::animShutdown()
 	return Positive;
 }
 
-QPushButton *PhyAnimating::uiPushButtonAdd(const string &strText)
+void PhyAnimating::uiLineAdd(const string &strLabel)
+{
+	QFrame *pLine;
+	QLabel *pLabel1 = NULL;
+	QLabel *pLabel2 = NULL;
+
+	pLabel1 = new (nothrow) QLabel();
+	if (!pLabel1)
+		return;
+
+	pLine = new (nothrow) QFrame();
+	if (!pLine)
+	{
+		delete pLabel1;
+		return;
+	}
+
+	pLine->setFrameShape(QFrame::HLine);
+	pLine->setFrameShadow(QFrame::Sunken);
+
+	if (strLabel.size())
+		pLabel2 = new (nothrow) QLabel();
+
+	if (strLabel.size() && !pLabel2)
+	{
+		delete pLine;
+		delete pLabel1;
+		return;
+	}
+
+	// Show
+	mpOpt->addWidget(pLabel1);
+	mpOpt->addWidget(pLine);
+
+	if (pLabel2)
+	{
+		string str;
+
+		str.append("<b>");
+		str.append(strLabel);
+		str.append("</b>");
+
+		pLabel2->setText(str.c_str());
+
+		mpOpt->addWidget(pLabel2);
+	}
+}
+
+QPushButton *PhyAnimating::uiButtonAdd(const string &strText)
 {
 	QPushButton *pButton;
 
