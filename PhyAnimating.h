@@ -44,6 +44,7 @@
 #include <QCheckBox>
 #include <QSlider>
 #include <QLineEdit>
+#include <QProgressBar>
 
 #include "Processing.h"
 
@@ -73,6 +74,7 @@ protected:
 				const std::string &strUnit = "",
 				bool isTwoSided = false);
 	QLineEdit *uiLineEditAdd(const std::string &strLabel = "");
+	QProgressBar *uiProgressAdd(const std::string &strLabel);
 
 	QWidget *mpWindow;
 	QVBoxLayout *mpOpt;

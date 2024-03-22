@@ -334,6 +334,31 @@ QLineEdit *PhyAnimating::uiLineEditAdd(const string &strLabel)
 	return pLine;
 }
 
+QProgressBar *PhyAnimating::uiProgressAdd(const string &strLabel)
+{
+	QProgressBar *pProgress;
+	QLabel *pLabel;
+
+	pProgress = new (nothrow) QProgressBar();
+	if (!pProgress)
+		return NULL;
+
+	pLabel = new (nothrow) QLabel();
+	if (!pLabel)
+	{
+		delete pProgress;
+		return NULL;
+	}
+
+	pLabel->setText(strLabel.c_str());
+
+	// Show
+	mpOpt->addWidget(pProgress);
+	mpOpt->addWidget(pLabel);
+
+	return pProgress;
+}
+
 void PhyAnimating::sliderUpdated(int value)
 {
 	QSlider *pSlider = (QSlider *)sender();
