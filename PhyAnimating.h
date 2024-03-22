@@ -67,6 +67,7 @@ protected:
 	virtual ~PhyAnimating() {}
 
 	void uiLineAdd(const std::string &strLabel = "");
+	QLabel *uiLabelAdd(const std::string &strPrefix = "", bool alignRight = true);
 	QPushButton *uiButtonAdd(const std::string &strText);
 	QCheckBox *uiSwitchAdd(const std::string &strLabel);
 	QSlider *uiSliderAdd(float valMax, float valStart,

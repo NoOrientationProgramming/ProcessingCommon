@@ -204,6 +204,53 @@ void PhyAnimating::uiLineAdd(const string &strLabel)
 	}
 }
 
+QLabel *PhyAnimating::uiLabelAdd(const string &strPrefix, bool alignRight)
+{
+	QHBoxLayout *pLayout = NULL;
+	QLabel *pLabelValue = NULL;
+	QLabel *pLabelPrefix = NULL;
+	bool stretchNeeded = false;
+
+	pLayout = new (nothrow) QHBoxLayout();
+	if (!pLayout)
+		return NULL;
+
+	pLabelValue = new (nothrow) QLabel();
+	if (!pLabelValue)
+	{
+		delete pLayout;
+		return NULL;
+	}
+
+	if (strPrefix.size())
+		pLabelPrefix = new (nothrow) QLabel();
+
+	if (strPrefix.size() && !pLabelPrefix)
+	{
+		delete pLabelValue;
+		delete pLayout;
+		return NULL;
+	}
+
+	if (pLabelPrefix)
+	{
+		pLabelPrefix->setText(strPrefix.c_str());
+		pLayout->addWidget(pLabelPrefix);
+		stretchNeeded = true;
+	}
+
+	if (alignRight)
+		stretchNeeded = true;
+
+	if (stretchNeeded)
+		pLayout->addStretch(1);
+
+	pLayout->addWidget(pLabelValue);
+	mpOpt->addLayout(pLayout);
+
+	return pLabelValue;
+}
+
 QPushButton *PhyAnimating::uiButtonAdd(const string &strText)
 {
 	QPushButton *pButton;
