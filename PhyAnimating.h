@@ -31,6 +31,8 @@
  * - Qt6
  *   - Install: apt install qt6-base-dev libqt6charts6-dev
  *   - License: https://doc.qt.io/qt-6/licensing.html
+ * - OpenCV?
+ *   - Install: apt install libopencv-dev
  */
 
 #include <map>
