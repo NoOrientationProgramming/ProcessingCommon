@@ -64,30 +64,30 @@ Success PhyAnimating::process()
 	{
 	case StStart:
 
-		mpWindow = new QWidget();
+		mpWindow = new (nothrow) QWidget();
 		if (!mpWindow)
 			return procErrLog(-1, "could not create window");
 
 		mpWindow->resize(1280, 800);
 		mpWindow->setMinimumSize(400, 300);
 
-		mpGrid = new QGridLayout();
+		mpGrid = new (nothrow) QGridLayout();
 		if (!mpGrid)
 			return procErrLog(-1, "could not create grid");
 
 		mpWindow->setLayout(mpGrid);
 
-		mpOpt = new QVBoxLayout();
+		mpOpt = new (nothrow) QVBoxLayout();
 		if (!mpOpt)
 			return procErrLog(-1, "could not create vertical box");
 
 		mpGrid->addLayout(mpOpt, 0, 0, 1, 1);
 
-		mpChart = new QChart();
+		mpChart = new (nothrow) QChart();
 		if (!mpChart)
 			return procErrLog(-1, "could not create chart");
 
-		mpView = new QChartView(mpChart);
+		mpView = new (nothrow) QChartView(mpChart);
 		if (!mpView)
 		{
 			delete mpChart;
@@ -162,11 +162,11 @@ QSlider *PhyAnimating::uiSliderAdd(float valMax, float valStart,
 	QSlider *pSlider;
 	QLabel *pLabel;
 
-	pSlider = new QSlider(Orientation::Horizontal);
+	pSlider = new (nothrow) QSlider(Orientation::Horizontal);
 	if (!pSlider)
 		return NULL;
 
-	pLabel = new QLabel();
+	pLabel = new (nothrow) QLabel();
 	if (!pLabel)
 	{
 		delete pSlider;
@@ -215,12 +215,12 @@ QLineEdit *PhyAnimating::uiLineEditAdd(const std::string &strLabel)
 	QLineEdit *pLine;
 	QLabel *pLabel = NULL;
 
-	pLine = new QLineEdit();
+	pLine = new (nothrow) QLineEdit();
 	if (!pLine)
 		return NULL;
 
 	if (strLabel.size())
-		pLabel = new QLabel(strLabel.c_str());
+		pLabel = new (nothrow) QLabel(strLabel.c_str());
 
 	if (strLabel.size() && !pLabel)
 	{
