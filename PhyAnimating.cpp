@@ -177,6 +177,8 @@ void PhyAnimating::uiLineAdd(const string &strLabel)
 	if (!pLine)
 	{
 		delete pLabel1;
+		pLabel1 = NULL;
+
 		return;
 	}
 
@@ -189,7 +191,11 @@ void PhyAnimating::uiLineAdd(const string &strLabel)
 	if (strLabel.size() && !pLabel2)
 	{
 		delete pLine;
+		pLine = NULL;
+
 		delete pLabel1;
+		pLabel1 = NULL;
+
 		return;
 	}
 
@@ -226,6 +232,8 @@ QLabel *PhyAnimating::uiLabelAdd(const string &strPrefix, bool alignRight)
 	if (!pLabelValue)
 	{
 		delete pLayout;
+		pLayout = NULL;
+
 		return NULL;
 	}
 
@@ -235,7 +243,11 @@ QLabel *PhyAnimating::uiLabelAdd(const string &strPrefix, bool alignRight)
 	if (strPrefix.size() && !pLabelPrefix)
 	{
 		delete pLabelValue;
+		pLabelValue = NULL;
+
 		delete pLayout;
+		pLayout = NULL;
+
 		return NULL;
 	}
 
@@ -285,6 +297,8 @@ QCheckBox *PhyAnimating::uiSwitchAdd(const string &strLabel)
 	if (!pLabel)
 	{
 		delete pLayout;
+		pLayout = NULL;
+
 		return NULL;
 	}
 
@@ -294,7 +308,11 @@ QCheckBox *PhyAnimating::uiSwitchAdd(const string &strLabel)
 	if (!pSwitch)
 	{
 		delete pLabel;
+		pLabel = NULL;
+
 		delete pLayout;
+		pLayout = NULL;
+
 		return NULL;
 	}
 
@@ -397,16 +415,28 @@ QSlider *PhyAnimating::uiSliderAdd(float valMax, float valStart,
 
 exitErr:
 	if (pLabelValue)
+	{
 		delete pLabelValue;
+		pLabelValue = NULL;
+	}
 
 	if (pLabelPrefix)
+	{
 		delete pLabelPrefix;
+		pLabelPrefix = NULL;
+	}
 
 	if (pLayout)
+	{
 		delete pLayout;
+		pLayout = NULL;
+	}
 
 	if (pSlider)
+	{
 		delete pSlider;
+		pSlider = NULL;
+	}
 
 	return NULL;
 }
@@ -426,6 +456,8 @@ QLineEdit *PhyAnimating::uiLineEditAdd(const string &strLabel)
 	if (strLabel.size() && !pLabel)
 	{
 		delete pLine;
+		pLine = NULL;
+
 		return NULL;
 	}
 
@@ -451,6 +483,8 @@ QProgressBar *PhyAnimating::uiProgressAdd(const string &strLabel)
 	if (!pLabel)
 	{
 		delete pProgress;
+		pProgress = NULL;
+
 		return NULL;
 	}
 
@@ -478,6 +512,8 @@ QChart *PhyAnimating::uiChartAdd()
 	if (!pChart)
 	{
 		delete pView;
+		pView = NULL;
+
 		return NULL;
 	}
 
@@ -551,6 +587,7 @@ void PhyAnimating::globalQtDestruct()
 
 	dbgLog(LOG_LVL, "deleting Qt application");
 	delete pAppQt;
+	pAppQt = NULL;
 	dbgLog(LOG_LVL, "deleting Qt application. Done");
 }
 
