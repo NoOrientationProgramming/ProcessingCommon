@@ -318,6 +318,7 @@ QSlider *PhyAnimating::uiSliderAdd(float valMax, float valStart,
 	QLabel *pLabelValue = NULL;
 	QLabel *pLabelUnit = NULL;
 	LabelInfo inf;
+	char *pFound;
 
 	pSlider = new (nothrow) QSlider(Orientation::Horizontal);
 	if (!pSlider)
@@ -338,6 +339,11 @@ QSlider *PhyAnimating::uiSliderAdd(float valMax, float valStart,
 		goto exitErr;
 
 	snprintf(mBufLabel, sizeof(mBufLabel), "%.2f", valStart);
+
+	pFound = strchr(mBufLabel, ',');
+	if (pFound)
+		*pFound = '.';
+
 	pLabelValue->setText(mBufLabel);
 
 	if (strUnit.size())
@@ -487,6 +493,7 @@ void PhyAnimating::sliderUpdated(int value)
 {
 	QSlider *pSlider = (QSlider *)sender();
 	map<QWidget *, LabelInfo>::iterator iter;
+	char *pFound;
 
 	iter = mMapLabels.find(pSlider);
 	if (iter == mMapLabels.end())
@@ -497,6 +504,10 @@ void PhyAnimating::sliderUpdated(int value)
 	snprintf(mBufLabel, sizeof(mBufLabel),
 			"%.2f",
 			inf.valMax * value / 100);
+
+	pFound = strchr(mBufLabel, ',');
+	if (pFound)
+		*pFound = '.';
 
 	inf.pLabel->setText(mBufLabel);
 }
