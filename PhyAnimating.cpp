@@ -71,6 +71,9 @@ Success PhyAnimating::process()
 	{
 	case StStart:
 
+		if (levelDriver())
+			return procErrLog(-1, "this process can be created in the main thread only");
+
 		mStateBase = StQtInit;
 
 		break;
