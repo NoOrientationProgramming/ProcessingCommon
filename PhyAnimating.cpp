@@ -568,7 +568,7 @@ bool PhyAnimating::qtGlobalInit()
 		return false;
 	}
 
-	Processing::globalDestructorRegister(globalQtDestruct);
+	Processing::globalDestructorRegister(qtGlobalDestruct);
 
 	globalInitDone = true;
 
@@ -577,7 +577,7 @@ bool PhyAnimating::qtGlobalInit()
 
 /* static functions */
 
-void PhyAnimating::globalQtDestruct()
+void PhyAnimating::qtGlobalDestruct()
 {
 	dbgLog(LOG_LVL, "global Qt deinit");
 

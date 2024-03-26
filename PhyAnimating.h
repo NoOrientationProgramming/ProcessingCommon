@@ -120,7 +120,7 @@ private:
 	char mBufLabel[19];
 
 	/* static functions */
-	static void globalQtDestruct();
+	static void qtGlobalDestruct();
 
 	/* static variables */
 #if CONFIG_PROC_HAVE_DRIVERS
