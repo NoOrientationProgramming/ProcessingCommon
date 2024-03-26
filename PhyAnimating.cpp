@@ -581,7 +581,9 @@ bool PhyAnimating::qtGlobalInit()
 void PhyAnimating::qtGlobalDestruct()
 {
 	dbgLog(LOG_LVL, "global Qt deinit");
-
+#if CONFIG_PROC_HAVE_DRIVERS
+	Guard lock(mtxGlobalInit);
+#endif
 	dbgLog(LOG_LVL, "quitting Qt application");
 	QApplication::quit();
 	dbgLog(LOG_LVL, "quitting Qt application. Done");
