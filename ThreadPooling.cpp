@@ -205,7 +205,7 @@ Success ThreadPooling::shutdown()
 
 		if (mListProcs.size())
 		{
-			procWrnLog("driving not finished");
+			procDbgLog(LOG_LVL, "driving not finished");
 
 			mStateSd = StInternalSdMain;
 			break;
