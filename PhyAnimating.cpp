@@ -77,7 +77,7 @@ Success PhyAnimating::process()
 
 		ok = qtInit();
 		if (!ok)
-			return procErrLog(-1, "could not init Qt");
+			return procErrLog(-1, "could not initialize Qt");
 
 		mStateBase = StMainStart;
 
