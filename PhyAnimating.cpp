@@ -72,7 +72,7 @@ Success PhyAnimating::process()
 	case StStart:
 
 		if (levelDriver())
-			return procErrLog(-1, "this process can be created in the main thread only");
+			return procErrLog(-1, "Qt process cannot be driven in non-parent driver");
 
 		mStateBase = StQtInit;
 
