@@ -75,7 +75,7 @@ Success PhyAnimating::process()
 		break;
 	case StQtInit:
 
-		ok = qtInit();
+		ok = qtGlobalInit();
 		if (!ok)
 			return procErrLog(-1, "could not initialize Qt");
 
@@ -548,7 +548,7 @@ void PhyAnimating::sliderUpdated(int value)
 	inf.pLabel->setText(mBufLabel);
 }
 
-bool PhyAnimating::qtInit()
+bool PhyAnimating::qtGlobalInit()
 {
 #if CONFIG_PROC_HAVE_DRIVERS
 	Guard lock(mtxGlobalInit);

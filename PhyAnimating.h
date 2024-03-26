@@ -108,7 +108,7 @@ private:
 	virtual Success animShutdown();
 
 	void sliderUpdated(int value);
-	bool qtInit();
+	bool qtGlobalInit();
 
 	/* member variables */
 	uint32_t mStateBase;
