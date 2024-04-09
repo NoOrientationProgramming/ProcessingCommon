@@ -329,7 +329,7 @@ QCheckBox *PhyAnimating::uiSwitchAdd(const string &strLabel)
 	return pSwitch;
 }
 
-QSlider *PhyAnimating::uiSliderAdd(float valMax, float valStart,
+QSlider *PhyAnimating::uiSliderAdd(int valMax, int valStart,
 			const string &strPrefix,
 			const string &strUnit,
 			bool isTwoSided)
@@ -340,7 +340,6 @@ QSlider *PhyAnimating::uiSliderAdd(float valMax, float valStart,
 	QLabel *pLabelValue = NULL;
 	QLabel *pLabelUnit = NULL;
 	LabelInfo inf;
-	char *pFound;
 
 	pSlider = new (nothrow) QSlider(Orientation::Horizontal);
 	if (!pSlider)
@@ -360,12 +359,7 @@ QSlider *PhyAnimating::uiSliderAdd(float valMax, float valStart,
 	if (!pLabelValue)
 		goto exitErr;
 
-	snprintf(mBufLabel, sizeof(mBufLabel), "%.2f", valStart);
-
-	pFound = strchr(mBufLabel, ',');
-	if (pFound)
-		*pFound = '.';
-
+	snprintf(mBufLabel, sizeof(mBufLabel), "%d", valStart);
 	pLabelValue->setText(mBufLabel);
 
 	if (strUnit.size())
@@ -387,12 +381,12 @@ QSlider *PhyAnimating::uiSliderAdd(float valMax, float valStart,
 
 	// Slider config
 	if (isTwoSided)
-		pSlider->setRange(-100, 100);
+		pSlider->setRange(-valMax, valMax);
 	else
-		pSlider->setRange(0, 100);
+		pSlider->setRange(0, valMax);
 
-	pSlider->setSingleStep(25);
-	pSlider->setValue((int)((100 * valStart) / valMax));
+	pSlider->setSingleStep(valMax / 4);
+	pSlider->setValue(valStart);
 
 	// Connect
 	inf.pLabel = pLabelValue;
@@ -533,7 +527,6 @@ void PhyAnimating::sliderUpdated(int value)
 {
 	QSlider *pSlider = (QSlider *)sender();
 	map<QWidget *, LabelInfo>::iterator iter;
-	char *pFound;
 
 	iter = mMapLabels.find(pSlider);
 	if (iter == mMapLabels.end())
@@ -541,14 +534,7 @@ void PhyAnimating::sliderUpdated(int value)
 
 	LabelInfo inf = iter->second;
 
-	snprintf(mBufLabel, sizeof(mBufLabel),
-			"%.2f",
-			inf.valMax * value / 100);
-
-	pFound = strchr(mBufLabel, ',');
-	if (pFound)
-		*pFound = '.';
-
+	snprintf(mBufLabel, sizeof(mBufLabel), "%d", value);
 	inf.pLabel->setText(mBufLabel);
 }
 

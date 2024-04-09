@@ -72,7 +72,7 @@ protected:
 	QLabel *uiLabelAdd(const std::string &strPrefix = "", bool alignRight = true);
 	QPushButton *uiButtonAdd(const std::string &strText);
 	QCheckBox *uiSwitchAdd(const std::string &strLabel);
-	QSlider *uiSliderAdd(float valMax, float valStart,
+	QSlider *uiSliderAdd(int valMax, int valStart,
 				const std::string &strPrefix,
 				const std::string &strUnit = "",
 				bool isTwoSided = false);
