@@ -33,7 +33,7 @@
 #include "Processing.h"
 #include "Pipe.h"
 
-typedef void (*FctDriverCreate)(Processing *pProc, uint16_t idProc);
+typedef void (*FuncDriverPoolCreate)(Processing *pProc, uint16_t idProc);
 
 struct PoolRequest
 {
@@ -52,7 +52,7 @@ public:
 	}
 
 	void workerCntSet(uint16_t cnt);
-	void driverCreateFctSet(FctDriverCreate pFctDriverCreate);
+	void driverCreateSet(FuncDriverPoolCreate pFctDriverCreate);
 
 	static void procAdd(Processing *pProc, int32_t idDriver = -1);
 
@@ -87,7 +87,7 @@ private:
 	// Broker
 	uint16_t mCntInternals;
 	std::vector<ThreadPooling *> mVecInternals;
-	FctDriverCreate mpFctDriverCreate;
+	FuncDriverPoolCreate mpFctDriverCreate;
 
 	// Internal
 	bool mIsInternal;

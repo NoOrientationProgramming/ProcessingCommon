@@ -77,7 +77,7 @@ void ThreadPooling::workerCntSet(uint16_t cnt)
 	mCntInternals = cnt;
 }
 
-void ThreadPooling::driverCreateFctSet(FctDriverCreate pFctDriverCreate)
+void ThreadPooling::driverCreateSet(FuncDriverPoolCreate pFctDriverCreate)
 {
 	mpFctDriverCreate = pFctDriverCreate;
 }
