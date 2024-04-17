@@ -77,6 +77,8 @@ void *threadExecute(void *pData)
 
 void *driverPlatformCreate(FuncInternalDrive pFctDrive, void *pProc, void *pConfigDriver)
 {
+	//wrnLog("REMOVE_ME: creating custom driver");
+
 	pthread_attr_t attrThread;
 	ConfigDriver configDefault;
 	ConfigDriver *pConfig = &configDefault;
@@ -130,6 +132,8 @@ drvExit:
 
 void driverPlatformCleanUp(void *pDriver)
 {
+	//wrnLog("REMOVE_ME: cleaning up custom driver");
+
 	DriverLinux *pDrv = (DriverLinux *)pDriver;
 	pDriver = NULL;
 
