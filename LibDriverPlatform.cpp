@@ -23,13 +23,40 @@
   along with this program. If not, see <http://www.gnu.org/licenses/>.
 */
 
+// Platform includes
+
 #if defined(__linux__)
 #include <pthread.h>
 #endif
 
+// Common
+
 #include "LibDriverPlatform.h"
 
 using namespace std;
+
+// Platform types
+
+#if defined(__linux__)
+struct DriverLinux
+{
+	pthread_t thread;
+	ConfigDriver config;
+	FuncInternalDrive pFctDrive;
+	void *pProc;
+};
+#endif
+
+// class ConfigDriver
+
+size_t ConfigDriver::sizeStackDefault = 16384;
+
+void ConfigDriver::sizeStackDefaultSet(size_t sizeStack)
+{
+	sizeStackDefault = sizeStack;
+}
+
+// Platform code
 
 /*
  * Literature
@@ -41,40 +68,37 @@ using namespace std;
 #if defined(__linux__)
 void *threadExecute(void *pData)
 {
-	DriverCustom *pDrv = (DriverCustom *)pData;
+	DriverLinux *pDrv = (DriverLinux *)pData;
 	pDrv->pFctDrive(pDrv->pProc);
 	return NULL;
 }
 
 void *driverPlatformCreate(FuncInternalDrive pFctDrive, void *pProc, void *pConfigDriver)
 {
-	wrnLog("REMOVE_ME: creating custom driver");
-
 	pthread_attr_t attrThread;
-	bool initConfigDone = false;
-	DriverCustomConfig *pConfig;
-	DriverCustom *pDrv = NULL;
+	ConfigDriver configDefault;
+	ConfigDriver *pConfig = &configDefault;
+	DriverLinux *pDrv = NULL;
 	int res;
 
 	res = pthread_attr_init(&attrThread);
 	if (res)
 	{
-		errLog(-1, "could not initialize thread attributes: %s (%d)", strerror(errno), errno);
-		goto drvExit;
+		errLog(-1, "could not initialize thread attributes: %s (%d)", strerror(res), res);
+		return NULL;
 	}
 
-	initConfigDone = true;
-
-	pConfig = (DriverCustomConfig *)pConfigDriver;
+	if (pConfigDriver)
+		pConfig = (ConfigDriver *)pConfigDriver;
 
 	res = pthread_attr_setstacksize(&attrThread, pConfig->mSizeStack);
 	if (res)
 	{
-		errLog(-1, "could not set stack size: %s (%d)", strerror(errno), errno);
+		errLog(-1, "could not set stack size: %s (%d)", strerror(res), res);
 		goto drvExit;
 	}
 
-	pDrv = new (nothrow) DriverCustom;
+	pDrv = new (nothrow) DriverLinux;
 	if (!pDrv)
 	{
 		errLog(-1, "could not allocate custom driver");
@@ -88,69 +112,60 @@ void *driverPlatformCreate(FuncInternalDrive pFctDrive, void *pProc, void *pConf
 	res = pthread_create(&pDrv->thread, &attrThread, threadExecute, pDrv);
 	if (res)
 	{
+		errLog(-1, "could not create custom driver: %s (%d)", strerror(res), res);
 		delete pDrv;
 		pDrv = NULL;
-
-		errLog(-1, "could not create custom driver: %s (%d)", strerror(errno), errno);
-		goto drvExit;
 	}
 
 drvExit:
 
-	if (initConfigDone)
-	{
-		res = pthread_attr_destroy(&attrThread);
-		if (res)
-			errLog(-1, "could not destroy thread attributes: %s (%d)", strerror(errno), errno);
-	}
+	res = pthread_attr_destroy(&attrThread);
+	if (res)
+		errLog(-1, "could not destroy thread attributes: %s (%d)", strerror(res), res);
 
 	return pDrv;
 }
 
 void driverPlatformCleanUp(void *pDriver)
 {
-	wrnLog("REMOVE_ME: cleaning up custom driver");
-
-	DriverCustom *pDrv = (DriverCustom *)pDriver;
+	DriverLinux *pDrv = (DriverLinux *)pDriver;
+	pDriver = NULL;
 
 	int res = pthread_join(pDrv->thread, NULL);
 	if (res)
-		errLog(-1, "could not cleanup custom driver: %s (%d)", strerror(errno), errno);
+		errLog(-1, "could not cleanup custom driver: %s (%d)", strerror(res), res);
 
 	delete pDrv;
+	pDrv = NULL;
 }
 
+/*
+ * Literature
+ * - https://man7.org/linux/man-pages/man3/pthread_getattr_np.3.html
+ */
 size_t sizeStackGet()
 {
 	pthread_attr_t attrThread;
-	bool initConfigDone = false;
+	size_t sizeStack;
 	int res;
-	size_t sizeStack = 0;
 
-	res = pthread_attr_init(&attrThread);
+	res = pthread_getattr_np(pthread_self(), &attrThread); // non-standard
 	if (res)
 	{
-		errLog(-1, "could not initialize thread attributes: %s (%d)", strerror(errno), errno);
-		goto drvExit;
+		errLog(-1, "could not get thread attributes: %s (%d)", strerror(res), res);
+		return 0;
 	}
-
-	initConfigDone = true;
 
 	res = pthread_attr_getstacksize(&attrThread, &sizeStack);
 	if (res)
 	{
-		errLog(-1, "could not get stack size: %s (%d)", strerror(errno), errno);
-		goto drvExit;
+		errLog(-1, "could not get stack size: %s (%d)", strerror(res), res);
+		sizeStack = 0;
 	}
 
-drvExit:
-
-	if (initConfigDone)
-	{
-		res = pthread_attr_destroy(&attrThread);
-		if (res)
-			errLog(-1, "could not destroy thread attributes: %s (%d)", strerror(errno), errno);
-	}
+	res = pthread_attr_destroy(&attrThread);
+	if (res)
+		errLog(-1, "could not destroy thread attributes: %s (%d)", strerror(res), res);
 
 	return sizeStack;
 }

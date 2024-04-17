@@ -26,26 +26,21 @@
 #ifndef LIB_DRIVER_PLATFORM_H
 #define LIB_DRIVER_PLATFORM_H
 
-#include <pthread.h>
-
 #include "Processing.h"
 
-class DriverCustomConfig
+class ConfigDriver
 {
 public:
-	DriverCustomConfig()
-		: mSizeStack(7)
+	ConfigDriver()
+		: mSizeStack(sizeStackDefault)
 	{}
 
-	size_t mSizeStack;
-};
+	static void sizeStackDefaultSet(size_t sizeStack);
 
-struct DriverCustom
-{
-	pthread_t thread;
-	DriverCustomConfig config;
-	FuncInternalDrive pFctDrive;
-	void *pProc;
+	size_t mSizeStack;
+
+private:
+	static size_t sizeStackDefault;
 };
 
 void *driverPlatformCreate(FuncInternalDrive pFctDrive, void *pProc, void *pConfigDriver);
