@@ -27,6 +27,8 @@
 
 #if defined(__linux__)
 #include <pthread.h>
+#else
+#error "No specific drivers implemented for this platform"
 #endif
 
 // Common
