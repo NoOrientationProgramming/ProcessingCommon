@@ -27,7 +27,7 @@
 #include <pthread.h>
 #endif
 
-#include "LibDriverCustom.h"
+#include "LibDriverPlatform.h"
 
 using namespace std;
 
@@ -46,7 +46,7 @@ void *threadExecute(void *pData)
 	return NULL;
 }
 
-void *platformDriverCreate(FuncInternalDrive pFctDrive, void *pProc, void *pConfigDriver)
+void *driverPlatformCreate(FuncInternalDrive pFctDrive, void *pProc, void *pConfigDriver)
 {
 	wrnLog("REMOVE_ME: creating custom driver");
 
@@ -107,7 +107,7 @@ drvExit:
 	return pDrv;
 }
 
-void platformDriverCleanUp(void *pDriver)
+void driverPlatformCleanUp(void *pDriver)
 {
 	wrnLog("REMOVE_ME: cleaning up custom driver");
 

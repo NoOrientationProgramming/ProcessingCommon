@@ -23,8 +23,8 @@
   along with this program. If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef LIB_DRIVER_CUSTOM_H
-#define LIB_DRIVER_CUSTOM_H
+#ifndef LIB_DRIVER_PLATFORM_H
+#define LIB_DRIVER_PLATFORM_H
 
 #include <pthread.h>
 
@@ -48,8 +48,8 @@ struct DriverCustom
 	void *pProc;
 };
 
-void *platformDriverCreate(FuncInternalDrive pFctDrive, void *pProc, void *pConfigDriver);
-void platformDriverCleanUp(void *pDriver);
+void *driverPlatformCreate(FuncInternalDrive pFctDrive, void *pProc, void *pConfigDriver);
+void driverPlatformCleanUp(void *pDriver);
 size_t sizeStackGet();
 
 #endif
