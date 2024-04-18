@@ -24,6 +24,7 @@
 */
 
 #include <iostream>
+#include <sstream>
 #include <chrono>
 #include <cinttypes>
 #include <string.h>
