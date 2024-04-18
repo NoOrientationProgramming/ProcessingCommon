@@ -25,7 +25,11 @@
 
 // Platform includes
 
-#if defined(__linux__)
+/*
+ * Literature
+ * - https://stackoverflow.com/questions/5919996/how-to-detect-reliably-mac-os-x-ios-linux-windows-in-c-preprocessor
+ */
+#if defined(__linux__) || defined(__APPLE__)
 #include <pthread.h>
 #elif defined(_WIN32)
 #include <windows.h>
@@ -43,7 +47,7 @@ using namespace std;
 
 struct DriverPlatform
 {
-#if defined(__linux__)
+#if defined(__linux__) || defined(__APPLE__)
 	pthread_t pthread;
 #elif defined(_WIN32)
 	HANDLE hThread;
@@ -72,7 +76,7 @@ void ConfigDriver::sizeStackDefaultSet(size_t sizeStack)
  * - https://man7.org/linux/man-pages/man3/pthread_attr_init.3.html
  * - https://man7.org/linux/man-pages/man3/pthread_attr_setstacksize.3.html
  */
-#if defined(__linux__)
+#if defined(__linux__) || defined(__APPLE__)
 void *threadExecute(void *pData)
 {
 	DriverPlatform *pDrv = (DriverPlatform *)pData;
