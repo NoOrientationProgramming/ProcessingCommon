@@ -49,10 +49,8 @@ struct PairFd
 	int fdWrite;
 };
 
-#if defined(__linux__)
 bool maxFdsSet(rlim_t val);
 bool coreDumpsEnable(void (*pFctReq)(int signum) = NULL);
-#endif
 void pipeInit(PairFd &pair);
 void pipeClose(PairFd &pair, bool deInit = true);
 

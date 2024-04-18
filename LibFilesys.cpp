@@ -30,9 +30,7 @@
 #include <string.h>
 
 #include <unistd.h>
-#if defined(__linux__)
 #include <sys/prctl.h>
-#endif
 #include <signal.h>
 
 #include "LibFilesys.h"
@@ -53,7 +51,6 @@ static int fdLockDefault = 0;
 static mutex globalLocksMtx;
 static map<string, GlobalLock> globalLocks;
 
-#if defined(__linux__)
 // - https://linux.die.net/man/2/setrlimit
 // - https://www.man7.org/linux/man-pages/man3/getrlimit.3p.html
 bool maxFdsSet(rlim_t val)
@@ -127,7 +124,6 @@ bool coreDumpsEnable(void (*pFctReq)(int signum))
 
 	return true;
 }
-#endif
 
 void pipeInit(PairFd &pair)
 {
