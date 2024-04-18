@@ -30,8 +30,10 @@
 #include <string.h>
 
 #include <unistd.h>
-#include <sys/prctl.h>
 #include <signal.h>
+#if defined(__linux__)
+#include <sys/prctl.h>
+#endif
 
 #include "LibFilesys.h"
 
@@ -79,6 +81,7 @@ bool maxFdsSet(rlim_t val)
 	return true;
 }
 
+#if defined(__linux__)
 // - https://man7.org/linux/man-pages/man2/prctl.2.html
 // - https://man7.org/linux/man-pages/man5/core.5.html
 // - https://man7.org/linux/man-pages/man5/proc.5.html
@@ -124,6 +127,7 @@ bool coreDumpsEnable(void (*pFctReq)(int signum))
 
 	return true;
 }
+#endif
 
 void pipeInit(PairFd &pair)
 {
