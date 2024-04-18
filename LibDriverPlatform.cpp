@@ -28,6 +28,7 @@
 #if defined(__linux__)
 #include <pthread.h>
 #elif defined(_WIN32)
+#include <windows.h>
 #else
 #error "No specific drivers implemented for this platform"
 #endif
@@ -40,10 +41,13 @@ using namespace std;
 
 // Platform types
 
-struct DriverLinux
+struct DriverPlatform
 {
 #if defined(__linux__)
 	pthread_t pthread;
+#elif defined(_WIN32)
+	HANDLE hThread;
+	DWORD idThread;
 #endif
 	ConfigDriver config;
 	FuncInternalDrive pFctDrive;
@@ -71,7 +75,7 @@ void ConfigDriver::sizeStackDefaultSet(size_t sizeStack)
 #if defined(__linux__)
 void *threadExecute(void *pData)
 {
-	DriverLinux *pDrv = (DriverLinux *)pData;
+	DriverPlatform *pDrv = (DriverPlatform *)pData;
 	pDrv->pFctDrive(pDrv->pProc);
 	return NULL;
 }
@@ -83,13 +87,13 @@ void *driverPlatformCreate(FuncInternalDrive pFctDrive, void *pProc, void *pConf
 	pthread_attr_t attrThread;
 	ConfigDriver configDefault;
 	ConfigDriver *pConfig = &configDefault;
-	DriverLinux *pDrv = NULL;
+	DriverPlatform *pDrv = NULL;
 	int res;
 
 	res = pthread_attr_init(&attrThread);
 	if (res)
 	{
-		errLog(-1, "could not initialize thread attributes: %s (%d)", strerror(res), res);
+		errLog(-1, "could not initialize pthread attributes: %s (%d)", strerror(res), res);
 		return NULL;
 	}
 
@@ -103,7 +107,7 @@ void *driverPlatformCreate(FuncInternalDrive pFctDrive, void *pProc, void *pConf
 		goto drvExit;
 	}
 
-	pDrv = new (nothrow) DriverLinux;
+	pDrv = new (nothrow) DriverPlatform;
 	if (!pDrv)
 	{
 		errLog(-1, "could not allocate custom driver");
@@ -117,7 +121,7 @@ void *driverPlatformCreate(FuncInternalDrive pFctDrive, void *pProc, void *pConf
 	res = pthread_create(&pDrv->pthread, &attrThread, threadExecute, pDrv);
 	if (res)
 	{
-		errLog(-1, "could not create custom driver: %s (%d)", strerror(res), res);
+		errLog(-1, "could not create pthread: %s (%d)", strerror(res), res);
 		delete pDrv;
 		pDrv = NULL;
 	}
@@ -126,7 +130,7 @@ drvExit:
 
 	res = pthread_attr_destroy(&attrThread);
 	if (res)
-		errLog(-1, "could not destroy thread attributes: %s (%d)", strerror(res), res);
+		errLog(-1, "could not destroy pthread attributes: %s (%d)", strerror(res), res);
 
 	return pDrv;
 }
@@ -135,12 +139,12 @@ void driverPlatformCleanUp(void *pDriver)
 {
 	//wrnLog("REMOVE_ME: cleaning up custom driver");
 
-	DriverLinux *pDrv = (DriverLinux *)pDriver;
+	DriverPlatform *pDrv = (DriverPlatform *)pDriver;
 	pDriver = NULL;
 
 	int res = pthread_join(pDrv->pthread, NULL);
 	if (res)
-		errLog(-1, "could not cleanup custom driver: %s (%d)", strerror(res), res);
+		errLog(-1, "could not join pthread: %s (%d)", strerror(res), res);
 
 	delete pDrv;
 	pDrv = NULL;
@@ -159,7 +163,7 @@ size_t sizeStackGet()
 	res = pthread_getattr_np(pthread_self(), &attrThread); // non-standard
 	if (res)
 	{
-		errLog(-1, "could not get thread attributes: %s (%d)", strerror(res), res);
+		errLog(-1, "could not get pthread attributes: %s (%d)", strerror(res), res);
 		return 0;
 	}
 
@@ -172,7 +176,7 @@ size_t sizeStackGet()
 
 	res = pthread_attr_destroy(&attrThread);
 	if (res)
-		errLog(-1, "could not destroy thread attributes: %s (%d)", strerror(res), res);
+		errLog(-1, "could not destroy pthread attributes: %s (%d)", strerror(res), res);
 
 	return sizeStack;
 }
@@ -180,24 +184,91 @@ size_t sizeStackGet()
 
 /* Literature
  * - https://learn.microsoft.com/en-us/windows/win32/procthread/creating-threads
+ * - https://learn.microsoft.com/en-us/windows/win32/api/processthreadsapi/nf-processthreadsapi-createthread
+ * - https://learn.microsoft.com/en-us/windows/win32/api/errhandlingapi/nf-errhandlingapi-getlasterror
  */
 #if defined(_WIN32)
+DWORD WINAPI threadExecute(LPVOID lpParam)
+{
+	DriverPlatform *pDrv = (DriverPlatform *)lpParam;
+	pDrv->pFctDrive(pDrv->pProc);
+	return 0;
+}
+
 void *driverPlatformCreate(FuncInternalDrive pFctDrive, void *pProc, void *pConfigDriver)
 {
-	(void)pFctDrive;
-	(void)pProc;
-	(void)pConfigDriver;
-	return NULL;
+	ConfigDriver configDefault;
+	ConfigDriver *pConfig = &configDefault;
+	DriverPlatform *pDrv = NULL;
+
+	if (pConfigDriver)
+		pConfig = (ConfigDriver *)pConfigDriver;
+
+	pDrv = new (nothrow) DriverPlatform;
+	if (!pDrv)
+	{
+		errLog(-1, "could not allocate custom driver");
+		goto drvExit;
+	}
+
+	pDrv->config = *pConfig;
+	pDrv->pFctDrive = pFctDrive;
+	pDrv->pProc = pProc;
+
+	pDrv->hThread = CreateThread(
+		NULL,				// default security attributes
+		pConfig->mSizeStack,	// custom stack size
+		threadExecute,			// thread function name
+		pDrv,				// argument to thread function
+		0,					// use default creation flags
+		&pDrv->idThread);		// returns the thread identifier
+	if (pDrv->hThread == NULL)
+	{
+		errLog(-1, "could not create thread");
+		delete pDrv;
+		pDrv = NULL;
+	}
+
+drvExit:
+
+	return pDrv;
 }
 
+/*
+ * Literature
+ * - https://learn.microsoft.com/en-us/windows/win32/api/synchapi/nf-synchapi-waitforsingleobject
+ * - https://learn.microsoft.com/en-us/windows/win32/api/handleapi/nf-handleapi-closehandle
+ * - https://learn.microsoft.com/en-us/windows/win32/procthread/thread-stack-size?redirectedfrom=MSDN
+ */
 void driverPlatformCleanUp(void *pDriver)
 {
-	(void)pDriver;
+	DriverPlatform *pDrv = (DriverPlatform *)pDriver;
+	pDriver = NULL;
+
+	DWORD res = WaitForSingleObject(pDrv->hThread, INFINITE);
+	if (res != WAIT_OBJECT_0)
+		errLog(-1, "could not wait for thread");
+
+	BOOL ok = CloseHandle(pDrv->hThread);
+	if (!ok)
+		errLog(-1, "could not close thread");
+
+	pDrv->hThread = NULL;
+
+	delete pDrv;
+	pDrv = NULL;
 }
 
+/*
+ * Literature
+ * - https://learn.microsoft.com/en-us/windows/win32/procthread/thread-stack-size
+ * - https://learn.microsoft.com/en-us/windows/win32/api/processthreadsapi/nf-processthreadsapi-getcurrentthreadstacklimits
+ */
 size_t sizeStackGet()
 {
-	return 0;
+	ULONG_PTR limitLow, limitHigh;
+	GetCurrentThreadStackLimits(&limitLow, &limitHigh);
+	return limitHigh - limitLow;
 }
 #endif
 
