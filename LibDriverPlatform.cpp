@@ -27,6 +27,7 @@
 
 #if defined(__linux__)
 #include <pthread.h>
+#elif defined(_WIN32)
 #else
 #error "No specific drivers implemented for this platform"
 #endif
@@ -39,15 +40,15 @@ using namespace std;
 
 // Platform types
 
-#if defined(__linux__)
 struct DriverLinux
 {
-	pthread_t thread;
+#if defined(__linux__)
+	pthread_t pthread;
+#endif
 	ConfigDriver config;
 	FuncInternalDrive pFctDrive;
 	void *pProc;
 };
-#endif
 
 // class ConfigDriver
 
@@ -113,7 +114,7 @@ void *driverPlatformCreate(FuncInternalDrive pFctDrive, void *pProc, void *pConf
 	pDrv->pFctDrive = pFctDrive;
 	pDrv->pProc = pProc;
 
-	res = pthread_create(&pDrv->thread, &attrThread, threadExecute, pDrv);
+	res = pthread_create(&pDrv->pthread, &attrThread, threadExecute, pDrv);
 	if (res)
 	{
 		errLog(-1, "could not create custom driver: %s (%d)", strerror(res), res);
@@ -137,7 +138,7 @@ void driverPlatformCleanUp(void *pDriver)
 	DriverLinux *pDrv = (DriverLinux *)pDriver;
 	pDriver = NULL;
 
-	int res = pthread_join(pDrv->thread, NULL);
+	int res = pthread_join(pDrv->pthread, NULL);
 	if (res)
 		errLog(-1, "could not cleanup custom driver: %s (%d)", strerror(res), res);
 
@@ -181,5 +182,22 @@ size_t sizeStackGet()
  * - https://learn.microsoft.com/en-us/windows/win32/procthread/creating-threads
  */
 #if defined(_WIN32)
+void *driverPlatformCreate(FuncInternalDrive pFctDrive, void *pProc, void *pConfigDriver)
+{
+	(void)pFctDrive;
+	(void)pProc;
+	(void)pConfigDriver;
+	return NULL;
+}
+
+void driverPlatformCleanUp(void *pDriver)
+{
+	(void)pDriver;
+}
+
+size_t sizeStackGet()
+{
+	return 0;
+}
 #endif
 
