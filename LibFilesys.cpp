@@ -359,9 +359,9 @@ void lockDirDefaultClose()
 	close(fdLockDefault);
 }
 
-Success sysFlagsIntLock(void *pRequester, const char *filename, const char *function, const int line, UserLocks &locks, ...)
+Success sysFlagsIntLock(void *pRequester, const char *filename, const char *function, const int line, UserLocks *pLocks, ...)
 {
-	if (fdLockDefault < 0)
+	if (fdLockDefault < 0 || !pLocks)
 		return -1;
 
 	int res;
@@ -386,7 +386,7 @@ Success sysFlagsIntLock(void *pRequester, const char *filename, const char *func
 	string pathFlag;
 
 	// Step 2: Check if all resources/flags are available
-	va_start(args, locks);
+	va_start(args, pLocks);
 	while (pArg = va_arg(args, const char *), pArg)
 	{
 		pathFlag = lockDefaultDirBase + pArg;
@@ -402,7 +402,7 @@ Success sysFlagsIntLock(void *pRequester, const char *filename, const char *func
 	va_end(args);
 
 	// Step 3: Take/create all flags
-	va_start(args, locks);
+	va_start(args, pLocks);
 	while (pArg = va_arg(args, const char *), pArg)
 		fileCreate(lockDefaultDirBase + pArg);
 	va_end(args);
@@ -425,11 +425,11 @@ Success sysFlagsIntLock(void *pRequester, const char *filename, const char *func
 		gLock.function = function;
 		gLock.line = line;
 
-		va_start(args, locks);
+		va_start(args, pLocks);
 		while (pArg = va_arg(args, const char *), pArg)
 		{
 			uLock.nameRes = pArg;
-			locks.push_back(uLock);
+			pLocks->push_back(uLock);
 
 			gLock.nameRes = pArg;
 			globalLocks[pArg] = gLock;
@@ -440,12 +440,12 @@ Success sysFlagsIntLock(void *pRequester, const char *filename, const char *func
 	return Positive;
 }
 
-void sysFlagsIntUnlock(void *pRequester, const char *filename, const char *function, const int line, UserLocks &locks)
+void sysFlagsIntUnlock(void *pRequester, const char *filename, const char *function, const int line, UserLocks *pLocks)
 {
-	if (fdLockDefault < 0)
+	if (fdLockDefault < 0 || !pLocks)
 		return;
 
-	if (!locks.size())
+	if (!pLocks->size())
 		return;
 #if 0
 	wrnLog("Process %p is unlocking", pRequester);
@@ -461,22 +461,22 @@ void sysFlagsIntUnlock(void *pRequester, const char *filename, const char *funct
 	{
 		lock_guard<mutex> lock(globalLocksMtx);
 
-		iuLock = locks.begin();
-		for (; iuLock != locks.end(); ++iuLock)
+		iuLock = pLocks->begin();
+		for (; iuLock != pLocks->end(); ++iuLock)
 			globalLocks.erase(iuLock->nameRes);
 	}
 
 	string pathFlag;
 
-	iuLock = locks.begin();
-	for (; iuLock != locks.end(); ++iuLock)
+	iuLock = pLocks->begin();
+	for (; iuLock != pLocks->end(); ++iuLock)
 	{
 #if 0
 		wrnLog("Unlocking %s", iuLock->nameRes.c_str());
 #endif
 		pathFlag = lockDefaultDirBase + iuLock->nameRes;
 		remove(pathFlag.c_str());
-		iuLock = locks.erase(iuLock);
+		iuLock = pLocks->erase(iuLock);
 	}
 }
 
