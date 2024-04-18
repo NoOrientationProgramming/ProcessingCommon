@@ -30,6 +30,9 @@
  * - https://stackoverflow.com/questions/5919996/how-to-detect-reliably-mac-os-x-ios-linux-windows-in-c-preprocessor
  */
 #if defined(__linux__) || defined(__APPLE__)
+#if defined(__APPLE__)
+#define _GNU_SOURCE
+#endif
 #include <pthread.h>
 #elif defined(_WIN32)
 #include <windows.h>
