@@ -107,7 +107,7 @@ bool coreDumpsEnable(void (*pFctReq)(int signum))
 		return false;
 	}
 
-	lim.rlim_cur = RLIM64_INFINITY;
+	lim.rlim_cur = RLIM_INFINITY;
 
 	res = setrlimit(RLIMIT_CORE, &lim);
 	if (res)
