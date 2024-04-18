@@ -30,9 +30,6 @@
  * - https://stackoverflow.com/questions/5919996/how-to-detect-reliably-mac-os-x-ios-linux-windows-in-c-preprocessor
  */
 #if defined(__linux__) || defined(__APPLE__)
-#if defined(__APPLE__)
-#define _GNU_SOURCE
-#endif
 #include <pthread.h>
 #elif defined(_WIN32)
 #include <windows.h>
@@ -166,11 +163,11 @@ size_t sizeStackGet()
 	pthread_attr_t attrThread;
 	size_t sizeStack;
 	int res;
-//#if defined(__APPLE__)
-//	res = pthread_attr_init(&attrThread);
-//#else
+#if defined(__APPLE__)
+	res = pthread_attr_init(&attrThread);
+#else
 	res = pthread_getattr_np(pthread_self(), &attrThread); // non-standard
-//#endif
+#endif
 	if (res)
 	{
 		errLog(-1, "could not get pthread attributes: %s (%d)", strerror(res), res);
