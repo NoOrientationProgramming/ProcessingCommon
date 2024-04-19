@@ -163,10 +163,10 @@ size_t sizeStackGet()
 	pthread_attr_t attrThread;
 	size_t sizeStack;
 	int res;
-#if defined(__APPLE__)
-	res = pthread_attr_init(&attrThread);
-#else
+#if defined(__linux__)
 	res = pthread_getattr_np(pthread_self(), &attrThread); // non-standard
+#else
+	res = pthread_attr_init(&attrThread);
 #endif
 	if (res)
 	{
