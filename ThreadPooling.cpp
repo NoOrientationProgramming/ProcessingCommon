@@ -137,7 +137,7 @@ Success ThreadPooling::process()
 		PipeEntry<PoolRequest> entryReq;
 		PoolRequest req;
 
-		if (!ppPoolRequests.get(entryReq))
+		if (ppPoolRequests.get(entryReq) < 1)
 			break;
 		req = entryReq.particle;
 
