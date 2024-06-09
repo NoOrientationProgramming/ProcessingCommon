@@ -50,7 +50,7 @@ public:
 		return new (std::nothrow) EventListening;
 	}
 
-	static Success pop(
+	static ssize_t pop(
 			const std::string &refMsg,
 			Json::Value &msgEvent);
 

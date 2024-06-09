@@ -238,21 +238,21 @@ Success EventListening::msgEnqueue(TcpTransfering *pConn)
 }
 
 // msgDequeue
-Success EventListening::pop(const string &refMsg, Value &msgEvent)
+ssize_t EventListening::pop(const string &refMsg, Value &msgEvent)
 {
 	Guard lock(mMtxEvents);
 	map<string, Value>::iterator iter;
 
 	iter = mEvents.find(refMsg);
 	if (iter == mEvents.end())
-		return Pending;
+		return 0;
 
 	msgEvent = iter->second;
 	msgEvent.removeMember("msEnqueued");
 
 	mEvents.erase(iter);
 
-	return Positive;
+	return 1;
 }
 
 void EventListening::dequeueTimeoutsCheck()
