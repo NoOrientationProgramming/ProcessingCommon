@@ -111,7 +111,7 @@ void EventListening::connectionsAccept()
 	TcpTransfering *pConn;
 	OpenEventConn openConn;
 
-	if (!mpLst->ppPeerFd.get(peerFdEntry))
+	if (mpLst->ppPeerFd.get(peerFdEntry) < 1)
 		return;
 	peerFd = peerFdEntry.particle;
 
