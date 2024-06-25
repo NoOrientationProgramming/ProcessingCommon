@@ -76,8 +76,9 @@ private:
 	Success shutdown();
 	void processInfo(char *pBuf, char *pBufEnd);
 
-	int32_t idDriverNextGet();
+	void poolRequestsProcess();
 	void procsDrive();
+	int32_t idDriverNextGet();
 	size_t numProcessingGet();
 	void procInternalAdd(Processing *pProc);
 

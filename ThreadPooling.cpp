@@ -85,7 +85,6 @@ void ThreadPooling::driverCreateSet(FuncDriverPoolCreate pFctDriverCreate)
 Success ThreadPooling::process()
 {
 	//Success success;
-	int32_t idDriver = 0;
 #if 0
 	dStateTrace;
 #endif
@@ -134,21 +133,7 @@ Success ThreadPooling::process()
 		break;
 	case StBrokerMain:
 
-		PipeEntry<PoolRequest> entryReq;
-		PoolRequest req;
-
-		if (ppPoolRequests.get(entryReq) < 1)
-			break;
-		req = entryReq.particle;
-
-		procDbgLog(LOG_LVL, "pool request received");
-
-		if (req.idDriverDesired >= 0 && req.idDriverDesired < mCntInternals)
-			idDriver = req.idDriverDesired;
-		else
-			idDriver = idDriverNextGet();
-
-		mVecInternals[idDriver]->procInternalAdd(req.pProc);
+		poolRequestsProcess();
 
 		break;
 	case StInternalStart:
@@ -229,6 +214,27 @@ Success ThreadPooling::shutdown()
 	}
 
 	return Pending;
+}
+
+void ThreadPooling::poolRequestsProcess()
+{
+	PipeEntry<PoolRequest> entryReq;
+	PoolRequest req;
+	int32_t idDriver;
+
+	while (ppPoolRequests.get(entryReq) > 0)
+	{
+		req = entryReq.particle;
+
+		procDbgLog(LOG_LVL, "pool request received");
+
+		if (req.idDriverDesired >= 0 && req.idDriverDesired < mCntInternals)
+			idDriver = req.idDriverDesired;
+		else
+			idDriver = idDriverNextGet();
+
+		mVecInternals[idDriver]->procInternalAdd(req.pProc);
+	}
 }
 
 void ThreadPooling::procsDrive()
