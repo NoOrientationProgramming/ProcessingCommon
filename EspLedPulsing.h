@@ -52,8 +52,8 @@ protected:
 
 private:
 
-	EspLedPulsing(const EspLedPulsing &) : Processing("") {}
-	EspLedPulsing &operator=(const EspLedPulsing &) { return *this; }
+	EspLedPulsing(const EspLedPulsing &) = delete;
+	EspLedPulsing &operator=(const EspLedPulsing &) = delete;
 
 	/*
 	 * Naming of functions:  objectVerb()

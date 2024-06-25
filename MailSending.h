@@ -62,8 +62,8 @@ protected:
 
 private:
 
-	MailSending(const MailSending &) : Processing("") {}
-	MailSending &operator=(const MailSending &) { return *this; }
+	MailSending(const MailSending &) = delete;
+	MailSending &operator=(const MailSending &) = delete;
 
 	/*
 	 * Naming of functions:  objectVerb()

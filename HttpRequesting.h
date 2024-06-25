@@ -83,11 +83,8 @@ protected:
 
 private:
 
-	HttpRequesting(const HttpRequesting &) : Processing("") {}
-	HttpRequesting &operator=(const HttpRequesting &)
-	{
-		return *this;
-	}
+	HttpRequesting(const HttpRequesting &) = delete;
+	HttpRequesting &operator=(const HttpRequesting &) = delete;
 
 	Success initialize();
 	Success process();

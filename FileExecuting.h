@@ -189,8 +189,8 @@ protected:
 
 private:
 
-	FileExecuting(const FileExecuting &) : Transfering("") {}
-	FileExecuting &operator=(const FileExecuting &) { return *this; }
+	FileExecuting(const FileExecuting &) = delete;
+	FileExecuting &operator=(const FileExecuting &) = delete;
 
 	/*
 	 * Naming of functions:  objectVerb()

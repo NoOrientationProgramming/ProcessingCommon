@@ -59,12 +59,9 @@ protected:
 
 private:
 
-	JsonProcessing() : Processing("") {}
-	JsonProcessing(const JsonProcessing &) : Processing("") {}
-	JsonProcessing &operator=(const JsonProcessing &)
-	{
-		return *this;
-	}
+	JsonProcessing() = delete;
+	JsonProcessing(const JsonProcessing &) = delete;
+	JsonProcessing &operator=(const JsonProcessing &) = delete;
 
 	/*
 	 * Naming of functions:  objectVerb()

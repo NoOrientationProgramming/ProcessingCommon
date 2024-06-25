@@ -61,8 +61,8 @@ protected:
 
 private:
 
-	EventListening(const EventListening &) : Processing("") {}
-	EventListening &operator=(const EventListening &) { return *this; }
+	EventListening(const EventListening &) = delete;
+	EventListening &operator=(const EventListening &) = delete;
 
 	/*
 	 * Naming of functions:  objectVerb()

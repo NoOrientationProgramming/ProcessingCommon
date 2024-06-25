@@ -86,15 +86,9 @@ protected:
 
 private:
 
-	PhyAnimating()
-		: Processing("")
-		, QObject()
-	{}
-	PhyAnimating(const PhyAnimating &)
-		: Processing("")
-		, QObject()
-	{}
-	PhyAnimating &operator=(const PhyAnimating &) { return *this; }
+	PhyAnimating() = delete;
+	PhyAnimating(const PhyAnimating &) = delete;
+	PhyAnimating &operator=(const PhyAnimating &) = delete;
 
 	/*
 	 * Naming of functions:  objectVerb()

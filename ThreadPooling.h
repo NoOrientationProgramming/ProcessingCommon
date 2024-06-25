@@ -63,8 +63,8 @@ protected:
 
 private:
 
-	ThreadPooling(const ThreadPooling &) : Processing("") {}
-	ThreadPooling &operator=(const ThreadPooling &) { return *this; }
+	ThreadPooling(const ThreadPooling &) = delete;
+	ThreadPooling &operator=(const ThreadPooling &) = delete;
 
 	/*
 	 * Naming of functions:  objectVerb()
