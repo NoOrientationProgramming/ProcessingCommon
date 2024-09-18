@@ -282,6 +282,25 @@ void jsonPrint(const Value &val)
 // Cryptography
 
 #if CONFIG_LIB_DSPC_HAVE_CRYPTOPP
+string base64enc(const string &msg)
+{
+	Base64Encoder encoder;
+	string encoded;
+	size_t size;
+
+	encoder.Put((const byte *)msg.data(), msg.size());
+	encoder.MessageEnd();
+
+	size = encoder.MaxRetrievable();
+	if (!size)
+		return "";
+
+	encoded.resize(size);
+	encoder.Get((byte *)&encoded[0], encoded.size());
+
+	return encoded;
+}
+
 string md5(const string &msg, const string &prefix)
 {
 	Weak::MD5 hasher;
