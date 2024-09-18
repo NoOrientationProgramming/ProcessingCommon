@@ -282,6 +282,22 @@ void jsonPrint(const Value &val)
 // Cryptography
 
 #if CONFIG_LIB_DSPC_HAVE_CRYPTOPP
+string md5(const string &msg, const string &prefix)
+{
+	Weak::MD5 hasher;
+	string digest;
+
+	if (prefix.size())
+		hasher.Update((const byte *)prefix.data(), prefix.size());
+
+	hasher.Update((const byte *)msg.data(), msg.size());
+
+	digest.resize(hasher.DigestSize());
+	hasher.Final((byte *)&digest[0]);
+
+	return digest;
+}
+
 string sha256(const string &msg, const string &prefix)
 {
 	SHA256 hasher;

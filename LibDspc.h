@@ -34,6 +34,8 @@
 #endif
 #if CONFIG_LIB_DSPC_HAVE_CRYPTOPP
 #include <cryptopp/secblock.h>
+#define CRYPTOPP_ENABLE_NAMESPACE_WEAK 1
+#include <cryptopp/md5.h>
 #include <cryptopp/sha.h>
 #endif
 #if CONFIG_LIB_DSPC_HAVE_CURL
@@ -70,6 +72,7 @@ void jsonPrint(const Json::Value &val);
 
 // Cryptography
 #if CONFIG_LIB_DSPC_HAVE_CRYPTOPP
+std::string md5(const std::string &msg, const std::string &prefix = "");
 std::string sha256(const std::string &msg, const std::string &prefix = "");
 std::string sha256(const CryptoPP::SecByteBlock &msg, const std::string &prefix = "");
 bool isValidSha256(const std::string &digest);
