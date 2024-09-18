@@ -353,6 +353,16 @@ bool isValidSha256(const string &digest)
 
 	return true;
 }
+
+string hmacSha256(const string &msg, const SecByteBlock &key)
+{
+	HMAC<SHA256> hmac(key.data(), key.size());
+	SecByteBlock res(hmac.DigestSize());
+
+	hmac.CalculateDigest(res, (const byte *)msg.data(), msg.size());
+
+	return string((const char *)res.data(), res.size());
+}
 #endif
 
 // Curl

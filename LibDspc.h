@@ -37,6 +37,7 @@
 #define CRYPTOPP_ENABLE_NAMESPACE_WEAK 1
 #include <cryptopp/md5.h>
 #include <cryptopp/sha.h>
+#include <cryptopp/hmac.h>
 #endif
 #if CONFIG_LIB_DSPC_HAVE_CURL
 #include <curl/curl.h>
@@ -76,6 +77,7 @@ std::string md5(const std::string &msg, const std::string &prefix = "");
 std::string sha256(const std::string &msg, const std::string &prefix = "");
 std::string sha256(const CryptoPP::SecByteBlock &msg, const std::string &prefix = "");
 bool isValidSha256(const std::string &digest);
+std::string hmacSha256(const std::string &msg, const CryptoPP::SecByteBlock &key);
 #endif
 
 // Curl
