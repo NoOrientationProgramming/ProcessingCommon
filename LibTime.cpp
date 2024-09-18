@@ -23,6 +23,9 @@
   along with this program. If not, see <http://www.gnu.org/licenses/>.
 */
 
+#include <sstream>
+#include <iomanip>
+
 #include "LibTime.h"
 
 using namespace std;
@@ -33,6 +36,23 @@ uint32_t millis()
 	auto now = steady_clock::now();
 	auto nowMs = time_point_cast<milliseconds>(now);
 	return nowMs.time_since_epoch().count();
+}
+
+string nowUtc()
+{
+	TimePoint tp = system_clock::now();
+	string res = tpToStr(tp, "%Y-%m-%dT%H:%M:%S.");
+
+	auto timeSinceEpoch = tp.time_since_epoch();
+	auto sec = duration_cast<seconds>(timeSinceEpoch);
+	auto nanoSec = duration_cast<nanoseconds>(timeSinceEpoch) - duration_cast<nanoseconds>(sec);
+
+	stringstream ss;
+	ss << setw(7) << setfill('0') << nanoSec.count() << "Z";
+
+	res += ss.str();
+
+	return res;
 }
 
 TimePoint nowTp()

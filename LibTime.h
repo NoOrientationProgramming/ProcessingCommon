@@ -34,6 +34,7 @@ typedef std::chrono::system_clock::duration Duration;
 
 uint32_t millis();
 
+std::string nowUtc();
 TimePoint nowTp();
 std::string nowToStr(const char *pFmt = NULL);
 
