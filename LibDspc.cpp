@@ -245,6 +245,45 @@ string toHexStr(const string &strIn)
 	return strOut;
 }
 
+vector<char> toHex(const string &strIn)
+{
+	vector<char> res;
+	size_t szStr = strIn.size();
+	bool highByteDone = szStr & 1;
+	char ch, digit, byte = 0;
+
+	if (szStr)
+		res.reserve((szStr + 1) >> 1);
+
+	for (size_t i = 0; i < szStr; ++i)
+	{
+		ch = strIn[i];
+
+		if (ch >= 'a' and ch <= 'f')
+			digit = ch - 'a' + 10;
+		else
+		if (ch >= 'A' and ch <= 'F')
+			digit = ch - 'A' + 10;
+		else
+		if (ch >= '0' and ch <= '9')
+			digit = ch - '0';
+		else
+			digit = 0;
+
+		if (highByteDone)
+		{
+			byte |= digit;
+			res.push_back(byte);
+		}
+		else
+			byte = digit << 4;
+
+		highByteDone = not highByteDone;
+	}
+
+	return res;
+}
+
 size_t strReplace(string &strIn, const string &strFind, const string &strReplacement)
 {
 	size_t pos = strIn.find(strFind);
