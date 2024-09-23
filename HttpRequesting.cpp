@@ -166,12 +166,12 @@ uint16_t HttpRequesting::respCode() const
 	return mRespCode;
 }
 
-const string &HttpRequesting::respHdr() const
+string &HttpRequesting::respHdr()
 {
 	return mRespHdr;
 }
 
-const string &HttpRequesting::respData() const
+string &HttpRequesting::respData()
 {
 	return mRespData;
 }

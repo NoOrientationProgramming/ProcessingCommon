@@ -73,8 +73,8 @@ public:
 	void modeDebugSet(bool en);
 
 	uint16_t respCode() const;
-	const std::string &respHdr() const;
-	const std::string &respData() const;
+	std::string &respHdr();
+	std::string &respData();
 
 protected:
 
