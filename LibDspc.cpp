@@ -323,7 +323,7 @@ void jsonPrint(const Value &val)
 #if CONFIG_LIB_DSPC_HAVE_CRYPTOPP
 string base64enc(const string &msg)
 {
-	Base64Encoder encoder;
+	Base64Encoder encoder(NULL, false, 0);
 	string encoded;
 	size_t size;
 
