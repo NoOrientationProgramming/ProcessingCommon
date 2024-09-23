@@ -49,6 +49,7 @@ HttpRequesting::HttpRequesting()
 	, mData("")
 	, mAuthMethod("basic")
 	, mTlsVersion("")
+	, mModeDebug(false)
 	, mpCurl(NULL)
 	, mpHeaderList(NULL)
 	, mCurlRes(CURLE_OK)
@@ -153,6 +154,11 @@ void HttpRequesting::tlsVersionSet(const string &tlsVersion)
 		return;
 
 	mTlsVersion = tlsVersion;
+}
+
+void HttpRequesting::modeDebugSet(bool en)
+{
+	mModeDebug = en;
 }
 
 uint16_t HttpRequesting::respCode() const
@@ -332,7 +338,12 @@ Success HttpRequesting::easyHandleCreate()
 	curl_easy_setopt(mpCurl, CURLOPT_COOKIEFILE, "");
 	curl_easy_setopt(mpCurl, CURLOPT_SHARE, mSession->pCurlShare);
 #endif
-	//curl_easy_setopt(curl, CURLOPT_VERBOSE, 1L);
+	if (mModeDebug)
+	{
+		procWrnLog("verbose mode set");
+		curl_easy_setopt(mpCurl, CURLOPT_DEBUGFUNCTION, curlTrace);
+		curl_easy_setopt(mpCurl, CURLOPT_VERBOSE, 1L);
+	}
 
 	return Positive;
 
@@ -615,5 +626,49 @@ extern "C" size_t HttpRequesting::curlDataToStringWrite(void *ptr, size_t size, 
 	pData->append((char *)ptr, size * nmemb);
 
 	return size * nmemb;
+}
+
+extern "C" int HttpRequesting::curlTrace(CURL *handle, curl_infotype type, char *pData, size_t size, void *pUser)
+{
+	int typeInt = (int)type;
+	const char *pText;
+
+	(void)handle;
+	(void)pUser;
+
+	switch (typeInt)
+	{
+		case CURLINFO_TEXT:
+			pText = "== Info:";
+			break;
+		case CURLINFO_HEADER_OUT:
+			pText = "=> Send header";
+			break;
+		case CURLINFO_DATA_OUT:
+			pText = "=> Send data";
+			break;
+		case CURLINFO_SSL_DATA_OUT:
+			pText = "=> Send SSL data";
+			break;
+		case CURLINFO_HEADER_IN:
+			pText = "<= Recv header";
+			break;
+		case CURLINFO_DATA_IN:
+			pText = "<= Recv data";
+			break;
+		case CURLINFO_SSL_DATA_IN:
+			pText = "<= Recv SSL data";
+			break;
+		default:
+			wrnLog("cURL debug type unknown");
+			return 0;
+	}
+
+	cout << pText << endl;
+
+	if (pData && size)
+		hexDump(pData, size);
+
+	return 0;
 }
 

@@ -70,6 +70,7 @@ public:
 	void dataSet(const std::string &data);
 	void authMethodSet(const std::string &authMethod);
 	void tlsVersionSet(const std::string &tlsVersion);
+	void modeDebugSet(bool en);
 
 	uint16_t respCode() const;
 	const std::string &respHdr() const;
@@ -101,6 +102,7 @@ private:
 	std::string mData;
 	std::string mAuthMethod;
 	std::string mTlsVersion;
+	bool mModeDebug;
 
 	CURL *mpCurl;
 	struct curl_slist *mpHeaderList;
@@ -125,6 +127,7 @@ private:
 	static void sharedDataLock(CURL *handle, curl_lock_data data, curl_lock_access access, void *userptr);
 	static void sharedDataUnLock(CURL *handle, curl_lock_data data, void *userptr);
 	static size_t curlDataToStringWrite(void *ptr, size_t size, size_t nmemb, std::string *pData);
+	static int curlTrace(CURL *handle, curl_infotype type, char *pData, size_t size, void *pUser);
 
 };
 
