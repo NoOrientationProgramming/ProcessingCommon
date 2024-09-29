@@ -333,7 +333,6 @@ Success HttpRequesting::easyHandleCreate()
 	curl_easy_setopt(mpCurl, CURLOPT_WRITEDATA, &mRespData);
 
 	curl_easy_setopt(mpCurl, CURLOPT_PRIVATE, this);
-
 #ifdef ENABLE_CURL_SHARE
 	curl_easy_setopt(mpCurl, CURLOPT_COOKIEFILE, "");
 	curl_easy_setopt(mpCurl, CURLOPT_SHARE, mSession->pCurlShare);
@@ -355,11 +354,9 @@ errCleanupCurl:
 	}
 
 	curl_easy_cleanup(mpCurl);
-
 #ifdef ENABLE_CURL_SHARE
 	sessionTerminate();
 #endif
-
 	return success;
 }
 
@@ -556,11 +553,9 @@ void HttpRequesting::multiProcess()
 
 		pReq->mpCurl = NULL;
 		curl_easy_cleanup(pCurl);
-
 #ifdef ENABLE_CURL_SHARE
 		pReq->sessionTerminate();
 #endif
-
 		pReq->mDone = Positive;
 	}
 
