@@ -86,12 +86,6 @@ HttpRequesting::HttpRequesting(const string &url)
  */
 HttpRequesting::~HttpRequesting()
 {
-	if (mpHeaderList)
-	{
-		curl_slist_free_all(mpHeaderList);
-		mpHeaderList = NULL;
-	}
-
 	if (mpCurl)
 	{
 		Guard lock(mtxCurlMulti);
@@ -100,7 +94,16 @@ HttpRequesting::~HttpRequesting()
 		code = curl_multi_remove_handle(pCurlMulti, mpCurl);
 		if (code != CURLM_OK)
 			procWrnLog("could not unbind curl easy handle");
+	}
 
+	if (mpHeaderList)
+	{
+		curl_slist_free_all(mpHeaderList);
+		mpHeaderList = NULL;
+	}
+
+	if (mpCurl)
+	{
 		curl_easy_cleanup(mpCurl);
 		mpCurl = NULL;
 	}
