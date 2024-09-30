@@ -204,8 +204,6 @@ Success HttpRequesting::process()
 		if (!mUrl.size())
 			return procErrLog(-1, "url not set");
 
-		procDbgLog(LOG_LVL, "url: %s", mUrl.c_str());
-
 		mState = StGlobalInit;
 
 		break;
@@ -222,7 +220,7 @@ Success HttpRequesting::process()
 		if (success != Positive)
 			return procErrLog(-1, "could not create curl easy handle");
 
-		procDbgLog(LOG_LVL, "easy handle curl created");
+		//procDbgLog(LOG_LVL, "easy handle curl created");
 
 		mState = StEasyBind;
 
@@ -233,7 +231,7 @@ Success HttpRequesting::process()
 		if (success != Positive)
 			return procErrLog(-1, "could not bind curl easy handle");
 
-		procDbgLog(LOG_LVL, "easy handle curl bound");
+		//procDbgLog(LOG_LVL, "easy handle curl bound");
 
 		mState = StReqStart;
 
@@ -256,7 +254,8 @@ Success HttpRequesting::process()
 			return procErrLog(-1, "curl performing failed: %s (%d)",
 						curl_easy_strerror(mCurlRes), mCurlRes);
 
-		procDbgLog(LOG_LVL, "server returned status code %d", mRespCode);
+		if (mRespCode != 200)
+			procDbgLog(LOG_LVL, "server returned status code %d", mRespCode);
 
 		return Positive;
 
@@ -278,17 +277,7 @@ Success HttpRequesting::shutdown()
 	{
 	case StSdStart:
 
-		if (mCurlBound)
-		{
-			Guard lock(mtxCurlMulti);
-			CURLMcode code;
-
-			code = curl_multi_remove_handle(pCurlMulti, mpCurl);
-			if (code != CURLM_OK)
-				procWrnLog("could not unbind curl easy handle");
-
-			mCurlBound = false;
-		}
+		curlEasyHandleUnind();
 
 		if (mpHeaderList)
 		{
@@ -323,7 +312,7 @@ Success HttpRequesting::curlEasyHandleBind()
 	Guard lock(mtxCurlMulti);
 
 	if (!pCurlMulti)
-		pCurlMulti = curl_multi_init();
+		pCurlMulti = curlMultiInit();
 
 	if (!pCurlMulti)
 		return procErrLog(-1, "curl multi handle not set");
@@ -337,6 +326,37 @@ Success HttpRequesting::curlEasyHandleBind()
 	mCurlBound = true;
 
 	return Positive;
+}
+
+CURLM *HttpRequesting::curlMultiInit()
+{
+	CURLM *pMulti;
+
+	pMulti = curl_multi_init();
+	if (!pMulti)
+		return NULL;
+#if 0
+	curl_multi_setopt(pMulti, CURLMOPT_MAX_HOST_CONNECTIONS, 5L);
+	curl_multi_setopt(pMulti, CURLMOPT_MAX_TOTAL_CONNECTIONS, 10L);
+#endif
+	return pMulti;
+}
+
+void HttpRequesting::curlEasyHandleUnind()
+{
+	Guard lock(mtxCurlMulti);
+
+	if (!mCurlBound)
+		return;
+
+	CURLMcode code;
+
+	code = curl_multi_remove_handle(pCurlMulti, mpCurl);
+	if (code != CURLM_OK)
+		procWrnLog("could not unbind curl easy handle");
+
+	mCurlBound = false;
+	//procDbgLog(LOG_LVL, "easy handle curl unbound");
 }
 
 /*
@@ -378,10 +398,10 @@ Success HttpRequesting::easyHandleCreate()
 
 	if (mVersionTls.size())
 		versionTls = mVersionTls;
-#if 1
+#if 0
 	procDbgLog(LOG_LVL, "url        = %s", mUrl.c_str());
 	procDbgLog(LOG_LVL, "type       = %s", mType.c_str());
-	//procDbgLog(LOG_LVL, "hdr        = %s", mHdr.c_str());
+	procDbgLog(LOG_LVL, "hdr        = %s", mHdr.c_str());
 	procDbgLog(LOG_LVL, "data       = %s", mData.c_str());
 	procDbgLog(LOG_LVL, "authMethod = %s", mAuthMethod.c_str());
 	procDbgLog(LOG_LVL, "versionTls = %s", versionTls.c_str());
@@ -469,10 +489,18 @@ Success HttpRequesting::easyHandleCreate()
 		curl_easy_setopt(mpCurl, CURLOPT_DEBUGFUNCTION, curlTrace);
 		curl_easy_setopt(mpCurl, CURLOPT_VERBOSE, 1L);
 	}
+#if 0
+	//curl_easy_setopt(mpCurl, CURLOPT_IPRESOLVE, CURL_IPRESOLVE_WHATEVER);
+	curl_easy_setopt(mpCurl, CURLOPT_IPRESOLVE, CURL_IPRESOLVE_V4);
+	curl_easy_setopt(mpCurl, CURLOPT_DNS_CACHE_TIMEOUT, 0L);
+	curl_easy_setopt(mpCurl, CURLOPT_DNS_USE_GLOBAL_CACHE, 0L);
+
+	curl_easy_setopt(mpCurl, CURLOPT_CONNECTTIMEOUT, 5L);
+	curl_easy_setopt(mpCurl, CURLOPT_TIMEOUT, 10L);
 
 	curl_easy_setopt(mpCurl, CURLOPT_FRESH_CONNECT, 1L);
 	curl_easy_setopt(mpCurl, CURLOPT_FORBID_REUSE, 1L);
-
+#endif
 	return Positive;
 
 errCleanupCurl:
@@ -654,7 +682,7 @@ void HttpRequesting::multiProcess()
 
 	while (curlMsg = curl_multi_info_read(pCurlMulti, &numMsgsLeft), curlMsg)
 	{
-		dbgLog(LOG_LVL, "messages left: %d", numMsgsLeft);
+		//dbgLog(LOG_LVL, "messages left: %d", numMsgsLeft);
 
 		if (curlMsg->msg != CURLMSG_DONE)
 			continue;
@@ -663,16 +691,20 @@ void HttpRequesting::multiProcess()
 
 		curl_easy_getinfo(pCurl, CURLINFO_PRIVATE, &pReq);
 
-		dbgLog(LOG_LVL, "curl msg done: %p", pReq);
-
 		if (pCurl != pReq->mpCurl)
 			wrnLog("pCurl (%p) does not match mpCurl (%p)", pCurl, pReq->mpCurl);
 
 		pReq->mCurlRes = curlMsg->data.result;
 		curl_easy_getinfo(pCurl, CURLINFO_RESPONSE_CODE, &pReq->mRespCode);
-
+#if 0
+		dbgLog(LOG_LVL, "curl msg done   %p", pReq);
+		dbgLog(LOG_LVL, "result          %d", pReq->mCurlRes);
+		dbgLog(LOG_LVL, "response code   %d", pReq->mRespCode);
+		dbgLog(LOG_LVL, "url             %s", pReq->mUrl.substr(33).c_str());
+#endif
 		curl_multi_remove_handle(pCurlMulti, pCurl);
 		pReq->mCurlBound = false;
+		//dbgLog(LOG_LVL, "easy handle curl unbound");
 
 		if (pReq->mpHeaderList)
 		{
@@ -751,13 +783,15 @@ extern "C" size_t HttpRequesting::curlDataToStringWrite(void *ptr, size_t size, 
 	return size * nmemb;
 }
 
-extern "C" int HttpRequesting::curlTrace(CURL *handle, curl_infotype type, char *pData, size_t size, void *pUser)
+extern "C" int HttpRequesting::curlTrace(CURL *pCurl, curl_infotype type, char *pData, size_t size, void *pUser)
 {
 	int typeInt = (int)type;
 	const char *pText;
+	HttpRequesting *pReq;
 
-	(void)handle;
 	(void)pUser;
+
+	curl_easy_getinfo(pCurl, CURLINFO_PRIVATE, &pReq);
 
 	switch (typeInt)
 	{
@@ -766,19 +800,19 @@ extern "C" int HttpRequesting::curlTrace(CURL *handle, curl_infotype type, char 
 			break;
 		case CURLINFO_HEADER_OUT:
 			pText = "=> Send header";
-			break;
+			return 0;
 		case CURLINFO_DATA_OUT:
 			pText = "=> Send data";
-			break;
+			return 0;
 		case CURLINFO_SSL_DATA_OUT:
 			pText = "=> Send SSL data";
 			break;
 		case CURLINFO_HEADER_IN:
 			pText = "<= Recv header";
-			break;
+			return 0;
 		case CURLINFO_DATA_IN:
 			pText = "<= Recv data";
-			break;
+			return 0;
 		case CURLINFO_SSL_DATA_IN:
 			pText = "<= Recv SSL data";
 			break;
@@ -787,7 +821,7 @@ extern "C" int HttpRequesting::curlTrace(CURL *handle, curl_infotype type, char 
 			return 0;
 	}
 
-	cout << pText << endl;
+	dbgLog(LOG_LVL, "%-20s from %p", pText, pReq);
 
 	if (pData && size)
 		hexDump(pData, size);
