@@ -29,11 +29,27 @@
 #include <regex>
 #include "HttpRequesting.h"
 
+#define dForEach_ProcState(gen) \
+		gen(StStart) \
+		gen(StGlobalInit) \
+		gen(StEasyInit) \
+		gen(StEasyBind) \
+		gen(StReqStart) \
+		gen(StReqDoneWait) \
+
+#define dGenProcStateEnum(s) s,
+dProcessStateEnum(ProcState);
+
+#if 1
+#define dGenProcStateString(s) #s,
+dProcessStateStr(ProcState);
+#endif
+
+using namespace std;
+
 #define LOG_LVL			0
 
 //#define ENABLE_CURL_SHARE
-
-using namespace std;
 
 mutex HttpRequesting::mtxCurlMulti;
 CURLM *HttpRequesting::pCurlMulti = NULL;
@@ -48,7 +64,8 @@ HttpRequesting::HttpRequesting()
 	, mUserPw("")
 	, mData("")
 	, mAuthMethod("basic")
-	, mTlsVersion("")
+	, mVersionTls("")
+	, mVersionHttp("HTTP/2")
 	, mModeDebug(false)
 	, mpCurl(NULL)
 	, mpHeaderList(NULL)
@@ -59,6 +76,7 @@ HttpRequesting::HttpRequesting()
 	, mRetries(2)
 	, mDone(Pending)
 {
+	mState = StStart;
 }
 
 HttpRequesting::HttpRequesting(const string &url)
@@ -68,7 +86,8 @@ HttpRequesting::HttpRequesting(const string &url)
 	, mUserPw("")
 	, mData("")
 	, mAuthMethod("basic")
-	, mTlsVersion("")
+	, mVersionTls("")
+	, mVersionHttp("")
 	, mpCurl(NULL)
 	, mpHeaderList(NULL)
 	, mCurlRes(CURLE_OK)
@@ -78,6 +97,7 @@ HttpRequesting::HttpRequesting(const string &url)
 	, mRetries(2)
 	, mDone(Pending)
 {
+	mState = StStart;
 }
 
 /*
@@ -151,12 +171,20 @@ void HttpRequesting::authMethodSet(const string &authMethod)
 	mAuthMethod = authMethod;
 }
 
-void HttpRequesting::tlsVersionSet(const string &tlsVersion)
+void HttpRequesting::versionTlsSet(const string &versionTls)
 {
-	if (!tlsVersion.size())
+	if (!versionTls.size())
 		return;
 
-	mTlsVersion = tlsVersion;
+	mVersionTls = versionTls;
+}
+
+void HttpRequesting::versionHttpSet(const string &versionHttp)
+{
+	if (!versionHttp.size())
+		return;
+
+	mVersionHttp = versionHttp;
 }
 
 void HttpRequesting::modeDebugSet(bool en)
@@ -179,23 +207,85 @@ string &HttpRequesting::respData()
 	return mRespData;
 }
 
-Success HttpRequesting::initialize()
+Success HttpRequesting::process()
 {
+	//uint32_t curTimeMs = millis();
+	//uint32_t diffMs = curTimeMs - mStartMs;
 	Success success;
+	//bool ok;
+#if 0
+	dStateTrace;
+#endif
+	switch (mState)
+	{
+	case StStart:
 
-	curlGlobalInit();
+		if (!mUrl.size())
+			return procErrLog(-1, "url not set");
 
-	success = easyHandleCreate();
-	if (success != Positive)
-		return procErrLog(-1, "could not create curl easy handle");
+		procDbgLog(LOG_LVL, "url: %s", mUrl.c_str());
 
-	success = curlEasyHandleBind();
-	if (success != Positive)
-		return procErrLog(-1, "could not bind curl easy handle");
+		mState = StGlobalInit;
 
-	multiProcess();
+		break;
+	case StGlobalInit:
 
-	return Positive;
+		curlGlobalInit();
+		procDbgLog(LOG_LVL, "curl global init done");
+
+		mState = StEasyInit;
+
+		break;
+	case StEasyInit:
+
+		success = easyHandleCreate();
+		if (success != Positive)
+			return procErrLog(-1, "could not create curl easy handle");
+
+		procDbgLog(LOG_LVL, "curl easy handle created");
+
+		mState = StEasyBind;
+
+		break;
+	case StEasyBind:
+
+		success = curlEasyHandleBind();
+		if (success != Positive)
+			return procErrLog(-1, "could not bind curl easy handle");
+
+		procDbgLog(LOG_LVL, "curl easy handle bound");
+
+		mState = StReqStart;
+
+		break;
+	case StReqStart:
+
+		multiProcess();
+
+		mState = StReqDoneWait;
+
+		break;
+	case StReqDoneWait:
+
+		multiProcess();
+
+		if (mDone == Pending)
+			break;
+
+		if (mCurlRes != CURLE_OK)
+			return procErrLog(-1, "curl performing failed: %s (%d)",
+						curl_easy_strerror(mCurlRes), mCurlRes);
+
+		procDbgLog(LOG_LVL, "server returned status code %d", mRespCode);
+
+		return Positive;
+
+		break;
+	default:
+		break;
+	}
+
+	return Pending;
 }
 
 /*
@@ -254,21 +344,21 @@ Literature
 */
 Success HttpRequesting::easyHandleCreate()
 {
-	string tlsVersion;
+	string versionTls;
 	Success success = Positive;
 
 	if (mUrl[4] == 's')
-		tlsVersion = "TLSv1.2";
+		versionTls = "TLSv1.2";
 
-	if (mTlsVersion.size())
-		tlsVersion = mTlsVersion;
-#if 0
+	if (mVersionTls.size())
+		versionTls = mVersionTls;
+#if 1
 	procDbgLog(LOG_LVL, "url        = %s", mUrl.c_str());
 	procDbgLog(LOG_LVL, "type       = %s", mType.c_str());
-	procDbgLog(LOG_LVL, "hdr        = %s", mHdr.c_str());
+	//procDbgLog(LOG_LVL, "hdr        = %s", mHdr.c_str());
 	procDbgLog(LOG_LVL, "data       = %s", mData.c_str());
 	procDbgLog(LOG_LVL, "authMethod = %s", mAuthMethod.c_str());
-	procDbgLog(LOG_LVL, "tlsVersion = %s", tlsVersion.c_str());
+	procDbgLog(LOG_LVL, "versionTls = %s", versionTls.c_str());
 #endif
 #ifdef ENABLE_CURL_SHARE
 	if (sessionCreate(address, port) != Positive)
@@ -284,7 +374,7 @@ Success HttpRequesting::easyHandleCreate()
 	if (mAuthMethod == "digest")
 		curl_easy_setopt(mpCurl, CURLOPT_HTTPAUTH, CURLAUTH_DIGEST); // default: CURLAUTH_BASIC
 
-	if (tlsVersion != "")
+	if (versionTls != "")
 	{
 		curl_easy_setopt(mpCurl, CURLOPT_SSL_VERIFYPEER, 1L);
 		curl_easy_setopt(mpCurl, CURLOPT_SSL_VERIFYHOST, 0L);
@@ -292,25 +382,32 @@ Success HttpRequesting::easyHandleCreate()
 		//curl_easy_setopt(mpCurl, CURLOPT_SSL_FALSESTART, 1L); // may safe time => test
 	}
 
-	if (tlsVersion == "SSLv2")
+	if (versionTls == "SSLv2")
 		curl_easy_setopt(mpCurl, CURLOPT_SSLVERSION, CURL_SSLVERSION_SSLv2);
-	else if (tlsVersion == "SSLv3")
+	else if (versionTls == "SSLv3")
 		curl_easy_setopt(mpCurl, CURLOPT_SSLVERSION, CURL_SSLVERSION_SSLv3);
-	else if (tlsVersion == "TLSv1")
+	else if (versionTls == "TLSv1")
 		curl_easy_setopt(mpCurl, CURLOPT_SSLVERSION, CURL_SSLVERSION_TLSv1);
-	else if (tlsVersion == "TLSv1.0")
+	else if (versionTls == "TLSv1.0")
 		curl_easy_setopt(mpCurl, CURLOPT_SSLVERSION, CURL_SSLVERSION_TLSv1_0);
-	else if (tlsVersion == "TLSv1.1")
+	else if (versionTls == "TLSv1.1")
 		curl_easy_setopt(mpCurl, CURLOPT_SSLVERSION, CURL_SSLVERSION_TLSv1_1);
-	else if (tlsVersion == "TLSv1.2")
+	else if (versionTls == "TLSv1.2")
 		curl_easy_setopt(mpCurl, CURLOPT_SSLVERSION, CURL_SSLVERSION_TLSv1_2);
-	else if (tlsVersion == "TLSv1.3")
+	else if (versionTls == "TLSv1.3")
 		curl_easy_setopt(mpCurl, CURLOPT_SSLVERSION, CURL_SSLVERSION_TLSv1_3);
-	else if (tlsVersion != "")
+	else if (versionTls != "")
 	{
 		success = procErrLog(-1, "unknown TLS version");
 		goto errCleanupCurl;
 	}
+
+	if (mVersionHttp == "HTTP/1.0")
+		curl_easy_setopt(mpCurl, CURLOPT_HTTP_VERSION, CURL_HTTP_VERSION_1_0);
+	else if (mVersionHttp == "HTTP/1.1")
+		curl_easy_setopt(mpCurl, CURLOPT_HTTP_VERSION, CURL_HTTP_VERSION_1_1);
+	else if (mVersionHttp == "HTTP/2")
+		curl_easy_setopt(mpCurl, CURLOPT_HTTP_VERSION, CURL_HTTP_VERSION_2_0);
 
 	if (mHdr != "")
 	{
@@ -347,6 +444,9 @@ Success HttpRequesting::easyHandleCreate()
 		curl_easy_setopt(mpCurl, CURLOPT_VERBOSE, 1L);
 	}
 
+	curl_easy_setopt(mpCurl, CURLOPT_FRESH_CONNECT, 1L);
+	curl_easy_setopt(mpCurl, CURLOPT_FORBID_REUSE, 1L);
+
 	return Positive;
 
 errCleanupCurl:
@@ -360,24 +460,6 @@ errCleanupCurl:
 #ifdef ENABLE_CURL_SHARE
 	sessionTerminate();
 #endif
-	return success;
-}
-
-Success HttpRequesting::process()
-{
-	Success success = Positive;
-
-	multiProcess();
-
-	if (mDone == Pending)
-		return Pending;
-
-	if (mCurlRes != CURLE_OK)
-		success = procErrLog(-1, "curl performing failed: %s (%d)",
-					curl_easy_strerror(mCurlRes), mCurlRes);
-
-	procDbgLog(LOG_LVL, "server returned status code %d", mRespCode);
-
 	return success;
 }
 
@@ -516,6 +598,16 @@ void HttpRequesting::sharedDataMtxListDelete()
 		delete mSession->sharedDataMtxList[i++];
 }
 
+void HttpRequesting::processInfo(char *pBuf, char *pBufEnd)
+{
+#if 1
+	dInfo("State\t%s\n", ProcStateString[mState]);
+	dInfo("URL\t\t%s\n", mUrl.c_str());
+#endif
+}
+
+/* static functions */
+
 /*
 Literature
 - https://curl.haxx.se/libcurl/c/curl_multi_perform.html
@@ -542,7 +634,12 @@ void HttpRequesting::multiProcess()
 
 		pCurl = curlMsg->easy_handle;
 
+		dbgLog(LOG_LVL, "curl msg done: %p", pCurl);
+
 		curl_easy_getinfo(pCurl, CURLINFO_PRIVATE, &pReq);
+
+		if (pCurl != pReq->mpCurl)
+			wrnLog("pCurl (%p) does not match mpCurl (%p)", pCurl, pReq->mpCurl);
 
 		pReq->mCurlRes = curlMsg->data.result;
 		curl_easy_getinfo(pCurl, CURLINFO_RESPONSE_CODE, &pReq->mRespCode);
@@ -555,8 +652,8 @@ void HttpRequesting::multiProcess()
 			pReq->mpHeaderList = NULL;
 		}
 
+		curl_easy_cleanup(pReq->mpCurl);
 		pReq->mpCurl = NULL;
-		curl_easy_cleanup(pCurl);
 #ifdef ENABLE_CURL_SHARE
 		pReq->sessionTerminate();
 #endif

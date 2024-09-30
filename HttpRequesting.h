@@ -69,7 +69,8 @@ public:
 	void hdrAdd(const std::string &hdr);
 	void dataSet(const std::string &data);
 	void authMethodSet(const std::string &authMethod);
-	void tlsVersionSet(const std::string &tlsVersion);
+	void versionTlsSet(const std::string &versionTls);
+	void versionHttpSet(const std::string &versionHttp);
 	void modeDebugSet(bool en);
 
 	uint16_t respCode() const;
@@ -87,8 +88,9 @@ private:
 	HttpRequesting(const HttpRequesting &) = delete;
 	HttpRequesting &operator=(const HttpRequesting &) = delete;
 
-	Success initialize();
 	Success process();
+	void processInfo(char *pBuf, char *pBufEnd);
+
 	Success easyHandleCreate();
 	Success curlEasyHandleBind();
 	Success sessionCreate(const std::string &address, const uint16_t port);
@@ -101,7 +103,8 @@ private:
 	std::string mHdr;
 	std::string mData;
 	std::string mAuthMethod;
-	std::string mTlsVersion;
+	std::string mVersionTls;
+	std::string mVersionHttp;
 	bool mModeDebug;
 
 	CURL *mpCurl;
