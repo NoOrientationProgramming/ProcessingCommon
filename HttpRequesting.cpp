@@ -40,6 +40,12 @@
 #define dGenProcStateEnum(s) s,
 dProcessStateEnum(ProcState);
 
+#define dForEach_SdState(gen) \
+		gen(StSdStart) \
+
+#define dGenSdStateEnum(s) s,
+dProcessStateEnum(SdState);
+
 #if 1
 #define dGenProcStateString(s) #s,
 dProcessStateStr(ProcState);
@@ -59,6 +65,7 @@ list<HttpSession> HttpRequesting::sessions;
 
 HttpRequesting::HttpRequesting()
 	: Processing("HttpRequesting")
+	, mStateSd(StSdStart)
 	, mUrl("")
 	, mType("get")
 	, mUserPw("")
@@ -68,6 +75,7 @@ HttpRequesting::HttpRequesting()
 	, mVersionHttp("HTTP/2")
 	, mModeDebug(false)
 	, mpCurl(NULL)
+	, mCurlBound(false)
 	, mpHeaderList(NULL)
 	, mCurlRes(CURLE_OK)
 	, mRespCode(0)
@@ -81,6 +89,7 @@ HttpRequesting::HttpRequesting()
 
 HttpRequesting::HttpRequesting(const string &url)
 	: Processing("HttpRequesting")
+	, mStateSd(StSdStart)
 	, mUrl(url)
 	, mType("get")
 	, mUserPw("")
@@ -89,6 +98,7 @@ HttpRequesting::HttpRequesting(const string &url)
 	, mVersionTls("")
 	, mVersionHttp("")
 	, mpCurl(NULL)
+	, mCurlBound(false)
 	, mpHeaderList(NULL)
 	, mCurlRes(CURLE_OK)
 	, mRespCode(0)
@@ -98,35 +108,6 @@ HttpRequesting::HttpRequesting(const string &url)
 	, mDone(Pending)
 {
 	mState = StStart;
-}
-
-/*
- * Literature
- * - https://curl.se/libcurl/c/curl_multi_remove_handle.html
- */
-HttpRequesting::~HttpRequesting()
-{
-	if (mpCurl)
-	{
-		Guard lock(mtxCurlMulti);
-		CURLMcode code;
-
-		code = curl_multi_remove_handle(pCurlMulti, mpCurl);
-		if (code != CURLM_OK)
-			procWrnLog("could not unbind curl easy handle");
-	}
-
-	if (mpHeaderList)
-	{
-		curl_slist_free_all(mpHeaderList);
-		mpHeaderList = NULL;
-	}
-
-	if (mpCurl)
-	{
-		curl_easy_cleanup(mpCurl);
-		mpCurl = NULL;
-	}
 }
 
 void HttpRequesting::urlSet(const string &url)
@@ -213,7 +194,7 @@ Success HttpRequesting::process()
 	//uint32_t diffMs = curTimeMs - mStartMs;
 	Success success;
 	//bool ok;
-#if 0
+#if n
 	dStateTrace;
 #endif
 	switch (mState)
@@ -231,7 +212,6 @@ Success HttpRequesting::process()
 	case StGlobalInit:
 
 		curlGlobalInit();
-		procDbgLog(LOG_LVL, "curl global init done");
 
 		mState = StEasyInit;
 
@@ -242,7 +222,7 @@ Success HttpRequesting::process()
 		if (success != Positive)
 			return procErrLog(-1, "could not create curl easy handle");
 
-		procDbgLog(LOG_LVL, "curl easy handle created");
+		procDbgLog(LOG_LVL, "easy handle curl created");
 
 		mState = StEasyBind;
 
@@ -253,7 +233,7 @@ Success HttpRequesting::process()
 		if (success != Positive)
 			return procErrLog(-1, "could not bind curl easy handle");
 
-		procDbgLog(LOG_LVL, "curl easy handle bound");
+		procDbgLog(LOG_LVL, "easy handle curl bound");
 
 		mState = StReqStart;
 
@@ -289,6 +269,50 @@ Success HttpRequesting::process()
 }
 
 /*
+ * Literature
+ * - https://curl.se/libcurl/c/curl_multi_remove_handle.html
+ */
+Success HttpRequesting::shutdown()
+{
+	switch (mStateSd)
+	{
+	case StSdStart:
+
+		if (mCurlBound)
+		{
+			Guard lock(mtxCurlMulti);
+			CURLMcode code;
+
+			code = curl_multi_remove_handle(pCurlMulti, mpCurl);
+			if (code != CURLM_OK)
+				procWrnLog("could not unbind curl easy handle");
+
+			mCurlBound = false;
+		}
+
+		if (mpHeaderList)
+		{
+			curl_slist_free_all(mpHeaderList);
+			mpHeaderList = NULL;
+		}
+
+		if (mpCurl)
+		{
+			curl_easy_cleanup(mpCurl);
+			mpCurl = NULL;
+		}
+
+		return Positive;
+
+		break;
+	default:
+		break;
+	}
+
+	return Pending;
+}
+
+/*
 Literature
 - https://curl.haxx.se/libcurl/c/
 - https://curl.se/libcurl/c/curl_multi_add_handle.html
@@ -309,6 +333,8 @@ Success HttpRequesting::curlEasyHandleBind()
 	code = curl_multi_add_handle(pCurlMulti, mpCurl);
 	if (code != CURLM_OK)
 		return procErrLog(-1, "could not bind curl easy handle");
+
+	mCurlBound = true;
 
 	return Positive;
 }
@@ -612,7 +638,6 @@ void HttpRequesting::processInfo(char *pBuf, char *pBufEnd)
 Literature
 - https://curl.haxx.se/libcurl/c/curl_multi_perform.html
 - https://curl.haxx.se/libcurl/c/curl_multi_info_read.html
-- https://curl.haxx.se/libcurl/c/curl_multi_remove_handle.html
 - https://curl.haxx.se/libcurl/c/CURLINFO_RESPONSE_CODE.html
 - https://curl.haxx.se/libcurl/c/CURLINFO_PRIVATE.html
 */
@@ -629,14 +654,16 @@ void HttpRequesting::multiProcess()
 
 	while (curlMsg = curl_multi_info_read(pCurlMulti, &numMsgsLeft), curlMsg)
 	{
+		dbgLog(LOG_LVL, "messages left: %d", numMsgsLeft);
+
 		if (curlMsg->msg != CURLMSG_DONE)
 			continue;
 
 		pCurl = curlMsg->easy_handle;
 
-		dbgLog(LOG_LVL, "curl msg done: %p", pCurl);
-
 		curl_easy_getinfo(pCurl, CURLINFO_PRIVATE, &pReq);
+
+		dbgLog(LOG_LVL, "curl msg done: %p", pReq);
 
 		if (pCurl != pReq->mpCurl)
 			wrnLog("pCurl (%p) does not match mpCurl (%p)", pCurl, pReq->mpCurl);
@@ -645,6 +672,7 @@ void HttpRequesting::multiProcess()
 		curl_easy_getinfo(pCurl, CURLINFO_RESPONSE_CODE, &pReq->mRespCode);
 
 		curl_multi_remove_handle(pCurlMulti, pCurl);
+		pReq->mCurlBound = false;
 
 		if (pReq->mpHeaderList)
 		{
@@ -659,7 +687,6 @@ void HttpRequesting::multiProcess()
 #endif
 		pReq->mDone = Positive;
 	}
-
 #if 0
 	--mRetries;
 	if (mRetries)

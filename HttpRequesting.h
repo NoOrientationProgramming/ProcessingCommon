@@ -81,14 +81,21 @@ protected:
 
 	HttpRequesting();
 	HttpRequesting(const std::string &url);
-	virtual ~HttpRequesting();
+	virtual ~HttpRequesting() {}
 
 private:
 
 	HttpRequesting(const HttpRequesting &) = delete;
 	HttpRequesting &operator=(const HttpRequesting &) = delete;
 
+	/*
+	 * Naming of functions:  objectVerb()
+	 * Example:              peerAdd()
+	 */
+
+	/* member functions */
 	Success process();
+	Success shutdown();
 	void processInfo(char *pBuf, char *pBufEnd);
 
 	Success easyHandleCreate();
@@ -96,6 +103,9 @@ private:
 	Success sessionCreate(const std::string &address, const uint16_t port);
 	void sessionTerminate();
 	void sharedDataMtxListDelete();
+
+	/* member variables */
+	uint32_t mStateSd;
 
 	std::string mUrl;
 	std::string mType;
@@ -108,6 +118,7 @@ private:
 	bool mModeDebug;
 
 	CURL *mpCurl;
+	bool mCurlBound;
 	struct curl_slist *mpHeaderList;
 
 	CURLcode mCurlRes;
@@ -119,18 +130,22 @@ private:
 	uint8_t mRetries;
 	Success mDone;
 
-	static std::mutex mtxCurlMulti;
-	static CURLM *pCurlMulti;
-
-	static std::mutex sessionMtx;
-	static std::list<HttpSession> sessions;
-
+	/* static functions */
 	static void multiProcess();
 	static void curlMultiDeInit();
 	static void sharedDataLock(CURL *handle, curl_lock_data data, curl_lock_access access, void *userptr);
 	static void sharedDataUnLock(CURL *handle, curl_lock_data data, void *userptr);
 	static size_t curlDataToStringWrite(void *ptr, size_t size, size_t nmemb, std::string *pData);
 	static int curlTrace(CURL *handle, curl_infotype type, char *pData, size_t size, void *pUser);
+
+	/* static variables */
+	static std::mutex mtxCurlMulti;
+	static CURLM *pCurlMulti;
+
+	static std::mutex sessionMtx;
+	static std::list<HttpSession> sessions;
+
+	/* constants */
 
 };
 
