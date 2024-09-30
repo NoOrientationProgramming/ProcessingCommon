@@ -87,6 +87,8 @@ std::string hmacSha256(const std::string &msg, const CryptoPP::SecByteBlock &key
 #if CONFIG_LIB_DSPC_HAVE_CURL
 void curlGlobalInit();
 void curlGlobalDeInit();
+std::string versionCurl();
+void versionCurlInfoPrint();
 #endif
 
 // Internet

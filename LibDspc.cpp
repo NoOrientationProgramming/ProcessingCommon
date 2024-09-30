@@ -461,6 +461,22 @@ void curlGlobalDeInit()
 
 	dbgLog(0, "global curl deinit done");
 }
+
+string versionCurl()
+{
+	return curl_version();
+}
+
+void versionCurlInfoPrint()
+{
+	curl_version_info_data *pInfo = curl_version_info(CURLVERSION_NOW);
+	if (!pInfo)
+		return;
+
+	cout << "libcurl    " << pInfo->version << endl;
+	cout << "libz       " << pInfo->libz_version << endl;
+	cout << "SSL        " << (pInfo->ssl_version ? pInfo->ssl_version : "none") << endl;
+}
 #endif
 
 // Internet
