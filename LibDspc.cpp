@@ -438,7 +438,7 @@ void curlGlobalInit()
 	curl_global_init(CURL_GLOBAL_ALL);
 	curlGlobalInitDone = true;
 
-	dbgLog(0, "global curl init done");
+	dbgLog(0, "global init curl done");
 }
 
 /*
