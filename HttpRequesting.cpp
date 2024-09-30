@@ -370,7 +370,8 @@ Success HttpRequesting::process()
 		return Pending;
 
 	if (mCurlRes != CURLE_OK)
-		success = procErrLog(-1, "curl performing failed: %s (%d)", curl_easy_strerror(mCurlRes), mCurlRes);
+		success = procErrLog(-1, "curl performing failed: %s (%d)",
+					curl_easy_strerror(mCurlRes), mCurlRes);
 
 	procDbgLog(LOG_LVL, "server returned status code %d", mRespCode);
 
@@ -497,7 +498,8 @@ void HttpRequesting::sessionTerminate()
 	if (mSession->numReferences)
 		return;
 
-	procDbgLog(LOG_LVL, "terminating session. max number of session references were %d", mSession->maxReferences);
+	procDbgLog(LOG_LVL, "terminating session. max number of session references were %d",
+		mSession->maxReferences);
 
 	curl_share_cleanup(mSession->pCurlShare);
 	sharedDataMtxListDelete();
