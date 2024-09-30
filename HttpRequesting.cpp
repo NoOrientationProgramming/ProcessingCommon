@@ -369,7 +369,7 @@ Success HttpRequesting::process()
 	if (Pending == mDone)
 		return Pending;
 
-	if (CURLE_OK != mCurlRes)
+	if (mCurlRes != CURLE_OK)
 		success = procErrLog(-1, "curl performing failed: %s (%d)", curl_easy_strerror(mCurlRes), mCurlRes);
 
 	procDbgLog(LOG_LVL, "server returned status code %d", mRespCode);
@@ -532,8 +532,7 @@ void HttpRequesting::multiProcess()
 
 	while (curlMsg = curl_multi_info_read(pCurlMulti, &numMsgsLeft), curlMsg)
 	{
-
-		if (CURLMSG_DONE != curlMsg->msg)
+		if (curlMsg->msg != CURLMSG_DONE)
 			continue;
 
 		pCurl = curlMsg->easy_handle;
