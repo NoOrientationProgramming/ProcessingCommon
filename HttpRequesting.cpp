@@ -369,7 +369,7 @@ Success HttpRequesting::process()
 
 	multiProcess();
 
-	if (Pending == mDone)
+	if (mDone == Pending)
 		return Pending;
 
 	if (mCurlRes != CURLE_OK)
