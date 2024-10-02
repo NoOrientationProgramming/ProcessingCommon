@@ -69,6 +69,7 @@ HttpRequesting::HttpRequesting()
 	, mUrl("")
 	, mType("get")
 	, mUserPw("")
+	, mLstHdrs()
 	, mData("")
 	, mAuthMethod("basic")
 	, mVersionTls("")
@@ -136,7 +137,7 @@ void HttpRequesting::userPwSet(const string &userPw)
 
 void HttpRequesting::hdrAdd(const string &hdr)
 {
-	mHdr = hdr;
+	mLstHdrs.push_back(hdr);
 }
 
 void HttpRequesting::dataSet(const string &data)
@@ -390,6 +391,8 @@ Literature
 */
 Success HttpRequesting::easyHandleCreate()
 {
+	list<string>::const_iterator iter;
+	struct curl_slist *pEntry;
 	string versionTls;
 	Success success = Positive;
 
@@ -401,7 +404,11 @@ Success HttpRequesting::easyHandleCreate()
 #if 0
 	procDbgLog(LOG_LVL, "url        = %s", mUrl.c_str());
 	procDbgLog(LOG_LVL, "type       = %s", mType.c_str());
-	procDbgLog(LOG_LVL, "hdr        = %s", mHdr.c_str());
+
+	iter = mLstHdrs.begin();
+	for (; iter != mLstHdrs.end(); ++iter)
+		procDbgLog(LOG_LVL, "hdr        = %s", iter->c_str());
+
 	procDbgLog(LOG_LVL, "data       = %s", mData.c_str());
 	procDbgLog(LOG_LVL, "authMethod = %s", mAuthMethod.c_str());
 	procDbgLog(LOG_LVL, "versionTls = %s", versionTls.c_str());
@@ -455,15 +462,20 @@ Success HttpRequesting::easyHandleCreate()
 	else if (mVersionHttp == "HTTP/2")
 		curl_easy_setopt(mpCurl, CURLOPT_HTTP_VERSION, CURL_HTTP_VERSION_2_0);
 
-	if (mHdr != "")
+	if (mpHeaderList)
 	{
-		stringstream ssHdr(mHdr);
-		string hdrToken;
+		curl_slist_free_all(mpHeaderList);
+		mpHeaderList = NULL;
+	}
 
-		while (getline(ssHdr, hdrToken, '\n'))
-			mpHeaderList = curl_slist_append(mpHeaderList, hdrToken.c_str());
+	iter = mLstHdrs.begin();
+	for (; iter != mLstHdrs.end(); ++iter)
+	{
+		pEntry = curl_slist_append(mpHeaderList, iter->c_str());
+		curl_easy_setopt(mpCurl, CURLOPT_HTTPHEADER, pEntry);
 
-		curl_easy_setopt(mpCurl, CURLOPT_HTTPHEADER, mpHeaderList);
+		if (!mpHeaderList)
+			mpHeaderList = pEntry;
 	}
 
 	if (mType == "post" || mType == "put")

@@ -112,7 +112,7 @@ private:
 	std::string mUrl;
 	std::string mType;
 	std::string mUserPw;
-	std::string mHdr;
+	std::list<std::string> mLstHdrs;
 	std::string mData;
 	std::string mAuthMethod;
 	std::string mVersionTls;
