@@ -472,11 +472,13 @@ Success HttpRequesting::easyHandleCreate()
 	for (; iter != mLstHdrs.end(); ++iter)
 	{
 		pEntry = curl_slist_append(mpHeaderList, iter->c_str());
-		curl_easy_setopt(mpCurl, CURLOPT_HTTPHEADER, pEntry);
 
 		if (!mpHeaderList)
 			mpHeaderList = pEntry;
 	}
+
+	if (mpHeaderList)
+		curl_easy_setopt(mpCurl, CURLOPT_HTTPHEADER, mpHeaderList);
 
 	if (mType == "post" || mType == "put")
 		curl_easy_setopt(mpCurl, CURLOPT_POSTFIELDS, mData.c_str());
