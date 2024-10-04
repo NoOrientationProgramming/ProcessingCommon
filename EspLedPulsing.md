@@ -2,7 +2,7 @@
 # ESP_LED_PULSING(3) Manual Page
 
 ## NAME
-**EspLedPulsing** – Control LED pulsing behavior on ESP32 devices.
+**EspLedPulsing()** – Control LED pulsing behavior on ESP32 devices.
 
 ## SYNOPSIS
 ```cpp
@@ -15,7 +15,7 @@ void paramSet(uint32_t width, uint32_t period, uint8_t count = 1, uint32_t gap =
 ```
 
 ## DESCRIPTION
-**EspLedPulsing** is a C++ class designed to control the pulsing behavior of an LED on an ESP32 microcontroller. The class allows users to configure the pulse width, period, pulse count, and gap between pulses. This is useful for creating effects like blinking, pulsing, or signaling patterns using an LED connected to a GPIO pin.
+**EspLedPulsing()** is a C++ class designed to control the pulsing behavior of an LED on an ESP32 microcontroller. The class allows users to configure the pulse width, period, pulse count, and gap between pulses. This is useful for creating effects like blinking, pulsing, or signaling patterns using an LED connected to a GPIO pin.
 
 ### Features:
 - **Pin Configuration**: Set the GPIO pin controlling the LED with `pinSet()`.
@@ -26,7 +26,7 @@ void paramSet(uint32_t width, uint32_t period, uint8_t count = 1, uint32_t gap =
 
 ### LED Configuration
 - **create()**  
-  Allocates a new instance of the **EspLedPulsing** class.
+  Allocates a new instance of the **EspLedPulsing()** class.
 
 - **pinSet(uint8_t id)**  
   Assigns the GPIO pin to which the LED is connected. The pin should be valid and supported by the ESP32 platform.
@@ -37,51 +37,6 @@ void paramSet(uint32_t width, uint32_t period, uint8_t count = 1, uint32_t gap =
   - **period**: Total duration of each pulse cycle, including ON and OFF times.
   - **count**: Number of consecutive pulses in each burst (default is 1).
   - **gap**: Time (in milliseconds) between bursts of pulses (default is 0, meaning no gap).
-
-### Protected Methods
-These methods are designed for internal use during the LED pulsing operation and are not meant to be called directly by users:
-
-- **EspLedPulsing()**  
-  Default constructor, initializes the internal state of the LED pulsing object.
-
-- **~EspLedPulsing()**  
-  Destructor, cleans up resources used by the LED pulsing object.
-
-- **process()**  
-  Starts the LED pulsing process according to the parameters set by `paramSet()`.
-
-- **shutdown()**  
-  Safely stops the LED pulsing process and resets any associated resources.
-
-- **gpioInit()**  
-  Initializes the GPIO pin for output to control the LED.
-
-## MEMBER VARIABLES
-The following internal variables manage the state and timing of the pulsing process:
-
-- **mStartMs**  
-  Stores the start time of the pulsing process.
-
-- **mPin**  
-  The GPIO pin number assigned to control the LED.
-
-- **mCount**  
-  The total number of pulses in a burst.
-
-- **mCurCount**  
-  Tracks the current number of pulses in the ongoing burst.
-
-- **mWidth**  
-  The ON duration (in milliseconds) of each pulse.
-
-- **mPeriod**  
-  The total time for each pulse cycle, including the ON and OFF phases.
-
-- **mGap**  
-  Time gap between bursts of pulses.
-
-- **mNumBurstsDone**  
-  Tracks the number of pulse bursts completed.
 
 ## EXAMPLES
 ```cpp
