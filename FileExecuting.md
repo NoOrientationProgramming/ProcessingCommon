@@ -134,5 +134,3 @@ Methods that modify state or configuration typically return a reference to the *
 ## AUTHORS
 Written by Johannes Natter.
 
-This man page-style document is in markdown and explains the `FileExecuting()` class, its purpose, and usage, akin to a Unix `man` page.
-
