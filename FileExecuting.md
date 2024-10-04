@@ -132,7 +132,7 @@ Methods that modify state or configuration typically return a reference to the *
 - `pipe(2)`, `fork(2)`, `exec(3)`, `dup(2)`
 
 ## AUTHORS
-Written by [Your Name].
+Written by Johannes Natter.
 
 This man page-style document is in markdown and explains the `FileExecuting()` class, its purpose, and usage, akin to a Unix `man` page.
 
