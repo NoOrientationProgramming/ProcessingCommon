@@ -123,5 +123,5 @@ The class employs mutexes to ensure thread-safe access to the event queue. This 
 - `TcpListening(3)`, `TcpTransfering(3)`, `jsoncpp(3)`
 
 ## AUTHORS
-Written by [Your Name].
+Written by Johannes Natter.
 

@@ -100,5 +100,5 @@ Thread safety is not explicitly guaranteed by this class. Proper synchronization
 - `Processing(3)`, `jsoncpp(3)`, `Pipe(3)`
 
 ## AUTHORS
-Written by [Your Name].
+Written by Johannes Natter.
 

@@ -105,5 +105,5 @@ Most methods are `void` unless otherwise specified. The `process()` and `shutdow
 - `gpio_config(3)`, `esp32(3)`
 
 ## AUTHORS
-Written by [Your Name].
+Written by Johannes Natter.
 
