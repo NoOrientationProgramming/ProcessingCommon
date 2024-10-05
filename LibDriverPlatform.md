@@ -1,5 +1,5 @@
 
-# LIB_DRIVER_PLATFORM(3) Manual Page
+# LIB_DRIVER_PLATFORM() Manual Page
 
 ## NAME
 **LibDriverPlatform** – A platform abstraction for driver management and configuration in embedded systems.
