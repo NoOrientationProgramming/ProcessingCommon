@@ -1,5 +1,5 @@
 
-# HTTP_REQUESTING(3) Manual Page
+# HTTP_REQUESTING() Manual Page
 
 ## NAME
 **HttpRequesting** – Perform HTTP requests and manage sessions in C++.
@@ -126,7 +126,7 @@ case StReqDoneWait:
 ```
 
 ## SEE ALSO
-- `...`, `...`
+- `Processing()`
 
 ## AUTHORS
 Written by Johannes Natter.
