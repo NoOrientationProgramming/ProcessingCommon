@@ -1,5 +1,5 @@
 
-# ESP_LED_PULSING(3) Manual Page
+# ESP_LED_PULSING() Manual Page
 
 ## NAME
 **EspLedPulsing()** – Control LED pulsing behavior on ESP32 devices.
@@ -63,7 +63,7 @@ Most methods are `void` unless otherwise specified. The `process()` and `shutdow
 - Make sure the GPIO pin you set with `pinSet()` is properly configured as an output pin before calling `process()`.
 
 ## SEE ALSO
-- `gpio_config(3)`, `esp32(3)`
+- `Processing()`
 
 ## AUTHORS
 Written by Johannes Natter.
