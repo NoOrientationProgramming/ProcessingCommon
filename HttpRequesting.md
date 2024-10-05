@@ -128,7 +128,7 @@ case StReqDoneWait:
 ```
 
 ## SEE ALSO
-- `libcurl(3)`, `curl_easy_init(3)`, `curl_multi(3)`
+- `...`, `...`
 
 ## AUTHORS
 Written by Johannes Natter.
