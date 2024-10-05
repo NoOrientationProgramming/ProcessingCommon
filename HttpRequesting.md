@@ -96,8 +96,6 @@ Most configuration methods return `void`, while query methods like `respCode()`,
 
 ## EXAMPLES
 ```cpp
-  HttpRequesting *pReq;
-
   pReq = HttpRequesting::create("https://example.com/api")
   if (!pReq)
     return procErrLog(-1, "could not create process");
