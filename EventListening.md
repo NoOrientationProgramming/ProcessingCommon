@@ -1,5 +1,5 @@
 
-# EVENT_LISTENING(3) Manual Page
+# EVENT_LISTENING() Manual Page
 
 ## NAME
 **EventListening** – Event-driven TCP connection listener with message queue for asynchronous event processing.
@@ -120,7 +120,7 @@ The class employs mutexes to ensure thread-safe access to the event queue. This 
 - It is not copyable or assignable to prevent issues related to resource management and connection states.
 
 ## SEE ALSO
-- `TcpListening(3)`, `TcpTransfering(3)`, `jsoncpp(3)`
+- `Processing()`, `TcpListening()`, `TcpTransfering()`, `jsoncpp`
 
 ## AUTHORS
 Written by Johannes Natter.
