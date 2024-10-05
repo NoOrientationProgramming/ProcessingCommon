@@ -44,7 +44,7 @@ void paramSet(uint32_t width, uint32_t period, uint8_t count = 1, uint32_t gap =
   if (!pLed)
     return procErrLog(-1, "could not create process");
 
-  pLed->pinSet(GPIO_NUM_2);  // Set GPIO pin 2
+  pLed->pinSet(GPIO_NUM_2);  // Use GPIO pin 2
   pLed->paramSet(500, 1000, 5, 2000);  // 500ms ON, 1000ms cycle, 5 pulses, 2000ms gap
 
   start(pLed);
