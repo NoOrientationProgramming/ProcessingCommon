@@ -2,7 +2,7 @@
 # PHY_ANIMATING() Manual Page
 
 ## NAME
-**PhyAnimating** – Implementiert physikalische Animationen und Benutzeroberflächen in C++ unter Verwendung von Qt und OpenCV.
+**PhyAnimating** – Implements physical animations and user interfaces in C++ using Qt and OpenCV.
 
 ## SYNOPSIS
 ```cpp
@@ -17,66 +17,66 @@ Success animShutdown();
 ```
 
 ## DESCRIPTION
-**PhyAnimating()** ist eine C++-Klasse, die für die Erstellung von physikalischen Animationen und die Verwaltung von Benutzeroberflächen entwickelt wurde. Sie verwendet die Qt-Bibliothek für die grafische Benutzeroberfläche und ermöglicht die Interaktion mit animierten Elementen in einer Anwendung. Die Klasse bietet eine einfache Möglichkeit, Steuerelemente hinzuzufügen, zu aktualisieren und Animationen zu verwalten.
+**PhyAnimating()** is a C++ class designed for creating physical animations and managing user interfaces. It uses the Qt library for the graphical user interface and allows interaction with animated elements within an application. The class provides an easy way to add, update, and manage controls and animations.
 
 ### Features:
-- **Benutzeroberflächenkomponenten**: Ermöglicht das Hinzufügen von Labels, Schaltflächen, Kontrollkästchen, Schiebereglern, Eingabefeldern und Fortschrittsbalken zur Benutzeroberfläche.
-- **Animation Management**: Bietet Methoden zum Starten und Stoppen von Animationen über die `animate()` und `animShutdown()`-Methoden.
-- **Signal- und Slot-Mechanismus**: Unterstützt die Interaktion zwischen Benutzeroberflächenkomponenten und Backend-Logik durch Qt's Signal- und Slot-System.
-- **Chart-Darstellung**: Ermöglicht das Hinzufügen von Diagrammen zur Visualisierung von Daten.
+- **User Interface Components**: Allows the addition of labels, buttons, checkboxes, sliders, input fields, and progress bars to the user interface.
+- **Animation Management**: Provides methods for starting and stopping animations using the `animate()` and `animShutdown()` methods.
+- **Signal and Slot Mechanism**: Supports interaction between user interface components and backend logic through Qt's signal and slot system.
+- **Chart Visualization**: Enables adding charts for visualizing data.
 
 ### Structs:
-- **LabelInfo**: Strukturiert Informationen zu Labels, einschließlich Zeiger auf QLabel, Präfix, Einheit und maximalem Wert.
+- **LabelInfo**: Structures information about labels, including pointers to QLabel, prefix, unit, and maximum value.
 
 ## METHODS
 
-### Prozessverwaltung
+### Process Management
 - **create(const char *name)**  
-  Allokiert eine neue Instanz der **PhyAnimating()**-Klasse mit dem angegebenen Namen für die Benutzeroberfläche.
+  Allocates a new instance of the **PhyAnimating()** class with the specified name for the user interface.
 
 - **process()**  
-  Führt die Logik zur Verarbeitung von Animationen und Benutzerinteraktionen aus.
+  Executes the logic for handling animations and user interactions.
 
 - **shutdown()**  
-  Beendet den Animationsprozess und gibt alle Ressourcen frei.
+  Shuts down the animation process and releases all resources.
 
 - **animate()**  
-  Virtuelle Methode, die von abgeleiteten Klassen implementiert werden muss, um die Animationslogik zu definieren.
+  A virtual method that must be implemented by derived classes to define the animation logic.
 
 - **animShutdown()**  
-  Virtuelle Methode, die von abgeleiteten Klassen implementiert werden muss, um die Logik zum Herunterfahren von Animationen zu definieren.
+  A virtual method that must be implemented by derived classes to define the shutdown logic for animations.
 
-### Benutzeroberflächenmanagement
+### User Interface Management
 - **uiLineAdd(const std::string &strLabel = "")**  
-  Fügt eine neue Zeile zur Benutzeroberfläche hinzu.
+  Adds a new line to the user interface.
 
 - **uiLabelAdd(const std::string &strPrefix = "", bool alignRight = true)**  
-  Fügt ein neues Label zur Benutzeroberfläche hinzu.
+  Adds a new label to the user interface.
 
 - **uiButtonAdd(const std::string &strText)**  
-  Fügt eine Schaltfläche zur Benutzeroberfläche hinzu.
+  Adds a button to the user interface.
 
 - **uiSwitchAdd(const std::string &strLabel)**  
-  Fügt ein Kontrollkästchen zur Benutzeroberfläche hinzu.
+  Adds a checkbox to the user interface.
 
 - **uiSliderAdd(int valMax, int valStart, const std::string &strPrefix, const std::string &strUnit = "", bool isTwoSided = false)**  
-  Fügt einen Schieberegler zur Benutzeroberfläche hinzu.
+  Adds a slider to the user interface.
 
 - **uiLineEditAdd(const std::string &strLabel = "")**  
-  Fügt ein Eingabefeld zur Benutzeroberfläche hinzu.
+  Adds an input field to the user interface.
 
 - **uiProgressAdd(const std::string &strLabel)**  
-  Fügt einen Fortschrittsbalken zur Benutzeroberfläche hinzu.
+  Adds a progress bar to the user interface.
 
 - **uiChartAdd()**  
-  Fügt ein Diagramm zur Benutzeroberfläche hinzu.
+  Adds a chart to the user interface.
 
 ## RETURN VALUES
-Methoden, die den Status oder die Konfiguration ändern, geben typischerweise einen `Success`-Wert zurück, der den Status des Verarbeitungsprozesses angibt. 
+Methods that modify the status or configuration typically return a `Success` value, indicating the status of the processing.
 
 ## NOTES
-- Diese Klasse erfordert die Installation von Qt6 und optional OpenCV, um die Benutzeroberfläche und die Animationen zu unterstützen.
-- Die Klasse ist nicht kopierbar oder zuweisbar, um unbeabsichtigtes Teilen von Ressourcen oder Duplikation zu vermeiden.
+- This class requires Qt6 and optionally OpenCV to support the user interface and animations.
+- The class is not copyable or assignable to prevent unintended resource sharing or duplication.
 
 ## SEE ALSO
 - `Processing()`, `QApplication`, `QPushButton`, `QSlider`, `QProgressBar`, `QChart`

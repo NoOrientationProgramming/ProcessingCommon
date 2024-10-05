@@ -2,7 +2,7 @@
 # THREAD_POOLING() Manual Page
 
 ## NAME
-**ThreadPooling** – Manage a pool of threads to handle concurrent processing tasks in C++.
+**ThreadPooling** – Manages a pool of threads to handle concurrent processing tasks in C++.
 
 ## SYNOPSIS
 ```cpp
@@ -16,61 +16,61 @@ static void procAdd(Processing *pProc, int32_t idDriver = -1);
 ```
 
 ## DESCRIPTION
-**ThreadPooling()** ist eine C++-Klasse, die zur Verwaltung eines Pools von Threads konzipiert wurde, um parallele Verarbeitungsaufgaben effizient zu steuern. Die Klasse bietet Mechanismen zur Erstellung, Verwaltung und Koordination von Worker-Threads, die mit Verarbeitungsobjekten interagieren und Aufträge abarbeiten.
+**ThreadPooling()** is a C++ class designed to manage a pool of threads efficiently, allowing for the parallel execution of processing tasks. The class provides mechanisms to create, manage, and coordinate worker threads that interact with processing objects and handle tasks.
 
 ### Features:
-- **Thread Management**: Konfigurieren Sie die Anzahl der aktiven Worker-Threads mit `workerCntSet()`.
-- **Dynamische Auftragsverarbeitung**: Fügen Sie Verarbeitungsobjekte zur Bearbeitung in den Pool ein mit `procAdd()`.
-- **Erweiterbarkeit**: Ermöglicht die Anpassung des Erstellungsprozesses von Treibern durch die Funktion `driverCreateSet()`, um spezifische Anforderungen zu erfüllen.
-- **Sichere Interaktion**: Verwendet Mutex-Schutzmechanismen, um den Zugriff auf gemeinsam genutzte Ressourcen zu synchronisieren.
+- **Thread Management**: Configure the number of active worker threads using `workerCntSet()`.
+- **Dynamic Task Processing**: Add processing objects to the pool for execution with `procAdd()`.
+- **Extensibility**: Allows customization of the driver creation process through the `driverCreateSet()` function to meet specific requirements.
+- **Safe Interaction**: Utilizes mutex protection mechanisms to synchronize access to shared resources.
 
 ### Structs:
-- **PoolRequest**: Struktur, die Anforderungen zur Verarbeitung mit zugehörigen Verarbeitungsobjekten und gewünschten Treiber-IDs verwaltet.
+- **PoolRequest**: A structure that manages processing requests along with the associated processing objects and desired driver IDs.
 
 ## METHODS
 
 ### Pool Management
 - **create()**  
-  Allokiert eine neue Instanz der **ThreadPooling()**-Klasse.
+  Allocates a new instance of the **ThreadPooling()** class.
 
 - **workerCntSet(uint16_t cnt)**  
-  Setzt die Anzahl der Worker-Threads im Pool.
+  Sets the number of worker threads in the pool.
 
 - **driverCreateSet(FuncDriverPoolCreate pFctDriverCreate)**  
-  Legt die Funktion fest, die für die Erstellung von Treibern verwendet wird.
+  Sets the function used for creating drivers.
 
 - **procAdd(Processing *pProc, int32_t idDriver = -1)**  
-  Fügt ein Verarbeitungsobjekt zur Warteschlange hinzu, das im Pool verarbeitet werden soll.
+  Adds a processing object to the queue to be handled by the pool.
 
 ### Process Management
 - **process()**  
-  Führt die Logik zur Verarbeitung von Poolanforderungen und zur Verwaltung der Worker-Threads aus.
+  Executes the logic for handling pool requests and managing worker threads.
 
 - **shutdown()**  
-  Beendet alle aktiven Threads und gibt die Ressourcen frei.
+  Shuts down all active threads and releases resources.
 
 ### Internal Management
 - **poolRequestsProcess()**  
-  Bearbeitet die Anfragen, die im Pool eingegangen sind.
+  Processes incoming requests in the pool.
 
 - **procsDrive()**  
-  Steuert die laufenden Verarbeitungsobjekte im Pool.
+  Manages the ongoing processing objects in the pool.
 
 - **idDriverNextGet()**  
-  Gibt die ID des nächsten Treibers zurück, der im Pool verwendet werden kann.
+  Returns the ID of the next driver to be used in the pool.
 
 - **numProcessingGet()**  
-  Gibt die Anzahl der derzeit verarbeiteten Objekte im Pool zurück.
+  Returns the number of currently processed objects in the pool.
 
 - **procInternalAdd(Processing *pProc)**  
-  Fügt ein internes Verarbeitungsobjekt zur internen Liste hinzu.
+  Adds an internal processing object to the internal list.
 
 ## RETURN VALUES
-Methoden, die den Status oder die Konfiguration ändern, geben typischerweise `Success` zurück, um den Erfolg der Operation anzuzeigen. Funktionen, die Informationen zurückgeben, bieten spezifische Werte, wie z.B. die Anzahl der aktuell bearbeiteten Prozesse.
+Methods that modify the status or configuration typically return `Success` to indicate the successful completion of the operation. Functions that return information provide specific values, such as the number of currently processed tasks.
 
 ## NOTES
-- Diese Klasse verwendet einen Broker-Mechanismus, um die Kommunikation zwischen Threads zu steuern und Ressourcen effizient zu verwalten.
-- Die Klasse ist nicht kopierbar oder zuweisbar, um unbeabsichtigtes Teilen von Ressourcen oder Duplikation zu vermeiden.
+- This class uses a broker mechanism to manage communication between threads and efficiently manage resources.
+- The class is not copyable or assignable to prevent unintended sharing of resources or duplication.
 
 ## SEE ALSO
 - `Processing()`, `mutex`, `thread`
