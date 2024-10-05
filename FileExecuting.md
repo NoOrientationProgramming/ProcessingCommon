@@ -1,5 +1,5 @@
 
-# FILE_EXECUTING(3) Manual Page
+# FILE_EXECUTING() Manual Page
 
 ## NAME
 **FileExecuting** – Execute system commands, manage input/output streams, and handle child processes in C++.
@@ -129,7 +129,7 @@ Methods that modify state or configuration typically return a reference to the *
 - The class is not copyable or assignable to avoid inadvertent resource sharing or duplication.
 
 ## SEE ALSO
-- `pipe(2)`, `fork(2)`, `exec(3)`, `dup(2)`
+- `Processing()`, `Transfering()`, `pipe(2)`, `fork(2)`, `exec(3)`, `dup(2)`
 
 ## AUTHORS
 Written by Johannes Natter.
