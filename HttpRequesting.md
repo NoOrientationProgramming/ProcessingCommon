@@ -27,7 +27,7 @@ std::string &respData();
 ```
 
 ## DESCRIPTION
-**HttpRequesting** is a C++ class designed to facilitate making HTTP requests and handling responses. It integrates with **libcurl** to send requests, receive responses, and manage HTTP sessions, with features for setting various HTTP parameters such as headers, authentication, and data payloads.
+**HttpRequesting()** is a C++ class designed to facilitate making HTTP requests and handling responses. It integrates with **libcurl** to send requests, receive responses, and manage HTTP sessions, with features for setting various HTTP parameters such as headers, authentication, and data payloads.
 
 ### Features:
 - **URL Configuration**: Set target URLs with `urlSet()`.
@@ -44,10 +44,10 @@ std::string &respData();
 
 ### Request Configuration
 - **create()**  
-  Allocates a new instance of the **HttpRequesting** class without initializing a URL.
+  Allocates a new instance of the **HttpRequesting()** class without initializing a URL.
 
 - **create(const std::string &url)**  
-  Allocates a new instance of the **HttpRequesting** class and sets the initial URL.
+  Allocates a new instance of the **HttpRequesting()** class and sets the initial URL.
 
 - **urlSet(const std::string &url)**  
   Specifies the URL for the HTTP request.
@@ -96,14 +96,35 @@ Most configuration methods return `void`, while query methods like `respCode()`,
 
 ## EXAMPLES
 ```cpp
-HttpRequesting *httpReq = HttpRequesting::create("https://example.com/api");
-httpReq->typeSet("POST");
-httpReq->hdrAdd("Content-Type: application/json");
-httpReq->dataSet("{\"key\":\"value\"}");
-httpReq->process(); // Sends the HTTP request
+  HttpRequesting *pReq;
 
-uint16_t statusCode = httpReq->respCode();
-std::string responseBody = httpReq->respData();
+  pReq = HttpRequesting::create("https://example.com/api")
+  if (!pReq)
+    return procErrLog(-1, "could not create process");
+
+  pReq->typeSet("POST");
+  pReq->hdrAdd("Content-Type: application/json");
+  pReq->dataSet("{\"key\":\"value\"}");
+
+  start(pReq);
+
+  mState = StReqDoneWait;
+
+  break;
+case StReqDoneWait:
+
+  success = pReq->success();
+  if (success == Pending)
+    break;
+
+  if (success != Positive)
+    return procErrLog(-1, "could not finish HTTP request");
+
+  statusCode = httpReq->respCode();
+  responseBody = httpReq->respData();
+
+  repel(pReq);
+  pReq = NULL;
 ```
 
 ## SEE ALSO
