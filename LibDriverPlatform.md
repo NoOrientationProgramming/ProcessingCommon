@@ -89,7 +89,7 @@ size_t stackSize = sizeStackGet();
 In this example, a `ConfigDriver` object is created, and the default stack size is set. Then, a platform-specific driver is created using a custom driving function, and after usage, the driver is cleaned up.
 
 ## SEE ALSO
-- `Processing(3)`
+- `Processing()`
 
 ## AUTHORS
 Written by Johannes Natter.

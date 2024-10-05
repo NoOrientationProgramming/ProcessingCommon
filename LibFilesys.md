@@ -1,5 +1,5 @@
 
-# LIB_FILESYS(3) Manual Page
+# LIB_FILESYS Manual Page
 
 ## NAME
 **LibFilesys** – A library providing file and directory management, pipe operations, and system resource control.
@@ -141,9 +141,7 @@ pipeClose(pipe);
 ```
 
 ## SEE ALSO
-- `Processing(3)`
-- `LibTime(3)`
-- `LibDspc(3)`
+- `Processing()`, `LibTime`, `LibDspc`
 
 ## AUTHORS
 Written by Johannes Natter.

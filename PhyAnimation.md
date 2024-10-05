@@ -1,5 +1,5 @@
 
-# PHY_ANIMATING(3) Manual Page
+# PHY_ANIMATING() Manual Page
 
 ## NAME
 **PhyAnimating** – Implementiert physikalische Animationen und Benutzeroberflächen in C++ unter Verwendung von Qt und OpenCV.
@@ -79,7 +79,7 @@ Methoden, die den Status oder die Konfiguration ändern, geben typischerweise ei
 - Die Klasse ist nicht kopierbar oder zuweisbar, um unbeabsichtigtes Teilen von Ressourcen oder Duplikation zu vermeiden.
 
 ## SEE ALSO
-- `QApplication`, `QPushButton`, `QSlider`, `QProgressBar`, `QChart`
+- `Processing()`, `QApplication`, `QPushButton`, `QSlider`, `QProgressBar`, `QChart`
 
 ## AUTHORS
 Written by Johannes Natter.

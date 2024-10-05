@@ -1,5 +1,5 @@
 
-# THREAD_POOLING(3) Manual Page
+# THREAD_POOLING() Manual Page
 
 ## NAME
 **ThreadPooling** – Manage a pool of threads to handle concurrent processing tasks in C++.
@@ -73,7 +73,7 @@ Methoden, die den Status oder die Konfiguration ändern, geben typischerweise `S
 - Die Klasse ist nicht kopierbar oder zuweisbar, um unbeabsichtigtes Teilen von Ressourcen oder Duplikation zu vermeiden.
 
 ## SEE ALSO
-- `mutex`, `thread`, `vector`, `list`
+- `Processing()`, `mutex`, `thread`
 
 ## AUTHORS
 Written by Johannes Natter.

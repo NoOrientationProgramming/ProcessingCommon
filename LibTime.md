@@ -1,5 +1,5 @@
 
-# LIB_TIME(3) Manual Page
+# LIB_TIME Manual Page
 
 ## NAME
 **LibTime** – A library for time management and manipulation using the C++ Standard Library's `chrono` utilities.
@@ -104,8 +104,7 @@ std::cout << "Elapsed time in milliseconds: " << elapsedMs << std::endl;
 ```
 
 ## SEE ALSO
-- `chrono(3)`
-- `Processing(3)`
+- `Processing()`
 
 ## AUTHORS
 Written by Johannes Natter.

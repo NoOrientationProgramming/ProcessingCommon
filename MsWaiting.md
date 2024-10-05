@@ -1,5 +1,5 @@
 
-# MS_WAITING(3) Manual Page
+# MS_WAITING() Manual Page
 
 ## NAME
 **MsWaiting** – Implementiert Wartezeiten in Millisekunden und verwaltet den Verarbeitungsstatus in C++.
@@ -40,7 +40,7 @@ Methoden, die den Status oder die Konfiguration ändern, geben typischerweise ei
 - Die Klasse ist nicht kopierbar oder zuweisbar, um unbeabsichtigtes Teilen von Ressourcen oder Duplikation zu vermeiden.
 
 ## SEE ALSO
-- `thread(7)`, `chrono(3)`, `sleep(3)`
+- `Processing()`
 
 ## AUTHORS
 Written by Johannes Natter.

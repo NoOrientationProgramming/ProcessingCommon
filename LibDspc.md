@@ -1,5 +1,5 @@
 
-# LIB_DSPC(3) Manual Page
+# LIB_DSPC Manual Page
 
 ## NAME
 **LibDspc** – A comprehensive utility library for debugging, JSON processing, cryptography, networking, and string manipulation.
@@ -132,9 +132,7 @@ hexDump(data, sizeof(data), "Data Dump");
 ```
 
 ## SEE ALSO
-- `Processing(3)`
-- `LibTime(3)`
-- `LibFilesys(3)`
+- `Processing()`, `LibTime`, `LibFilesys`
 
 ## AUTHORS
 Written by Johannes Natter.

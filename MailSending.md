@@ -1,5 +1,5 @@
 
-# MAIL_SENDING(3) Manual Page
+# MAIL_SENDING() Manual Page
 
 ## NAME
 **MailSending** – Sendet E-Mails, verwaltet SMTP-Serververbindungen und verarbeitet E-Mail-Komponenten in C++.
@@ -67,7 +67,7 @@ Methoden, die den Zustand oder die Konfiguration ändern, geben typischerweise e
 - Die Klasse ist nicht kopierbar oder zuweisbar, um unbeabsichtigtes Teilen von Ressourcen oder Duplikation zu vermeiden.
 
 ## SEE ALSO
-- `smtp(7)`, `curl_easy_send(3)`, `curl_easy_setopt(3)`
+- `Processing()`, `libcurl`
 
 ## AUTHORS
 Written by Johannes Natter.
