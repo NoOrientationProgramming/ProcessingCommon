@@ -48,6 +48,11 @@ void paramSet(uint32_t width, uint32_t period, uint8_t count = 1, uint32_t gap =
   pLed->paramSet(500, 1000, 5, 2000);  // 500ms ON, 1000ms cycle, 5 pulses, 2000ms gap
 
   start(pLed);
+
+  mState = StNext;
+
+  break;
+case StNext:
 ```
 
 In this example, an LED connected to GPIO pin 2 will pulse with a width of 500ms, a period of 1000ms, and will repeat for 5 pulses, with a 2-second gap between bursts.
