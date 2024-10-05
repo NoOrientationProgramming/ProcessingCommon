@@ -40,8 +40,6 @@ void paramSet(uint32_t width, uint32_t period, uint8_t count = 1, uint32_t gap =
 
 ## EXAMPLES
 ```cpp
-  EspLedPulsing *pLed;
-
   pLed = EspLedPulsing::create();
   if (!pLed)
     return procErrLog(-1, "could not create process");
@@ -60,7 +58,7 @@ Most methods are `void` unless otherwise specified. The `process()` and `shutdow
 ## NOTES
 - The class is designed specifically for the ESP32 platform and uses ESP-IDF's GPIO driver to control the LED.
 - The class is not copyable or assignable to prevent unintended behavior with GPIO resources.
-- Make sure the GPIO pin you set with `pinSet()` is properly configured as an output pin before calling `process()`.
+- The GPIO pin you set with `pinSet()` is automatically set to output mode after calling the `start()` function.
 
 ## SEE ALSO
 - `Processing()`
