@@ -255,8 +255,7 @@ Success HttpRequesting::process()
 			return procErrLog(-1, "curl performing failed: %s (%d)",
 						curl_easy_strerror(mCurlRes), mCurlRes);
 
-		if (mRespCode != 200)
-			procDbgLog(LOG_LVL, "server returned status code %d", mRespCode);
+		procDbgLog(LOG_LVL, "server returned status code %d", mRespCode);
 
 		return Positive;
 
