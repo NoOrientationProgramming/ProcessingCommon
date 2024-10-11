@@ -110,7 +110,7 @@ Returns a list of resolved IPv6 addresses for the set hostname.
 
 ### libc-ares
 
-This library provides asynchronous DNS request handling in C, enabling programs to perform DNS lookups without blocking. It allows querying for various DNS records like A, AAAA, and CNAME, and is ideal for event-driven applications by allowing DNS operations to be handled in a non-blocking fashion.
+This library provides asynchronous DNS request handling in C, enabling programs to perform DNS lookups without blocking. It allows querying for various DNS records like A, AAAA, and CNAME, and is ideal for networking applications by allowing DNS operations to be handled in a non-blocking fashion.
 
 ```
 License               MIT
