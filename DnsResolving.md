@@ -15,7 +15,7 @@ ProcessingCommon
 #include "DnsResolving.h"
 
 // creation
-static DnsResolving *create()
+static DnsResolving *create();
 
 // configuration
 void hostnameSet(const std::string &nameHost);
@@ -25,7 +25,7 @@ Processing *start(Processing *pChild, DriverMode driver = DrivenByParent);
 Processing *cancel(Processing *pChild);
 
 // success
-Success success()
+Success success();
 
 // result
 const std::list<std::string> &lstIPv4();
