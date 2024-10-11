@@ -571,25 +571,44 @@ string remoteAddr(int socketFd)
 
 string urlToHost(const string &url)
 {
-	string::size_type find, start, end;
+	string protocol, host, path;
+	urlToTriple(url, protocol, host, path);
+	return host;
+}
 
+void urlToTriple(const string &url,
+				string &protocol,
+				string &host,
+				string &path)
+{
+	string::size_type find, start, endHost;
+
+	protocol = "";
+	host = "";
+	path = "";
 	start = 0;
 
 	find = url.find("://");
 	if (find != string::npos)
+	{
+		protocol = url.substr(0, find);
 		start = find + 3;
+	}
 
-	end = url.length();
+	endHost = url.length();
 
 	find = url.find("?", start);
 	if (find != string::npos)
-		end = find;
+		endHost = find;
 
 	find = url.find("/", start); // even closer
 	if (find != string::npos)
-		end = find;
+		endHost = find;
 
-	return url.substr(start, end - start);
+	host = url.substr(start, endHost - start);
+
+	if (endHost < url.length())
+		path = url.substr(endHost);
 }
 
 // Strings

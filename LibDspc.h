@@ -109,6 +109,10 @@ bool isValidEmail(const std::string &mail);
 bool isValidIp4(const std::string &ip);
 std::string remoteAddr(int socketFd);
 std::string urlToHost(const std::string &url);
+void urlToTriple(const std::string &url,
+				std::string &protocol,
+				std::string &host,
+				std::string &path);
 
 // Strings
 void strToVecStr(const std::string &str, VecStr &vStr, char delim = '\n');
