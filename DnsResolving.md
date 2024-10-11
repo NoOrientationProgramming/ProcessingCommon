@@ -53,22 +53,22 @@ Returns a list of resolved IPv6 addresses for the set hostname.
 
 ### Example: Simple DNS Resolution
 
-In header file of **Trying()**
+In header file of **ServerConnecting()**
 ```cpp
   /* member variables */
   DnsResolving *mpResolv;
 ```
 
-In source file of **Trying()**
+In source file of **ServerConnecting()**
 ```cpp
-Trying::Trying()
-  : Processing("Trying")
+ServerConnecting::ServerConnecting()
+  : Processing("ServerConnecting")
   , mpResolv(NULL)
 {
   mState = StStart;
 }
 
-Success HttpRequesting::process()
+Success ServerConnecting::process()
 {
   Success success;
 
