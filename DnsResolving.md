@@ -122,8 +122,10 @@ Sources               https://github.com/c-ares/c-ares
 
 ## RECURSION
 
-- Order 1
-- Depth: -
+```
+Order                 1
+Depth                 -
+```
 
 ## SEE ALSO
 
