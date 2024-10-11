@@ -63,6 +63,11 @@ static mutex mtxCurlGlobal;
 static bool curlGlobalInitDone = false;
 #endif
 
+#if CONFIG_PROC_HAVE_C_ARES
+static mutex mtxCaresGlobal;
+static bool caresGlobalInitDone = false;
+#endif
+
 // Debugging
 
 string appVersion()
@@ -476,6 +481,38 @@ void versionCurlInfoPrint()
 	cout << "libcurl    " << pInfo->version << endl;
 	cout << "libz       " << pInfo->libz_version << endl;
 	cout << "SSL        " << (pInfo->ssl_version ? pInfo->ssl_version : "none") << endl;
+}
+#endif
+
+// c-ares
+
+#if CONFIG_PROC_HAVE_C_ARES
+void caresGlobalInit()
+{
+	lock_guard<mutex> lock(mtxCaresGlobal);
+
+	if (caresGlobalInitDone)
+		return;
+
+	Processing::globalDestructorRegister(caresGlobalDeInit);
+
+	ares_library_init(ARES_LIB_INIT_ALL);
+	caresGlobalInitDone = true;
+
+	dbgLog(0, "global init c-ares done");
+}
+
+void caresGlobalDeInit()
+{
+	lock_guard<mutex> lock(mtxCaresGlobal);
+
+	if (!caresGlobalInitDone)
+		return;
+
+	ares_library_cleanup();
+	caresGlobalInitDone = false;
+
+	dbgLog(0, "global deinit c-ares done");
 }
 #endif
 

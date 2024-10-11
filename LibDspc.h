@@ -47,6 +47,10 @@
 #include <curl/curl.h>
 #endif
 
+#if CONFIG_PROC_HAVE_C_ARES
+#include <ares.h>
+#endif
+
 #include "Processing.h"
 #include "Res.h"
 #include "LibTime.h"
@@ -92,6 +96,12 @@ void curlGlobalInit();
 void curlGlobalDeInit();
 std::string versionCurl();
 void versionCurlInfoPrint();
+#endif
+
+// c-ares
+#if CONFIG_PROC_HAVE_C_ARES
+void caresGlobalInit();
+void caresGlobalDeInit();
 #endif
 
 // Internet
