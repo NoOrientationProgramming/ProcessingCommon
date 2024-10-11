@@ -162,6 +162,13 @@ Success ServerConnecting::process()
 - FreeBSD
 - MacOSX
 
+## RECURSION
+
+```
+Order                 1
+Depth                 -
+```
+
 ## DEPENDENCIES
 
 ### Processing()
@@ -186,13 +193,6 @@ Required              No
 Project Page          https://c-ares.org
 Documentation         https://c-ares.org/docs.html
 Sources               https://github.com/c-ares/c-ares
-```
-
-## RECURSION
-
-```
-Order                 1
-Depth                 -
 ```
 
 ## SEE ALSO
