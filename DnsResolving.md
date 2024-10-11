@@ -43,6 +43,12 @@ Sets the hostname to be resolved. This hostname is used to query both IPv4 and I
 
 - **nameHost**: The domain name to resolve (e.g., "example.com").
 
+## SUCCESS
+
+As long as **DnsResolving()** is not finished, function success() returns **Pending**.
+On error, success() is **not Positive** but returns some negative number.
+On success, success() returns **Positive**.
+
 ## RESULT
 
 ### `const std::list<std::string> &lstIPv4()`
@@ -52,6 +58,10 @@ Returns a list of resolved IPv4 addresses for the set hostname.
 ### `const std::list<std::string> &lstIPv6()`
 
 Returns a list of resolved IPv6 addresses for the set hostname.
+
+## ERRORS
+
+Currently, no error codes are being differentiated.
 
 ## EXAMPLES
 
