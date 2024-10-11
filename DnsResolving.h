@@ -26,7 +26,11 @@
 #ifndef DNS_RESOLVING_H
 #define DNS_RESOLVING_H
 
+#include <string>
+#include <list>
+
 #include "Processing.h"
+#include "LibDspc.h"
 
 class DnsResolving : public Processing
 {
@@ -37,6 +41,13 @@ public:
 	{
 		return new (std::nothrow) DnsResolving;
 	}
+
+	// input
+	void nameHostSet(const std::string &nameHost);
+
+	// output
+	const std::list<std::string> &lstIPv4();
+	const std::list<std::string> &lstIPv6();
 
 protected:
 
@@ -55,12 +66,31 @@ private:
 
 	/* member functions */
 	Success process();
+	Success shutdown();
 	void processInfo(char *pBuf, char *pBufEnd);
 
+#if CONFIG_LIB_DSPC_HAVE_C_ARES
+	bool aresStart();
+	void aresProcess();
+#endif
 	/* member variables */
 	//uint32_t mStartMs;
+	uint32_t mStateSd;
+	std::string mNameHost;
+	std::list<std::string> mLstIPv4;
+	std::list<std::string> mLstIPv6;
 
+#if CONFIG_LIB_DSPC_HAVE_C_ARES
+	ares_options mOptionsAres;
+	ares_channel mChannelAres;
+	bool mChannelAresInitDone;
+	Success mDoneAres;
+	std::string mErrAres;
+#endif
 	/* static functions */
+#if CONFIG_LIB_DSPC_HAVE_C_ARES
+	static void aresRequestDone(void *arg, int status, int timeouts, struct ares_addrinfo *result);
+#endif
 
 	/* static variables */
 

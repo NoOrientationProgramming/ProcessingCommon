@@ -27,11 +27,18 @@
 
 #define dForEach_ProcState(gen) \
 		gen(StStart) \
-		gen(StMain) \
-		gen(StNop) \
+		gen(StGlobalInit) \
+		gen(StAresStart) \
+		gen(StAresDoneWait) \
 
 #define dGenProcStateEnum(s) s,
 dProcessStateEnum(ProcState);
+
+#define dForEach_SdState(gen) \
+		gen(StSdStart) \
+
+#define dGenSdStateEnum(s) s,
+dProcessStateEnum(SdState);
 
 #if 1
 #define dGenProcStateString(s) #s,
@@ -45,6 +52,15 @@ using namespace std;
 DnsResolving::DnsResolving()
 	: Processing("DnsResolving")
 	//, mStartMs(0)
+	, mStateSd(StSdStart)
+	, mNameHost("")
+#if CONFIG_LIB_DSPC_HAVE_C_ARES
+	, mOptionsAres()
+	, mChannelAres()
+	, mChannelAresInitDone(false)
+	, mDoneAres(Pending)
+	, mErrAres("")
+#endif
 {
 	mState = StStart;
 }
@@ -56,6 +72,9 @@ Success DnsResolving::process()
 	//uint32_t curTimeMs = millis();
 	//uint32_t diffMs = curTimeMs - mStartMs;
 	//Success success;
+#if CONFIG_LIB_DSPC_HAVE_C_ARES
+	bool ok;
+#endif
 #if 0
 	dStateTrace;
 #endif
@@ -63,13 +82,50 @@ Success DnsResolving::process()
 	{
 	case StStart:
 
-		return procErrLog(-1, "not implemented yet");
+		if (!mNameHost.size())
+			return procErrLog(-1, "hostname not set");
+
+		mState = StGlobalInit;
 
 		break;
-	case StMain:
+	case StGlobalInit:
+
+#if CONFIG_LIB_DSPC_HAVE_C_ARES
+		procDbgLog(LOG_LVL, "using libc-ares");
+		caresGlobalInit();
+#else
+		procDbgLog(LOG_LVL, "libc-ares required");
+		return -1;
+#endif
+		mState = StAresStart;
 
 		break;
-	case StNop:
+	case StAresStart:
+
+#if CONFIG_LIB_DSPC_HAVE_C_ARES
+		ok = aresStart();
+		if (!ok)
+			return procErrLog(-1, "could not start async address resolution");
+#endif
+		mState = StAresDoneWait;
+
+		break;
+	case StAresDoneWait:
+
+#if CONFIG_LIB_DSPC_HAVE_C_ARES
+		aresProcess();
+
+		if (mDoneAres == Pending)
+			break;
+
+		if (mDoneAres != Positive)
+			return procErrLog(-1, "could not finish async address resolution: %s",
+									mErrAres.c_str());
+
+		ares_destroy(mChannelAres);
+		mChannelAresInitDone = false;
+#endif
+		return Positive;
 
 		break;
 	default:
@@ -77,6 +133,139 @@ Success DnsResolving::process()
 	}
 
 	return Pending;
+}
+
+Success DnsResolving::shutdown()
+{
+	switch (mStateSd)
+	{
+	case StSdStart:
+
+#if CONFIG_LIB_DSPC_HAVE_C_ARES
+		if (mChannelAresInitDone)
+		{
+			ares_destroy(mChannelAres);
+			mChannelAresInitDone = false;
+		}
+#endif
+		return Positive;
+
+		break;
+	default:
+		break;
+	}
+
+	return Pending;
+}
+
+#if CONFIG_LIB_DSPC_HAVE_C_ARES
+/*
+ * Literature
+ * - https://c-ares.org/docs.html
+ * - https://c-ares.org/docs/ares_init_options.html
+ * - https://c-ares.org/docs/ares_getaddrinfo.html
+ * - https://man7.org/linux/man-pages/man3/getaddrinfo.3.html
+ * - https://c-ares.org/docs/ares_freeaddrinfo.html
+ */
+bool DnsResolving::aresStart()
+{
+	int res;
+
+	memset(&mOptionsAres, 0, sizeof(mOptionsAres));
+
+	mOptionsAres.flags = ARES_FLAG_NORECURSE;
+	mOptionsAres.timeout = 400;
+	mOptionsAres.tries = 2;
+
+	res = ares_init_options(&mChannelAres, &mOptionsAres, ARES_OPT_TIMEOUTMS | ARES_OPT_TRIES);
+	if (res != ARES_SUCCESS)
+	{
+		procErrLog(-1, "could not set ares options");
+		return false;
+	}
+
+	ares_addrinfo_hints hints;
+
+	memset(&hints, 0, sizeof(hints));
+
+	hints.ai_flags = 0;
+	hints.ai_family = AF_UNSPEC; /* IPv4 or IPv6 */
+	hints.ai_socktype = 0; /* Any */
+	hints.ai_protocol = 0; /* Any */
+
+	//procWrnLog("Getting address of: %s", mNameHost.c_str());
+
+	ares_getaddrinfo(mChannelAres,
+					mNameHost.c_str(), NULL, &hints,
+					aresRequestDone, this);
+
+	mChannelAresInitDone = true;
+
+	return true;
+}
+
+/*
+ * Literature
+ * - https://c-ares.org/docs.html
+ * - https://c-ares.org/docs/ares_fds.html
+ * - https://man7.org/linux/man-pages/man2/select.2.html
+ * - https://c-ares.org/docs/ares_process.html
+ */
+void DnsResolving::aresProcess()
+{
+	fd_set fdsRead, fdsWrite;
+	int fdsMax, res;
+
+	FD_ZERO(&fdsRead);
+	FD_ZERO(&fdsWrite);
+
+	fdsMax = ares_fds(mChannelAres, &fdsRead, &fdsWrite);
+	if (!fdsMax)
+	{
+		mDoneAres = procErrLog(-1, "no file descriptors to be processed");
+		return;
+	}
+
+	if (fdsMax > 1000)
+	{
+		mDoneAres = procErrLog(-1, "socket numbers above 1000 not supported at the moment");
+		return;
+	}
+
+	++fdsMax;
+
+	struct timeval tmoSelect;
+
+	tmoSelect.tv_sec = 0;
+	tmoSelect.tv_usec = 5000;
+
+	res = select(fdsMax, &fdsRead, &fdsWrite, NULL, &tmoSelect);
+	if (!res)
+		return;
+
+	if (res < 0)
+	{
+		mDoneAres = procErrLog(-1, "select returned error: %s (%d)", strerror(errno), errno);
+		return;
+	}
+
+	ares_process(mChannelAres, &fdsRead, &fdsWrite);
+}
+#endif
+
+void DnsResolving::nameHostSet(const string &nameHost)
+{
+	mNameHost = nameHost;
+}
+
+const list<string> &DnsResolving::lstIPv4()
+{
+	return mLstIPv4;
+}
+
+const list<string> &DnsResolving::lstIPv6()
+{
+	return mLstIPv6;
 }
 
 void DnsResolving::processInfo(char *pBuf, char *pBufEnd)
@@ -87,4 +276,67 @@ void DnsResolving::processInfo(char *pBuf, char *pBufEnd)
 }
 
 /* static functions */
+
+#if CONFIG_LIB_DSPC_HAVE_C_ARES
+/*
+ * Literature
+ * - https://c-ares.org/docs.html
+ * - https://c-ares.org/docs/ares_freeaddrinfo.html
+ */
+void DnsResolving::aresRequestDone(void *arg, int status, int timeouts, struct ares_addrinfo *result)
+{
+	DnsResolving *pReq = (DnsResolving *)arg;
+
+	if (status)
+	{
+		pReq->mErrAres = ares_strerror(status);
+		pReq->mDoneAres = -1;
+
+		ares_freeaddrinfo(result);
+		return;
+	}
+
+	(void)timeouts;
+
+	struct ares_addrinfo_node *pNode;
+	const void *pAddr;
+	char bAddr[64];
+	string addr;
+	list<string> *pList;
+
+	pNode = result->nodes;
+	for (; pNode; pNode = pNode->ai_next)
+	{
+		pList = NULL;
+
+		if (pNode->ai_family == AF_INET)
+		{
+			const struct sockaddr_in *in_addr =
+						(const struct sockaddr_in *)((void *)pNode->ai_addr);
+			pAddr = &in_addr->sin_addr;
+			pList = &pReq->mLstIPv4;
+		}
+		else
+		if (pNode->ai_family == AF_INET6)
+		{
+			const struct sockaddr_in6 *in_addr =
+						(const struct sockaddr_in6 *)((void *)pNode->ai_addr);
+			pAddr = &in_addr->sin6_addr;
+			pList = &pReq->mLstIPv6;
+		} else
+			continue;
+
+		ares_inet_ntop(pNode->ai_family, pAddr, bAddr, sizeof(bAddr));
+
+		if (pList)
+			pList->push_back(bAddr);
+
+		//wrnLog("Addr: %s", bAddr);
+	}
+
+	pReq->mDoneAres = Positive;
+
+	ares_freeaddrinfo(result);
+}
+#endif
 
