@@ -5,6 +5,10 @@
 
 **DnsResolving()** - Class for resolving hostnames to IP addresses.
 
+## LIBRARY
+
+ProcessingCommon
+
 ## SYNOPSIS
 
 ```cpp
