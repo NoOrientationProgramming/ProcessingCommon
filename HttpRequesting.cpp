@@ -32,6 +32,8 @@
 #define dForEach_ProcState(gen) \
 		gen(StStart) \
 		gen(StGlobalInit) \
+		gen(StAresStart) \
+		gen(StAresDoneWait) \
 		gen(StEasyInit) \
 		gen(StEasyBind) \
 		gen(StReqStart) \
@@ -75,6 +77,16 @@ HttpRequesting::HttpRequesting()
 	, mVersionTls("")
 	, mVersionHttp("HTTP/2")
 	, mModeDebug(false)
+#if CONFIG_LIB_DSPC_HAVE_C_ARES
+	, mProtocol("")
+	, mNameHost("")
+	, mPath("")
+	, mOptionsAres()
+	, mChannelAres()
+	, mChannelAresInitDone(false)
+	, mDoneAres(Pending)
+	, mAddrHost("")
+#endif
 	, mpCurl(NULL)
 	, mCurlBound(false)
 	, mpHeaderList(NULL)
@@ -83,7 +95,7 @@ HttpRequesting::HttpRequesting()
 	, mRespHdr("")
 	, mRespData("")
 	, mRetries(2)
-	, mDone(Pending)
+	, mDoneCurl(Pending)
 {
 	mState = StStart;
 }
@@ -94,10 +106,22 @@ HttpRequesting::HttpRequesting(const string &url)
 	, mUrl(url)
 	, mType("get")
 	, mUserPw("")
+	, mLstHdrs()
 	, mData("")
 	, mAuthMethod("basic")
 	, mVersionTls("")
 	, mVersionHttp("")
+	, mModeDebug(false)
+#if CONFIG_LIB_DSPC_HAVE_C_ARES
+	, mProtocol("")
+	, mNameHost("")
+	, mPath("")
+	, mOptionsAres()
+	, mChannelAres()
+	, mChannelAresInitDone(false)
+	, mDoneAres(Pending)
+	, mAddrHost("")
+#endif
 	, mpCurl(NULL)
 	, mCurlBound(false)
 	, mpHeaderList(NULL)
@@ -106,7 +130,7 @@ HttpRequesting::HttpRequesting(const string &url)
 	, mRespHdr("")
 	, mRespData("")
 	, mRetries(2)
-	, mDone(Pending)
+	, mDoneCurl(Pending)
 {
 	mState = StStart;
 }
@@ -194,7 +218,9 @@ Success HttpRequesting::process()
 	//uint32_t curTimeMs = millis();
 	//uint32_t diffMs = curTimeMs - mStartMs;
 	Success success;
-	//bool ok;
+#if CONFIG_LIB_DSPC_HAVE_C_ARES
+	bool ok;
+#endif
 #if 0
 	dStateTrace;
 #endif
@@ -211,7 +237,57 @@ Success HttpRequesting::process()
 	case StGlobalInit:
 
 		curlGlobalInit();
+#if CONFIG_LIB_DSPC_HAVE_C_ARES
+		caresGlobalInit();
+#endif
+		mState = StAresStart;
 
+		break;
+	case StAresStart:
+
+#if CONFIG_LIB_DSPC_HAVE_C_ARES
+		urlToTriple(mUrl, mProtocol, mNameHost, mPath);
+#if 0
+		procWrnLog("URL           %s", mUrl.c_str());
+		procWrnLog("Protocol      %s", mProtocol.c_str());
+		procWrnLog("Name Host     %s", mNameHost.c_str());
+		procWrnLog("Path          %s", mPath.c_str());
+#endif
+		ok = aresStart();
+		if (!ok)
+			return procErrLog(-1, "could not start async address resolution");
+#endif
+		mState = StAresDoneWait;
+
+		break;
+	case StAresDoneWait:
+
+#if CONFIG_LIB_DSPC_HAVE_C_ARES
+		aresProcess();
+
+		if (mDoneAres == Pending)
+			break;
+
+		if (mDoneAres != Positive)
+			return procErrLog(-1, "could not finish async address resolution: %s",
+									mAddrHost.c_str());
+
+		ares_destroy(mChannelAres);
+		mChannelAresInitDone = false;
+
+		mUrl = "";
+
+		if (mProtocol.size())
+		{
+			mUrl += mProtocol;
+			mUrl += "://";
+		}
+
+		mUrl += mAddrHost + mPath;
+		hdrAdd(string("Host: ") + mNameHost);
+
+		//procWrnLog("URL new       %s", mUrl.c_str());
+#endif
 		mState = StEasyInit;
 
 		break;
@@ -248,7 +324,7 @@ Success HttpRequesting::process()
 
 		multiProcess();
 
-		if (mDone == Pending)
+		if (mDoneCurl == Pending)
 			break;
 
 		if (mCurlRes != CURLE_OK)
@@ -291,6 +367,13 @@ Success HttpRequesting::shutdown()
 			mpCurl = NULL;
 		}
 
+#if CONFIG_LIB_DSPC_HAVE_C_ARES
+		if (mChannelAresInitDone)
+		{
+			ares_destroy(mChannelAres);
+			mChannelAresInitDone = false;
+		}
+#endif
 		return Positive;
 
 		break;
@@ -301,12 +384,107 @@ Success HttpRequesting::shutdown()
 	return Pending;
 }
 
+#if CONFIG_LIB_DSPC_HAVE_C_ARES
 /*
-Literature
-- https://curl.haxx.se/libcurl/c/
-- https://curl.se/libcurl/c/curl_multi_add_handle.html
-- https://curl.se/libcurl/c/libcurl-errors.html
-*/
+ * Literature
+ * - https://c-ares.org/docs.html
+ * - https://c-ares.org/docs/ares_init_options.html
+ * - https://c-ares.org/docs/ares_getaddrinfo.html
+ * - https://man7.org/linux/man-pages/man3/getaddrinfo.3.html
+ * - https://c-ares.org/docs/ares_freeaddrinfo.html
+ */
+bool HttpRequesting::aresStart()
+{
+	int res;
+
+	memset(&mOptionsAres, 0, sizeof(mOptionsAres));
+
+	mOptionsAres.flags = ARES_FLAG_NORECURSE;
+	mOptionsAres.timeout = 400;
+	mOptionsAres.tries = 2;
+
+	res = ares_init_options(&mChannelAres, &mOptionsAres, ARES_OPT_TIMEOUTMS | ARES_OPT_TRIES);
+	if (res != ARES_SUCCESS)
+	{
+		procErrLog(-1, "could not set ares options");
+		return false;
+	}
+
+	ares_addrinfo_hints hints;
+
+	memset(&hints, 0, sizeof(hints));
+
+	hints.ai_flags = 0;
+	hints.ai_family = AF_UNSPEC; /* IPv4 or IPv6 */
+	hints.ai_socktype = 0; /* Any */
+	hints.ai_protocol = 0; /* Any */
+
+	//procWrnLog("Getting address of: %s", mNameHost.c_str());
+
+	ares_getaddrinfo(mChannelAres,
+					mNameHost.c_str(), NULL, &hints,
+					aresRequestDone, this);
+
+	mChannelAresInitDone = true;
+
+	return true;
+}
+
+/*
+ * Literature
+ * - https://c-ares.org/docs.html
+ * - https://c-ares.org/docs/ares_fds.html
+ * - https://man7.org/linux/man-pages/man2/select.2.html
+ * - https://c-ares.org/docs/ares_process.html
+ */
+void HttpRequesting::aresProcess()
+{
+	fd_set fdsRead, fdsWrite;
+	int fdsMax, res;
+
+	FD_ZERO(&fdsRead);
+	FD_ZERO(&fdsWrite);
+
+	fdsMax = ares_fds(mChannelAres, &fdsRead, &fdsWrite);
+	if (!fdsMax)
+	{
+		mDoneAres = procErrLog(-1, "no file descriptors to be processed");
+		return;
+	}
+
+	if (fdsMax > 1000)
+	{
+		mDoneAres = procErrLog(-1, "socket numbers above 1000 not supported at the moments");
+		return;
+	}
+
+	++fdsMax;
+
+	struct timeval tmoSelect;
+
+	tmoSelect.tv_sec = 0;
+	tmoSelect.tv_usec = 5000;
+
+	res = select(fdsMax, &fdsRead, &fdsWrite, NULL, &tmoSelect);
+	if (!res)
+		return;
+
+	if (res < 0)
+	{
+		mDoneAres = procErrLog(-1, "select returned error: %s (%d)", strerror(errno), errno);
+		return;
+	}
+
+	ares_process(mChannelAres, &fdsRead, &fdsWrite);
+}
+#endif
+
+/*
+ * Literature
+ * - https://curl.haxx.se/libcurl/c/
+ * - https://curl.se/libcurl/c/curl_multi_add_handle.html
+ * - https://curl.se/libcurl/c/libcurl-errors.html
+ */
 Success HttpRequesting::curlEasyHandleBind()
 {
 	Guard lock(mtxCurlMulti);
@@ -360,34 +538,34 @@ void HttpRequesting::curlEasyHandleUnind()
 }
 
 /*
-Literature regex
-- https://regexr.com/
-- https://regex101.com/
-- https://www.regular-expressions.info/posixbrackets.html
-- http://www.cplusplus.com/reference/regex/ECMAScript/
-
-Literature
-- https://curl.haxx.se/libcurl/c/
-- https://curl.haxx.se/libcurl/c/libcurl-easy.html
-- https://curl.haxx.se/libcurl/c/post-callback.html
-- https://curl.haxx.se/libcurl/c/multithread.html
-- https://curl.haxx.se/libcurl/c/debug.html
-- https://curl.haxx.se/libcurl/c/CURLOPT_URL.html
-- https://curl.haxx.se/libcurl/c/CURLOPT_HTTPAUTH.html
-- https://curl.haxx.se/libcurl/c/CURLOPT_SSLVERSION.html
-- https://curl.haxx.se/libcurl/c/CURLOPT_SSL_VERIFYPEER.html
-- https://curl.haxx.se/libcurl/c/CURLOPT_SSL_VERIFYHOST.html
-- https://curl.haxx.se/libcurl/c/CURLOPT_CAPATH.html
-- https://curl.haxx.se/libcurl/c/CURLOPT_PRIVATE.html
-- https://curl.haxx.se/libcurl/c/CURLOPT_SSL_OPTIONS.html
-- https://curl.haxx.se/docs/sslcerts.html
-- https://curl.haxx.se/mail/archive-2015-05/0006.html
-- https://gist.github.com/leprechau/e6b8fef41a153218e1f4
-- https://gist.github.com/whoshuu/2dc858b8730079602044
-- https://curl.haxx.se/libcurl/c/libcurl-multi.html
-  - https://curl.haxx.se/libcurl/c/multi-app.html
-- https://curl.haxx.se/mail/lib-2018-12/0011.html
-*/
+ * Literature regex
+ * - https://regexr.com/
+ * - https://regex101.com/
+ * - https://www.regular-expressions.info/posixbrackets.html
+ * - http://www.cplusplus.com/reference/regex/ECMAScript/
+ *
+ * Literature
+ * - https://curl.haxx.se/libcurl/c/
+ * - https://curl.haxx.se/libcurl/c/libcurl-easy.html
+ * - https://curl.haxx.se/libcurl/c/post-callback.html
+ * - https://curl.haxx.se/libcurl/c/multithread.html
+ * - https://curl.haxx.se/libcurl/c/debug.html
+ * - https://curl.haxx.se/libcurl/c/CURLOPT_URL.html
+ * - https://curl.haxx.se/libcurl/c/CURLOPT_HTTPAUTH.html
+ * - https://curl.haxx.se/libcurl/c/CURLOPT_SSLVERSION.html
+ * - https://curl.haxx.se/libcurl/c/CURLOPT_SSL_VERIFYPEER.html
+ * - https://curl.haxx.se/libcurl/c/CURLOPT_SSL_VERIFYHOST.html
+ * - https://curl.haxx.se/libcurl/c/CURLOPT_CAPATH.html
+ * - https://curl.haxx.se/libcurl/c/CURLOPT_PRIVATE.html
+ * - https://curl.haxx.se/libcurl/c/CURLOPT_SSL_OPTIONS.html
+ * - https://curl.haxx.se/docs/sslcerts.html
+ * - https://curl.haxx.se/mail/archive-2015-05/0006.html
+ * - https://gist.github.com/leprechau/e6b8fef41a153218e1f4
+ * - https://gist.github.com/whoshuu/2dc858b8730079602044
+ * - https://curl.haxx.se/libcurl/c/libcurl-multi.html
+ *   - https://curl.haxx.se/libcurl/c/multi-app.html
+ * - https://curl.haxx.se/mail/lib-2018-12/0011.html
+ */
 Success HttpRequesting::easyHandleCreate()
 {
 	list<string>::const_iterator iter;
@@ -531,17 +709,17 @@ errCleanupCurl:
 }
 
 /*
-Literature libcurl
-- https://curl.haxx.se/libcurl/c/libcurl-share.html
-- https://curl.haxx.se/libcurl/c/curl_share_init.html
-- https://curl.haxx.se/libcurl/c/CURLOPT_SHARE.html
-- https://curl.haxx.se/libcurl/c/curl_share_setopt.html
-- https://ec.haxx.se/libcurl-sharing.html
-- https://curl.haxx.se/mail/lib-2016-04/0139.html
-- https://curl.haxx.se/libcurl/c/example.html
-- https://curl.haxx.se/libcurl/c/threaded-shared-conn.html
-- https://curl.haxx.se/libcurl/c/threaded-ssl.html
-*/
+ * Literature libcurl
+ * - https://curl.haxx.se/libcurl/c/libcurl-share.html
+ * - https://curl.haxx.se/libcurl/c/curl_share_init.html
+ * - https://curl.haxx.se/libcurl/c/CURLOPT_SHARE.html
+ * - https://curl.haxx.se/libcurl/c/curl_share_setopt.html
+ * - https://ec.haxx.se/libcurl-sharing.html
+ * - https://curl.haxx.se/mail/lib-2016-04/0139.html
+ * - https://curl.haxx.se/libcurl/c/example.html
+ * - https://curl.haxx.se/libcurl/c/threaded-shared-conn.html
+ * - https://curl.haxx.se/libcurl/c/threaded-ssl.html
+ */
 Success HttpRequesting::sessionCreate(const std::string &address, const uint16_t port)
 {
 	Guard lock(sessionMtx);
@@ -675,13 +853,71 @@ void HttpRequesting::processInfo(char *pBuf, char *pBufEnd)
 
 /* static functions */
 
+#if CONFIG_LIB_DSPC_HAVE_C_ARES
 /*
-Literature
-- https://curl.haxx.se/libcurl/c/curl_multi_perform.html
-- https://curl.haxx.se/libcurl/c/curl_multi_info_read.html
-- https://curl.haxx.se/libcurl/c/CURLINFO_RESPONSE_CODE.html
-- https://curl.haxx.se/libcurl/c/CURLINFO_PRIVATE.html
-*/
+ * Literature
+ * - https://c-ares.org/docs.html
+ * - https://c-ares.org/docs/ares_freeaddrinfo.html
+ */
+void HttpRequesting::aresRequestDone(void *arg, int status, int timeouts, struct ares_addrinfo *result)
+{
+	HttpRequesting *pReq = (HttpRequesting *)arg;
+
+	if (status)
+	{
+		pReq->mAddrHost = ares_strerror(status);
+		pReq->mDoneAres = -1;
+
+		ares_freeaddrinfo(result);
+		return;
+	}
+
+	(void)timeouts;
+
+	struct ares_addrinfo_node *pNode;
+	const void *pAddr;
+	char bAddr[64];
+	string addr;
+
+	pNode = result->nodes;
+	for (; pNode; pNode = pNode->ai_next)
+	{
+		if (pNode->ai_family == AF_INET)
+		{
+			const struct sockaddr_in *in_addr =
+						(const struct sockaddr_in *)((void *)pNode->ai_addr);
+			pAddr = &in_addr->sin_addr;
+		}
+		else
+		if (pNode->ai_family == AF_INET6)
+		{
+			const struct sockaddr_in6 *in_addr =
+						(const struct sockaddr_in6 *)((void *)pNode->ai_addr);
+			pAddr = &in_addr->sin6_addr;
+		} else
+			continue;
+
+		ares_inet_ntop(pNode->ai_family, pAddr, bAddr, sizeof(bAddr));
+
+		//wrnLog("Addr: %s", bAddr);
+
+		break;
+	}
+
+	pReq->mAddrHost = bAddr;
+	pReq->mDoneAres = Positive;
+
+	ares_freeaddrinfo(result);
+}
+#endif
+
+/*
+ * Literature
+ * - https://curl.haxx.se/libcurl/c/curl_multi_perform.html
+ * - https://curl.haxx.se/libcurl/c/curl_multi_info_read.html
+ * - https://curl.haxx.se/libcurl/c/CURLINFO_RESPONSE_CODE.html
+ * - https://curl.haxx.se/libcurl/c/CURLINFO_PRIVATE.html
+ */
 void HttpRequesting::multiProcess()
 {
 	Guard lock(mtxCurlMulti);
@@ -730,7 +966,7 @@ void HttpRequesting::multiProcess()
 #ifdef ENABLE_CURL_SHARE
 		pReq->sessionTerminate();
 #endif
-		pReq->mDone = Positive;
+		pReq->mDoneCurl = Positive;
 	}
 #if 0
 	--mRetries;
@@ -744,13 +980,13 @@ void HttpRequesting::multiProcess()
 }
 
 /*
-Literature
-- https://curl.haxx.se/mail/lib-2016-09/0047.html
-- https://stackoverflow.com/questions/29845527/how-to-properly-uninitialize-openssl
-- https://wiki.openssl.org/index.php/Library_Initialization
-- Wichtig
-  - https://rachelbythebay.com/w/2012/12/14/quiet/
-*/
+ * Literature
+ * - https://curl.haxx.se/mail/lib-2016-09/0047.html
+ * - https://stackoverflow.com/questions/29845527/how-to-properly-uninitialize-openssl
+ * - https://wiki.openssl.org/index.php/Library_Initialization
+ * - Wichtig
+ *   - https://rachelbythebay.com/w/2012/12/14/quiet/
+ */
 void HttpRequesting::curlMultiDeInit()
 {
 	Guard lock(mtxCurlMulti);
