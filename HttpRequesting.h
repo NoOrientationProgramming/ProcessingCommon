@@ -7,7 +7,7 @@
 
   File created on 15.09.2018
 
-  Copyright (C) 2018-now Authors and www.dsp-crowd.com
+  Copyright (C) 2018, Johannes Natter
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
