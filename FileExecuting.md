@@ -107,7 +107,7 @@ Redirects error outputs of the last launched OS process from stderr to stdout.
 
 <p align="center">
   <kbd>
-    <img src="https://raw.githubusercontent.com/NoOrientationProgramming/ProcessingCommon/refs/heads/main/doc/system/FileExecuting/fe-fork.svg" style="max-width:100%"/>
+    <img src="https://raw.githubusercontent.com/NoOrientationProgramming/ProcessingCommon/refs/heads/main/doc/system/FileExecuting/fe-fork.svg" style="width:200px;max-width:100%"/>
   </kbd>
 </p>
 
