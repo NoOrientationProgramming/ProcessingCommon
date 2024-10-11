@@ -108,13 +108,13 @@ Redirects error outputs of the last launched OS process from stderr to stdout.
 
 The **FileExecuting()** process allows using one of several internal data sources to send data to a single OS process or a group of OS processes.
 
-There are essentially three options. The first is to not transmit any data, which is the default state. Second, data can be transmitted manually. For this, the source must first be enabled using the `sourceEnable()` function. Data can then be sent to the OS processes during runtime with `send()`. The third option is to have the **FileExecuting()** process automatically retrieve the data. In automatic mode, sources can be a C-string, a C++ string object, a file descriptor, or a **Transfering()** process.
-
 <p align="center">
   <kbd>
     <img src="https://raw.githubusercontent.com/NoOrientationProgramming/ProcessingCommon/refs/heads/main/doc/system/FileExecuting/fe-sources.svg" style="width:300px;max-width:100%"/>
   </kbd>
 </p>
+
+There are essentially three options. The first is to not transmit any data, which is the default state. Second, data can be transmitted manually. For this, the source must first be enabled using the `sourceEnable()` function. Data can then be sent to the OS processes during runtime with `send()`. The third option is to have the **FileExecuting()** process automatically retrieve the data. In automatic mode, sources can be a C-string, a C++ string object, a file descriptor, or a **Transfering()** process.
 
 ### `FileExecuting &envSet(const VecConstChar &envv, bool dropOld = true)`
 
