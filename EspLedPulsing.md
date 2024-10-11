@@ -1,73 +1,204 @@
 
-# ESP_LED_PULSING() Manual Page
+# EspLedPulsing() Manual Page
 
-## NAME
-**EspLedPulsing()** – Control LED pulsing behavior on ESP32 devices.
+## ABSTRACT
+
+Controlling LED pulsing effects for a specified GPIO pin on ESP32.
+
+## LIBRARY
+
+ProcessingCommon
 
 ## SYNOPSIS
+
 ```cpp
 #include "EspLedPulsing.h"
 
-EspLedPulsing *create();
+// creation
+static EspLedPulsing *create();
 
+// configuration
 void pinSet(uint8_t id);
 void paramSet(uint32_t width, uint32_t period, uint8_t count = 1, uint32_t gap = 0);
+
+// start / cancel
+Processing *start(Processing *pChild, DriverMode driver = DrivenByParent);
+Processing *cancel(Processing *pChild);
+
+// success
+Success success();
+
+// repel
+Processing *repel(Processing *pChild);
+Processing *whenFinishedRepel(Processing *pChild);
 ```
 
 ## DESCRIPTION
-**EspLedPulsing()** is a C++ class designed to control the pulsing behavior of an LED on an ESP32 microcontroller. The class allows users to configure the pulse width, period, pulse count, and gap between pulses. This is useful for creating effects like blinking, pulsing, or signaling patterns using an LED connected to a GPIO pin.
 
-### Features:
-- **Pin Configuration**: Set the GPIO pin controlling the LED with `pinSet()`.
-- **Pulse Parameters**: Define the pulse width, period, and optional gap between pulses using `paramSet()`.
-- **Burst Mode**: Control how many times the LED should pulse consecutively using the `count` parameter.
+The **EspLedPulsing()** class allows for the creation of LED pulsing effects on a specified GPIO pin. It can configure the pulsing parameters, such as width, period, and gap between pulses, making it suitable for creating visual effects.
 
-## METHODS
+## CREATION
 
-### LED Configuration
-- **create()**  
-  Allocates a new instance of the **EspLedPulsing()** class.
+### `static EspLedPulsing *create()`
 
-- **pinSet(uint8_t id)**  
-  Assigns the GPIO pin to which the LED is connected. The pin should be valid and supported by the ESP32 platform.
+Creates a new instance of the **EspLedPulsing()** class. Memory is allocated using `new` with the `std::nothrow` modifier to ensure safe handling of failed allocations.
 
-- **paramSet(uint32_t width, uint32_t period, uint8_t count = 1, uint32_t gap = 0)**  
-  Configures the pulsing parameters:
-  - **width**: Duration (in milliseconds) for which the LED stays ON in each pulse.
-  - **period**: Total duration of each pulse cycle, including ON and OFF times.
-  - **count**: Number of consecutive pulses in each burst (default is 1).
-  - **gap**: Time (in milliseconds) between bursts of pulses (default is 0, meaning no gap).
+## CONFIGURATION
+
+### `void pinSet(uint8_t id)`
+
+Sets the GPIO pin to be used for LED pulsing.
+
+- **id**: The GPIO pin number (e.g. `2`).
+
+### `void paramSet(uint32_t width, uint32_t period, uint8_t count = 1, uint32_t gap = 0)`
+
+Configures the pulsing parameters.
+
+- **width**: The duration of each pulse in milliseconds.
+- **period**: The total cycle time of the pulse in milliseconds.
+- **count**: The number of pulses to produce (default is `1`).
+- **gap**: The gap between the pulses in milliseconds.
+
+## START
+
+### `Processing *start(Processing *pChild, DriverMode driver = DrivenByParent)`
+
+Once the process is started, it progresses "in the background".
+This means that with each system tick, the process is allowed to take a small amount of processing time.
+During each tick, the process must account for other processes that are contained within the same driver tree.
+
+The progression can be managed by the parent process itself (DrivenByParent = default) or optionally by a new driver.
+When a new driver is used, it creates a new driver tree.
+All children within a driver tree share the processing time of the system ticks, unless a new driver tree is created.
+
+A new driver can either be an internal driver, such as a worker thread (DrivenByNewInternalDriver),
+or any external driver (DrivenByExternalDriver), like a thread pool or a specialized scheduler.
+
+## SUCCESS
+
+### `Success success()`
+
+Processes are related to functions.
+They establish a **mapping from input to output**.
+For **functions**, the **mathematical signature** is **y = f(x)**.
+In the case of processes, however, the mapping cannot happen immediately as with functions;
+instead, it takes too much time to wait for completion.
+Therefore, the mathematical signature of **processes** is **y = p(x, t)**.
+
+In **software**, processes also differ from functions.
+While **functions** are managed by the compiler and the calling procedure (ABI) on the system's **stack**,
+**processes** must be managed by the user and reside in the **heap** memory.
+
+As long as this process is not finished, its function **success()** returns **Pending**.
+On error, success() is **not Positive** but returns some negative number.
+On success, success() returns **Positive**.
+## REPEL
+
+### `Processing *repel(Processing *pChild)`
+
+After a process has completed and its results have been consumed, the process must be separated from the parent process using the **repel()** function. This is inherent to the **nature of processes**.
 
 ## EXAMPLES
+
+### Example: Simple LED Pulsing
+
+In header file of **EspControlling()**
 ```cpp
-  pLed = EspLedPulsing::create();
-  if (!pLed)
-    return procErrLog(-1, "could not create process");
-
-  pLed->pinSet(GPIO_NUM_2);  // Use GPIO pin 2
-  pLed->paramSet(500, 1000, 5, 2000);  // 500ms ON, 1000ms cycle, 5 pulses, 2000ms gap
-
-  start(pLed);
-
-  mState = StNext;
-
-  break;
-case StNext:
+  /* member variables */
+  EspLedPulsing *mpLedPulsing;
 ```
 
-In this example, an LED connected to GPIO pin 2 will pulse with a width of 500ms, a period of 1000ms, and will repeat for 5 pulses, with a 2-second gap between bursts.
+In source file of **EspControlling()**
+```cpp
+EspControlling::EspControlling()
+  : Processing("EspControlling")
+  , mpLedPulsing(NULL) // initialize pointer
+{
+  mState = StStart;
+}
 
-## RETURN VALUES
-Most methods are `void` unless otherwise specified. The `process()` and `shutdown()` methods return `Success` to indicate whether the operation succeeded.
+Success EspControlling::process()
+{
+  Success success;
+
+  switch (mState)
+  {
+  case StStart:
+
+    // create AND CHECK
+    mpLedPulsing = EspLedPulsing::create();
+    if (!mpLedPulsing)
+    {
+      // this may not be fatal
+      procWrnLog("could not create process");
+
+      mState = StMain;
+      break;
+    }
+
+    // configure
+    mpLedPulsing->pinSet(2);
+    mpLedPulsing->paramSet(500, 1000, 3, 200); // width, period, count, gap
+
+    // start
+    start(mpLedPulsing);
+
+    mState = StMain;
+
+    break;
+  case StMain:
+
+    ...
+
+    break;
+  default:
+    break;
+  }
+
+  return Pending;
+}
+```
+
+## SCOPE
+
+- ESP32
+
+## RECURSION
+
+```
+Order                 1
+Depth                 -
+```
 
 ## NOTES
-- The class is designed specifically for the ESP32 platform and uses ESP-IDF's GPIO driver to control the LED.
-- The class is not copyable or assignable to prevent unintended behavior with GPIO resources.
-- The GPIO pin you set with `pinSet()` is automatically set to output mode after calling the `start()` function.
+
+**EspLedPulsing()** can be used as a service process.
+This means that the lifespan of this process can be the same as that of the parent.
+
+## DEPENDENCIES
+
+### Processing()
+
+The base class for all processes in a software system.
+
+```
+License               MIT
+Required              Yes
+Project Page          https://github.com/NoOrientationProgramming
+Documentation         https://github.com/NoOrientationProgramming/ProcessingCore
+Sources               https://github.com/NoOrientationProgramming/ProcessingCore
+```
 
 ## SEE ALSO
-- `Processing()`
 
-## AUTHORS
-Written by Johannes Natter.
+**Processing()**
+
+## COPYRIGHT
+
+Copyright (C) 2024, Johannes Natter
+
+## LICENSE
+
+This program is distributed under the terms of the GNU General Public License v3 or later. See <http://www.gnu.org/licenses/> for more information.
 
