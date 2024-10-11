@@ -447,13 +447,13 @@ void curlGlobalInit()
 }
 
 /*
-Literature
-- https://curl.haxx.se/mail/lib-2016-09/0047.html
-- https://stackoverflow.com/questions/29845527/how-to-properly-uninitialize-openssl
-- https://wiki.openssl.org/index.php/Library_Initialization
-- Wichtig
-  - https://rachelbythebay.com/w/2012/12/14/quiet/
-*/
+ * Literature
+ * - https://curl.haxx.se/mail/lib-2016-09/0047.html
+ * - https://stackoverflow.com/questions/29845527/how-to-properly-uninitialize-openssl
+ * - https://wiki.openssl.org/index.php/Library_Initialization
+ * - Wichtig
+ *   - https://rachelbythebay.com/w/2012/12/14/quiet/
+ */
 void curlGlobalDeInit()
 {
 	lock_guard<mutex> lock(mtxCurlGlobal);
@@ -487,6 +487,12 @@ void versionCurlInfoPrint()
 // c-ares
 
 #if CONFIG_PROC_HAVE_C_ARES
+/*
+ * Literature
+ * - https://c-ares.org/docs.html
+ * - https://c-ares.org/docs/ares_library_init.html
+ * - https://c-ares.org/docs/ares_library_cleanup.html
+ */
 void caresGlobalInit()
 {
 	lock_guard<mutex> lock(mtxCaresGlobal);
