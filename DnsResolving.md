@@ -56,7 +56,7 @@ In **software**, processes also differ from functions.
 While **functions** are managed by the compiler and the calling procedure (ABI) on the system's **stack**,
 **processes** must be managed by the user and reside in the **heap** memory.
 
-As long as **DnsResolving()** is not finished, function success() returns **Pending**.
+As long as this process is not finished, its function **success()** returns **Pending**.
 On error, success() is **not Positive** but returns some negative number.
 On success, success() returns **Positive**.
 
