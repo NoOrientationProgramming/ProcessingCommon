@@ -104,13 +104,13 @@ After a process has completed and its results have been consumed, the process mu
 
 ### Example: Simple LED Pulsing
 
-In header file of **EspControlling()**
+In the header file of **EspControlling()**
 ```cpp
   /* member variables */
   EspLedPulsing *mpLedPulsing;
 ```
 
-In source file of **EspControlling()**
+In the source file of **EspControlling()**
 ```cpp
 EspControlling::EspControlling()
   : Processing("EspControlling")
