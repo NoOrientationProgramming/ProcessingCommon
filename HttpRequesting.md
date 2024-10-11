@@ -1,18 +1,24 @@
 
-# HTTP_REQUESTING() Manual Page
+# HttpRequesting() Manual Page
 
-## NAME
+## ABSTRACT
 
-**HttpRequesting** – Perform HTTP requests and manage sessions in C++.
+Class for making HTTP requests.
+
+## LIBRARY
+
+ProcessingCommon
 
 ## SYNOPSIS
 
 ```cpp
 #include "HttpRequesting.h"
 
-HttpRequesting *create();
-HttpRequesting *create(const std::string &url);
+// creation
+static HttpRequesting *create();
+static HttpRequesting *create(const std::string &url);
 
+// configuration
 void urlSet(const std::string &url);
 void typeSet(const std::string &type);
 void userPwSet(const std::string &userPw);
@@ -23,113 +29,277 @@ void versionTlsSet(const std::string &versionTls);
 void versionHttpSet(const std::string &versionHttp);
 void modeDebugSet(bool en);
 
+// start / cancel
+Processing *start(Processing *pChild, DriverMode driver = DrivenByParent);
+Processing *cancel(Processing *pChild);
+
+// success
+Success success();
+
+// result
 uint16_t respCode() const;
 std::string &respHdr();
 std::string &respData();
+
+// repel
+Processing *repel(Processing *pChild);
+Processing *whenFinishedRepel(Processing *pChild);
 ```
 
 ## DESCRIPTION
-**HttpRequesting()** is a C++ class designed to facilitate making HTTP requests and handling responses. It integrates with **libcurl** to send requests, receive responses, and manage HTTP sessions, with features for setting various HTTP parameters such as headers, authentication, and data payloads.
 
-### Features:
-- **URL Configuration**: Set target URLs with `urlSet()`.
-- **Request Type**: Specify the HTTP method (e.g., GET, POST) using `typeSet()`.
-- **Authentication**: Configure username/password and authentication method.
-- **Headers**: Add custom HTTP headers with `hdrAdd()`.
-- **TLS/SSL**: Set specific TLS/SSL versions for secure connections.
-- **Debugging Mode**: Enable or disable detailed logging for debugging purposes.
+The **HttpRequesting()** class provides functionality for sending HTTP requests and processing their responses. It utilizes the cURL library for handling HTTP operations, allowing for synchronous and asynchronous request handling.
 
-### Structs:
-- **HttpSession**: Manages connection details such as the URL, port, and shared data for session handling with **libcurl**. It includes mutexes for handling thread safety during concurrent requests.
+## CREATION
 
-## METHODS
+### `static HttpRequesting *create()`
 
-### Request Configuration
-- **create()**  
-  Allocates a new instance of the **HttpRequesting()** class without initializing a URL.
+Creates a new instance of the **HttpRequesting()** class. Memory is allocated using `new` with the `std::nothrow` modifier to ensure safe handling of failed allocations.
 
-- **create(const std::string &url)**  
-  Allocates a new instance of the **HttpRequesting()** class and sets the initial URL.
+### `static HttpRequesting *create(const std::string &url)`
 
-- **urlSet(const std::string &url)**  
-  Specifies the URL for the HTTP request.
+Creates a new instance of the **HttpRequesting()** class with a specified URL. Memory is allocated using `new` with the `std::nothrow` modifier to ensure safe handling of failed allocations.
 
-- **typeSet(const std::string &type)**  
-  Sets the HTTP method (e.g., "GET", "POST", "PUT").
+## CONFIGURATION
 
-- **userPwSet(const std::string &userPw)**  
-  Configures HTTP basic authentication by providing a `username:password` string.
+### `void urlSet(const std::string &url)`
 
-- **hdrAdd(const std::string &hdr)**  
-  Adds a custom header to the HTTP request.
+Sets the URL for the HTTP request.
 
-- **dataSet(const std::string &data)**  
-  Sets the request payload data (useful for POST and PUT requests).
+- **url**: The URL to which the request will be sent (e.g., "http://example.com").
 
-- **authMethodSet(const std::string &authMethod)**  
-  Specifies the authentication method (e.g., "Basic", "Bearer").
+### `void typeSet(const std::string &type)`
 
-- **versionTlsSet(const std::string &versionTls)**  
-  Defines the TLS version for secure connections (e.g., "TLSv1.2").
+Sets the type of the HTTP request (e.g., GET, POST).
 
-- **versionHttpSet(const std::string &versionHttp)**  
-  Sets the HTTP version (e.g., "HTTP/1.1", "HTTP/2").
+### `void userPwSet(const std::string &userPw)`
 
-- **modeDebugSet(bool en)**  
-  Enables or disables debug mode for verbose logging of the HTTP request and response process.
+Sets the username and password for authentication.
 
-### Response Handling
-- **respCode() const**  
-  Returns the HTTP response status code (e.g., 200 for OK).
+### `void hdrAdd(const std::string &hdr)`
 
-- **respHdr()**  
-  Returns the headers received in the HTTP response.
+Adds a custom header to the HTTP request.
 
-- **respData()**  
-  Retrieves the data/body of the HTTP response.
+- **hdr**: The header string to be added (e.g., "Authorization: Bearer token").
 
-## RETURN VALUES
-Most configuration methods return `void`, while query methods like `respCode()`, `respHdr()`, and `respData()` return the corresponding response status, headers, or data.
+### `void dataSet(const std::string &data)`
 
-## NOTES
-- The class internally manages **libcurl** sessions and supports thread-safe operations with mutex-protected shared resources.
-- It is not copyable or assignable to prevent resource management issues and ensure proper session handling.
-- The class supports both synchronous and asynchronous processing of HTTP requests using **libcurl**’s multi-interface features.
+Sets the data to be sent with the HTTP request (for methods like POST).
+
+### `void authMethodSet(const std::string &authMethod)`
+
+Sets the authentication method for the request (e.g., Basic, Bearer).
+
+### `void versionTlsSet(const std::string &versionTls)`
+
+Sets the desired TLS version for secure requests.
+
+### `void versionHttpSet(const std::string &versionHttp)`
+
+Sets the HTTP version to be used for the request (e.g., HTTP/1.1).
+
+### `void modeDebugSet(bool en)`
+
+Enables or disables debugging mode for detailed output during the request process.
+
+## SUCCESS
+
+### `Success success()`
+
+Processes are related to functions.
+They establish a **mapping from input to output**.
+For **functions**, the **mathematical signature** is **y = f(x)**.
+In the case of processes, however, the mapping cannot happen immediately as with functions;
+instead, it takes too much time to wait for completion.
+Therefore, the mathematical signature of **processes** is **y = p(x, t)**.
+
+In **software**, processes also differ from functions.
+While **functions** are managed by the compiler and the calling procedure (ABI) on the system's **stack**,
+**processes** must be managed by the user and reside in the **heap** memory.
+
+As long as this process is not finished, its function **success()** returns **Pending**.
+On error, success() is **not Positive** but returns some negative number.
+On success, success() returns **Positive**.
+
+## RESULT
+
+### `uint16_t respCode() const`
+
+Returns the HTTP response code from the last request.
+
+### `std::string &respHdr()`
+
+Returns the response headers from the last request.
+
+### `std::string &respData()`
+
+Returns the response data from the last request.
+
+## START
+
+### `Processing *start(Processing *pChild, DriverMode driver = DrivenByParent)`
+
+Starts the HTTP request process. This method allows for background processing, ensuring that the request can take place without blocking other operations.
+
+## SUCCESS
+
+### `Success success()`
+
+Returns the status of the last request operation. It indicates whether the request is still pending, completed successfully, or encountered an error.
+
+## SESSION MANAGEMENT
+
+### `void sharedDataMtxListDelete()`
+
+Deletes the mutexes used for managing shared data in the HTTP session.
+
+## ERRORS
+
+**Note**: Error codes may not be distinctly defined at this time.
+
+Possible causes and their corresponding error codes identifiers are:
+
+```
+    Code                   Cause
+
+    <none>                 Dependency cURL is not met
+    <none>                 cURL encountered an error during
+                           HTTP request
+```
+
+## REPEL
+
+### `Processing *repel(Processing *pChild)`
+
+After a process has completed and its results have been consumed, the process must be separated from the parent process using the **repel()** function. This is inherent to the **nature of processes**.
 
 ## EXAMPLES
+
+### Example: Simple HTTP Request
+
+In the header file of **ServerConnecting()**
 ```cpp
-  pReq = HttpRequesting::create("https://example.com/api")
-  if (!pReq)
-    return procErrLog(-1, "could not create process");
+  /* member variables */
+  HttpRequesting *mpRequest;
+```
 
-  pReq->typeSet("POST");
-  pReq->hdrAdd("Content-Type: application/json");
-  pReq->dataSet("{\"key\":\"value\"}");
+In the source file of **ServerConnecting()**
+```cpp
+ServerConnecting::ServerConnecting()
+  : Processing("ServerConnecting")
+  , mpRequest(NULL) // initialize pointer
+{
+  mState = StStart;
+}
 
-  start(pReq);
+Success ServerConnecting::process()
+{
+  Success success;
 
-  mState = StReqDoneWait;
+  switch (mState)
+  {
+  case StStart:
 
-  break;
-case StReqDoneWait:
+    // create AND CHECK
+    mpRequest = HttpRequesting::create("http://example.com");
+    if (!mpRequest)
+      return procErrLog(-1, "could not create process");
 
-  success = pReq->success();
-  if (success == Pending)
+    // configure
+    mpRequest->typeSet("get");
+    mpRequest->modeDebugSet(true);
+
+    // start
+    start(mpRequest);
+
+    mState = StHttpRequestDoneWait;
+
     break;
+  case StHttpRequestDoneWait:
 
-  if (success != Positive)
-    return procErrLog(-1, "could not finish HTTP request");
+    // wait
+    success = mpRequest->success();
+    if (success == Pending)
+      break;
 
-  statusCode = httpReq->respCode();
-  responseBody = httpReq->respData();
+    // FIRST: check for errors
+    if (success != Positive)
+      return procErrLog(-1, "could not finish HTTP request");
 
-  repel(pReq);
-  pReq = NULL;
+    // consume result
+    procInfLog("Response Code: %d", mpRequest->respCode());
+    procInfLog("Response Data: %s", mpRequest->respData().c_str());
+
+    // ALWAYS: repel
+    repel(mpRequest);
+    mpRequest = NULL;
+
+    mState = StNext;
+
+    break;
+  case StNext:
+
+    ...
+
+    break;
+  default:
+    break;
+  }
+
+  return Pending;
+}
+```
+
+## SCOPE
+
+- Linux
+- Windows
+- FreeBSD
+- MacOSX
+
+## RECURSION
+
+```
+Order                 1
+Depth                 -
+```
+
+## DEPENDENCIES
+
+### Processing()
+
+The base class for all processes in a software system.
+
+```
+License               MIT
+Required              Yes
+Project Page          https://github.com/NoOrientationProgramming
+Documentation         https://github.com/NoOrientationProgramming/ProcessingCore
+Sources               https://github.com/NoOrientationProgramming/ProcessingCore
+```
+
+### cURL
+
+cURL is a library for transferring data with URLs. It supports various protocols and provides easy-to-use interfaces for making HTTP requests.
+
+```
+License               MIT-like
+                      https://curl.se/docs/copyright.html
+Required              Yes
+Project Page          https://curl.se
+Documentation         https://curl.se/libcurl/c/libcurl.html
+Sources               https://github.com/curl/curl
 ```
 
 ## SEE ALSO
-- `Processing()`
 
-## AUTHORS
-Written by Johannes Natter.
+**Processing()**, **cURL**, **curl_easy_perform()**, **curl_multi_perform()**
+
+## COPYRIGHT
+
+Copyright (C) 2024, Johannes Natter
+
+## LICENSE
+
+This program is distributed under the terms of the GNU General Public License v3 or later. See <http://www.gnu.org/licenses/> for more information.
 
