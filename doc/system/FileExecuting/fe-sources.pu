@@ -4,7 +4,7 @@
 skinparam backgroundColor #ffffff
 
 database "**Closed**\n(default)" as srcClosed
-database "**Manual**\nby Parenting()\n\nUsing\n- **send()**" as srcManual
+database "**Manual**\nby Parenting()\n\nUsing\n- **send()**\n\nNote: Requires\n**sourceEnable()**" as srcManual
 database "**Automatic**\nby FileExecuting()\n\nUsing **(XOR)**\n- const char *, len\n- string\n- int fd\n- Transfering *\n- Pipe<>" as srcAuto
 component "Source select **(XOR)**" as srcSel
 database "**stdin**" as stdin
