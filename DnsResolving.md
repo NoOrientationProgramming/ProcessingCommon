@@ -103,7 +103,7 @@ Possible causes and their corresponding error codes identifiers are:
 ```
     Code                   Cause
 
-    <none>                 Dependency libc-ares not met
+    <none>                 Dependency libc-ares is not met
     <none>                 libc-ares encountered an error during
                            DNS resolution
 ```
