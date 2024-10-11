@@ -45,6 +45,17 @@ Sets the hostname to be resolved. This hostname is used to query both IPv4 and I
 
 ## SUCCESS
 
+Processes are related to functions.
+They establish a **mapping from input to output**.
+For **functions**, the **mathematical signature** is **y = f(x)**.
+In the case of processes, however, the mapping cannot happen immediately as with functions;
+instead, it takes too much time to wait for completion.
+Therefore, the mathematical signature of **processes** is **y = p(x, t)**.
+
+In **software**, processes also differ from functions.
+While **functions** are managed by the compiler and the calling procedure (ABI) on the system's **stack**,
+**processes** must be managed by the user and reside in the **heap** memory.
+
 As long as **DnsResolving()** is not finished, function success() returns **Pending**.
 On error, success() is **not Positive** but returns some negative number.
 On success, success() returns **Positive**.
@@ -62,6 +73,10 @@ Returns a list of resolved IPv6 addresses for the set hostname.
 ## ERRORS
 
 Currently, no error codes are being differentiated.
+
+## REPEL
+
+After a process has completed and its results have been consumed, the process must be separated from the parent process using the **repel()** function. This is inherent to the **nature of processes**.
 
 ## EXAMPLES
 
