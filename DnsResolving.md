@@ -52,7 +52,26 @@ Returns a list of resolved IPv6 addresses for the set hostname.
 ## EXAMPLES
 
 ### Example: Simple DNS Resolution
+
+In header file
 ```cpp
+  /* member variables */
+  DnsResolving *mpResolv;
+```
+
+In source file
+```cpp
+Supervising::Supervising()
+  : Processing("Supervising")
+  , mpResolv(NULL)
+{
+  mState = StStart;
+}
+
+Success HttpRequesting::process()
+{
+  Success success;
+
   switch (mState)
   {
   case StStart:
@@ -97,6 +116,14 @@ Returns a list of resolved IPv6 addresses for the set hostname.
   case StNext:
 
     ...
+
+    break;
+  default:
+    break;
+  }
+
+  return Pending;
+}
 ```
 
 ## SCOPE OF APPLICATION
