@@ -101,6 +101,8 @@ Currently, no error codes are being differentiated.
 Possible causes and their corresponding error codes identifiers are:
 
 ```
+    Code                   Cause
+
     <none>                 Dependency libc-ares not met
     <none>                 libc-ares encountered an error during
                            DNS resolution
