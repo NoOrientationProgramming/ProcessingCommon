@@ -138,5 +138,4 @@ Copyright (C) 2024, Johannes Natter
 ## LICENSE
 
 This program is distributed under the terms of the GNU General Public License v3 or later. See <http://www.gnu.org/licenses/> for more information.
-```
 
