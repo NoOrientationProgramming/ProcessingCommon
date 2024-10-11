@@ -63,7 +63,7 @@ static mutex mtxCurlGlobal;
 static bool curlGlobalInitDone = false;
 #endif
 
-#if CONFIG_PROC_HAVE_C_ARES
+#if CONFIG_LIB_DSPC_HAVE_C_ARES
 static mutex mtxCaresGlobal;
 static bool caresGlobalInitDone = false;
 #endif
@@ -486,7 +486,7 @@ void versionCurlInfoPrint()
 
 // c-ares
 
-#if CONFIG_PROC_HAVE_C_ARES
+#if CONFIG_LIB_DSPC_HAVE_C_ARES
 /*
  * Literature
  * - https://c-ares.org/docs.html

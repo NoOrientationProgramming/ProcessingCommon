@@ -47,7 +47,7 @@
 #include <curl/curl.h>
 #endif
 
-#if CONFIG_PROC_HAVE_C_ARES
+#if CONFIG_LIB_DSPC_HAVE_C_ARES
 #include <ares.h>
 #endif
 
@@ -99,7 +99,7 @@ void versionCurlInfoPrint();
 #endif
 
 // c-ares
-#if CONFIG_PROC_HAVE_C_ARES
+#if CONFIG_LIB_DSPC_HAVE_C_ARES
 void caresGlobalInit();
 void caresGlobalDeInit();
 #endif
