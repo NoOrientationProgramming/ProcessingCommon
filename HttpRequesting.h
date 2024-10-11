@@ -31,6 +31,7 @@
 #include <vector>
 
 #include "Processing.h"
+#include "DnsResolving.h"
 #include "LibDspc.h"
 
 #define numSharedDataTypes		4
@@ -98,10 +99,6 @@ private:
 	Success shutdown();
 	void processInfo(char *pBuf, char *pBufEnd);
 
-#if CONFIG_LIB_DSPC_HAVE_C_ARES
-	bool aresStart();
-	void aresProcess();
-#endif
 	Success easyHandleCreate();
 	Success curlEasyHandleBind();
 	CURLM *curlMultiInit();
@@ -114,6 +111,10 @@ private:
 	uint32_t mStateSd;
 
 	std::string mUrl;
+	std::string mProtocol;
+	std::string mNameHost;
+	std::string mAddrHost;
+	std::string mPath;
 	std::string mType;
 	std::string mUserPw;
 	std::list<std::string> mLstHdrs;
@@ -122,17 +123,8 @@ private:
 	std::string mVersionTls;
 	std::string mVersionHttp;
 	bool mModeDebug;
+	DnsResolving *mpResolv;
 
-#if CONFIG_LIB_DSPC_HAVE_C_ARES
-	std::string mProtocol;
-	std::string mNameHost;
-	std::string mPath;
-	ares_options mOptionsAres;
-	ares_channel mChannelAres;
-	bool mChannelAresInitDone;
-	Success mDoneAres;
-	std::string mAddrHost;
-#endif
 	CURL *mpCurl;
 	bool mCurlBound;
 	struct curl_slist *mpHeaderList;
@@ -147,9 +139,6 @@ private:
 	Success mDoneCurl;
 
 	/* static functions */
-#if CONFIG_LIB_DSPC_HAVE_C_ARES
-	static void aresRequestDone(void *arg, int status, int timeouts, struct ares_addrinfo *result);
-#endif
 	static void multiProcess();
 	static void curlMultiDeInit();
 	static void sharedDataLock(CURL *handle, curl_lock_data data, curl_lock_access access, void *userptr);

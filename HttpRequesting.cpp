@@ -32,8 +32,8 @@
 #define dForEach_ProcState(gen) \
 		gen(StStart) \
 		gen(StGlobalInit) \
-		gen(StAresStart) \
-		gen(StAresDoneWait) \
+		gen(StDnsResolvStart) \
+		gen(StDnsResolvDoneWait) \
 		gen(StEasyInit) \
 		gen(StEasyBind) \
 		gen(StReqStart) \
@@ -69,6 +69,10 @@ HttpRequesting::HttpRequesting()
 	: Processing("HttpRequesting")
 	, mStateSd(StSdStart)
 	, mUrl("")
+	, mProtocol("")
+	, mNameHost("")
+	, mAddrHost("")
+	, mPath("")
 	, mType("get")
 	, mUserPw("")
 	, mLstHdrs()
@@ -77,16 +81,7 @@ HttpRequesting::HttpRequesting()
 	, mVersionTls("")
 	, mVersionHttp("HTTP/2")
 	, mModeDebug(false)
-#if CONFIG_LIB_DSPC_HAVE_C_ARES
-	, mProtocol("")
-	, mNameHost("")
-	, mPath("")
-	, mOptionsAres()
-	, mChannelAres()
-	, mChannelAresInitDone(false)
-	, mDoneAres(Pending)
-	, mAddrHost("")
-#endif
+	, mpResolv(NULL)
 	, mpCurl(NULL)
 	, mCurlBound(false)
 	, mpHeaderList(NULL)
@@ -104,6 +99,10 @@ HttpRequesting::HttpRequesting(const string &url)
 	: Processing("HttpRequesting")
 	, mStateSd(StSdStart)
 	, mUrl(url)
+	, mProtocol("")
+	, mNameHost("")
+	, mAddrHost("")
+	, mPath("")
 	, mType("get")
 	, mUserPw("")
 	, mLstHdrs()
@@ -112,16 +111,7 @@ HttpRequesting::HttpRequesting(const string &url)
 	, mVersionTls("")
 	, mVersionHttp("")
 	, mModeDebug(false)
-#if CONFIG_LIB_DSPC_HAVE_C_ARES
-	, mProtocol("")
-	, mNameHost("")
-	, mPath("")
-	, mOptionsAres()
-	, mChannelAres()
-	, mChannelAresInitDone(false)
-	, mDoneAres(Pending)
-	, mAddrHost("")
-#endif
+	, mpResolv(NULL)
 	, mpCurl(NULL)
 	, mCurlBound(false)
 	, mpHeaderList(NULL)
@@ -218,9 +208,7 @@ Success HttpRequesting::process()
 	//uint32_t curTimeMs = millis();
 	//uint32_t diffMs = curTimeMs - mStartMs;
 	Success success;
-#if CONFIG_LIB_DSPC_HAVE_C_ARES
-	bool ok;
-#endif
+	//bool ok;
 #if 0
 	dStateTrace;
 #endif
@@ -237,15 +225,12 @@ Success HttpRequesting::process()
 	case StGlobalInit:
 
 		curlGlobalInit();
-#if CONFIG_LIB_DSPC_HAVE_C_ARES
-		caresGlobalInit();
-#endif
-		mState = StAresStart;
+
+		mState = StDnsResolvStart;
 
 		break;
-	case StAresStart:
+	case StDnsResolvStart:
 
-#if CONFIG_LIB_DSPC_HAVE_C_ARES
 		urlToTriple(mUrl, mProtocol, mNameHost, mPath);
 #if 0
 		procWrnLog("URL           %s", mUrl.c_str());
@@ -253,41 +238,48 @@ Success HttpRequesting::process()
 		procWrnLog("Name Host     %s", mNameHost.c_str());
 		procWrnLog("Path          %s", mPath.c_str());
 #endif
-		ok = aresStart();
-		if (!ok)
-			return procErrLog(-1, "could not start async address resolution");
-#endif
-		mState = StAresDoneWait;
+		mpResolv = DnsResolving::create();
+		if (!mpResolv)
+			return procErrLog(-1, "could not create process");
+
+		mpResolv->nameHostSet(mNameHost);
+
+		start(mpResolv);
+
+		mState = StDnsResolvDoneWait;
 
 		break;
-	case StAresDoneWait:
+	case StDnsResolvDoneWait:
 
-#if CONFIG_LIB_DSPC_HAVE_C_ARES
-		aresProcess();
-
-		if (mDoneAres == Pending)
+		success = mpResolv->success();
+		if (success == Pending)
 			break;
 
-		if (mDoneAres != Positive)
-			return procErrLog(-1, "could not finish async address resolution: %s",
-									mAddrHost.c_str());
-
-		ares_destroy(mChannelAres);
-		mChannelAresInitDone = false;
-
-		mUrl = "";
-
-		if (mProtocol.size())
+		if (success != Positive)
+			procDbgLog(LOG_LVL, "forced to use curl internal DNS resolver");
+		else
 		{
-			mUrl += mProtocol;
-			mUrl += "://";
+			const list<string> &lstAddr = mpResolv->lstIPv4();
+
+			if (lstAddr.size())
+				mAddrHost = *lstAddr.begin();
 		}
 
-		mUrl += mAddrHost + mPath;
-		hdrAdd(string("Host: ") + mNameHost);
+		repel(mpResolv);
+		mpResolv = NULL;
 
-		//procWrnLog("URL new       %s", mUrl.c_str());
-#endif
+		mUrl = mProtocol;
+		mUrl += "://";
+
+		if (mAddrHost.size())
+		{
+			mUrl += mAddrHost;
+			hdrAdd(string("Host: ") + mNameHost);
+		} else
+			mUrl += mNameHost;
+
+		mUrl += mPath;
+
 		mState = StEasyInit;
 
 		break;
@@ -367,13 +359,6 @@ Success HttpRequesting::shutdown()
 			mpCurl = NULL;
 		}
 
-#if CONFIG_LIB_DSPC_HAVE_C_ARES
-		if (mChannelAresInitDone)
-		{
-			ares_destroy(mChannelAres);
-			mChannelAresInitDone = false;
-		}
-#endif
 		return Positive;
 
 		break;
@@ -383,101 +368,6 @@ Success HttpRequesting::shutdown()
 
 	return Pending;
 }
-
-#if CONFIG_LIB_DSPC_HAVE_C_ARES
-/*
- * Literature
- * - https://c-ares.org/docs.html
- * - https://c-ares.org/docs/ares_init_options.html
- * - https://c-ares.org/docs/ares_getaddrinfo.html
- * - https://man7.org/linux/man-pages/man3/getaddrinfo.3.html
- * - https://c-ares.org/docs/ares_freeaddrinfo.html
- */
-bool HttpRequesting::aresStart()
-{
-	int res;
-
-	memset(&mOptionsAres, 0, sizeof(mOptionsAres));
-
-	mOptionsAres.flags = ARES_FLAG_NORECURSE;
-	mOptionsAres.timeout = 400;
-	mOptionsAres.tries = 2;
-
-	res = ares_init_options(&mChannelAres, &mOptionsAres, ARES_OPT_TIMEOUTMS | ARES_OPT_TRIES);
-	if (res != ARES_SUCCESS)
-	{
-		procErrLog(-1, "could not set ares options");
-		return false;
-	}
-
-	ares_addrinfo_hints hints;
-
-	memset(&hints, 0, sizeof(hints));
-
-	hints.ai_flags = 0;
-	hints.ai_family = AF_UNSPEC; /* IPv4 or IPv6 */
-	hints.ai_socktype = 0; /* Any */
-	hints.ai_protocol = 0; /* Any */
-
-	//procWrnLog("Getting address of: %s", mNameHost.c_str());
-
-	ares_getaddrinfo(mChannelAres,
-					mNameHost.c_str(), NULL, &hints,
-					aresRequestDone, this);
-
-	mChannelAresInitDone = true;
-
-	return true;
-}
-
-/*
- * Literature
- * - https://c-ares.org/docs.html
- * - https://c-ares.org/docs/ares_fds.html
- * - https://man7.org/linux/man-pages/man2/select.2.html
- * - https://c-ares.org/docs/ares_process.html
- */
-void HttpRequesting::aresProcess()
-{
-	fd_set fdsRead, fdsWrite;
-	int fdsMax, res;
-
-	FD_ZERO(&fdsRead);
-	FD_ZERO(&fdsWrite);
-
-	fdsMax = ares_fds(mChannelAres, &fdsRead, &fdsWrite);
-	if (!fdsMax)
-	{
-		mDoneAres = procErrLog(-1, "no file descriptors to be processed");
-		return;
-	}
-
-	if (fdsMax > 1000)
-	{
-		mDoneAres = procErrLog(-1, "socket numbers above 1000 not supported at the moments");
-		return;
-	}
-
-	++fdsMax;
-
-	struct timeval tmoSelect;
-
-	tmoSelect.tv_sec = 0;
-	tmoSelect.tv_usec = 5000;
-
-	res = select(fdsMax, &fdsRead, &fdsWrite, NULL, &tmoSelect);
-	if (!res)
-		return;
-
-	if (res < 0)
-	{
-		mDoneAres = procErrLog(-1, "select returned error: %s (%d)", strerror(errno), errno);
-		return;
-	}
-
-	ares_process(mChannelAres, &fdsRead, &fdsWrite);
-}
-#endif
 
 /*
  * Literature
@@ -852,64 +742,6 @@ void HttpRequesting::processInfo(char *pBuf, char *pBufEnd)
 }
 
 /* static functions */
-
-#if CONFIG_LIB_DSPC_HAVE_C_ARES
-/*
- * Literature
- * - https://c-ares.org/docs.html
- * - https://c-ares.org/docs/ares_freeaddrinfo.html
- */
-void HttpRequesting::aresRequestDone(void *arg, int status, int timeouts, struct ares_addrinfo *result)
-{
-	HttpRequesting *pReq = (HttpRequesting *)arg;
-
-	if (status)
-	{
-		pReq->mAddrHost = ares_strerror(status);
-		pReq->mDoneAres = -1;
-
-		ares_freeaddrinfo(result);
-		return;
-	}
-
-	(void)timeouts;
-
-	struct ares_addrinfo_node *pNode;
-	const void *pAddr;
-	char bAddr[64];
-	string addr;
-
-	pNode = result->nodes;
-	for (; pNode; pNode = pNode->ai_next)
-	{
-		if (pNode->ai_family == AF_INET)
-		{
-			const struct sockaddr_in *in_addr =
-						(const struct sockaddr_in *)((void *)pNode->ai_addr);
-			pAddr = &in_addr->sin_addr;
-		}
-		else
-		if (pNode->ai_family == AF_INET6)
-		{
-			const struct sockaddr_in6 *in_addr =
-						(const struct sockaddr_in6 *)((void *)pNode->ai_addr);
-			pAddr = &in_addr->sin6_addr;
-		} else
-			continue;
-
-		ares_inet_ntop(pNode->ai_family, pAddr, bAddr, sizeof(bAddr));
-
-		//wrnLog("Addr: %s", bAddr);
-
-		break;
-	}
-
-	pReq->mAddrHost = bAddr;
-	pReq->mDoneAres = Positive;
-
-	ares_freeaddrinfo(result);
-}
-#endif
 
 /*
  * Literature
