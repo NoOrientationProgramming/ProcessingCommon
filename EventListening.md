@@ -1,127 +1,212 @@
 
-# EVENT_LISTENING() Manual Page
+# EventListening() Manual Page
 
-## NAME
-**EventListening** – Event-driven TCP connection listener with message queue for asynchronous event processing.
+## ABSTRACT
+
+Handles incoming events through TCP connections and manages the transfer of data.
+
+## LIBRARY
+
+ProcessingCommon
 
 ## SYNOPSIS
+
 ```cpp
 #include "EventListening.h"
 
-EventListening *create();
-ssize_t pop(const std::string &refMsg, Json::Value &msgEvent);
+// creation
+static EventListening *create();
+
+// start / cancel
+Processing *start(Processing *pChild, DriverMode driver = DrivenByParent);
+Processing *cancel(Processing *pChild);
+
+// success
+Success success();
+
+// result
+static ssize_t pop(const std::string &refMsg, Json::Value &msgEvent);
+
+// repel
+Processing *repel(Processing *pChild);
+Processing *whenFinishedRepel(Processing *pChild);
 ```
 
 ## DESCRIPTION
-**EventListening** is a C++ class designed to handle TCP-based event connections and facilitate the asynchronous processing of JSON-encoded messages. It provides a way to listen for incoming TCP connections, manage active connections, and enqueue or dequeue events. The class is useful for building services that need to handle multiple simultaneous connections while processing events in real-time.
 
-### Features:
-- **TCP Connection Management**: Accepts new connections and manages existing ones using `TcpListening` and `TcpTransfering`.
-- **Event Queue**: Provides mechanisms for enqueuing and dequeuing JSON-encoded messages.
-- **Timeout Handling**: Monitors open connections and automatically removes timed-out or inactive connections.
-- **Thread-Safe Event Management**: Uses mutexes to protect the event queue in multi-threaded environments.
+The **EventListening()** class manages the listening for events on TCP connections. It can accept new connections, receive data, and process incoming messages. It is designed for handling event-driven programming models in networking applications.
 
-## METHODS
+## CREATION
 
-### TCP Connection Handling
-- **create()**  
-  Allocates and initializes a new instance of the **EventListening** class.
+### `static EventListening *create()`
 
-### Event Queue
-- **pop(const std::string &refMsg, Json::Value &msgEvent)**  
-  Retrieves the next event message from the queue. If a message matching the reference `refMsg` is found, it is copied to `msgEvent` and removed from the queue. The function returns the size of the message on success or `-1` on failure.
+Creates a new instance of the **EventListening()** class. Memory is allocated using `new` with the `std::nothrow` modifier to ensure safe handling of failed allocations.
 
-### Protected Methods
-These methods are used internally by the class to manage the listening process and handle incoming connections:
+## START
 
-- **EventListening()**  
-  Constructor that initializes the event listener object.
+### `Processing *start(Processing *pChild, DriverMode driver = DrivenByParent)`
 
-- **~EventListening()**  
-  Destructor that cleans up resources used by the event listener.
+Once the process is started, it progresses "in the background".
+This means that with each system tick, the process is allowed to take a small amount of processing time.
+During each tick, the process must account for other processes that are contained within the same driver tree.
 
-- **process()**  
-  Starts the main event processing loop, accepting connections and managing the event queue.
+The progression can be managed by the parent process itself (DrivenByParent = default) or optionally by a new driver.
+When a new driver is used, it creates a new driver tree.
+All children within a driver tree share the processing time of the system ticks, unless a new driver tree is created.
 
-- **processInfo(char *pBuf, char *pBufEnd)**  
-  Provides status or debugging information about the event processing.
+A new driver can either be an internal driver, such as a worker thread (DrivenByNewInternalDriver),
+or any external driver (DrivenByExternalDriver), like a thread pool or a specialized scheduler.
 
-- **connectionsAccept()**  
-  Accepts incoming TCP connections and adds them to the list of open connections.
+## SUCCESS
 
-- **dataTimeoutsCheck()**  
-  Checks for timed-out connections and removes them from the list.
+### `Success success()`
 
-- **dataReceive()**  
-  Reads data from active connections and enqueues events.
+Processes are related to functions.
+They establish a **mapping from input to output**.
+For **functions**, the **mathematical signature** is **y = f(x)**.
+In the case of processes, however, the mapping cannot happen immediately as with functions;
+instead, it takes too much time to wait for completion.
+Therefore, the mathematical signature of **processes** is **y = p(x, t)**.
 
-- **msgEnqueue(TcpTransfering *pConn)**  
-  Queues an event message from a TCP connection.
+In **software**, processes also differ from functions.
+While **functions** are managed by the compiler and the calling procedure (ABI) on the system's **stack**,
+**processes** must be managed by the user and reside in the **heap** memory.
 
-- **dequeueTimeoutsCheck()**  
-  Scans the event queue for timed-out messages and removes them.
+As long as this process is not finished, its function **success()** returns **Pending**.
+On error, success() is **not Positive** but returns some negative number.
+On success, success() returns **Positive**.
 
-## MEMBER VARIABLES
-The class maintains several internal variables to track connections, events, and buffer states:
+## RESULT
 
-- **mStartMs**  
-  Stores the start time of the listener process.
+### `static ssize_t pop(const std::string &refMsg, Json::Value &msgEvent)`
 
-- **mpLst**  
-  Pointer to a **TcpListening** object that manages incoming TCP connections.
+Retrieves and processes an event message.
 
-- **mConnsOpen**  
-  A list of open connections, each represented by an **OpenEventConn** struct, which tracks the connection and its start time.
+- **refMsg**: A reference message string used to identify the event.
+- **msgEvent**: A JSON object that will be populated with event data.
 
-- **mBuf[512]**  
-  A buffer for receiving data from connections.
+## REPEL
 
-- **mLenBuf**  
-  Tracks the current length of data in the buffer.
+### `Processing *repel(Processing *pChild)`
 
-### Static Variables
-- **mMtxEvents**  
-  Mutex that guards access to the event queue, ensuring thread-safe operations.
-
-- **mEvents**  
-  A map of event messages, with each event referenced by a string key and containing a `Json::Value` object for the event data.
-
-## STRUCTURES
-
-### OpenEventConn
-```cpp
-struct OpenEventConn
-{
-    TcpTransfering *pConn;
-    uint32_t msStart;
-};
-```
-- **pConn**: Pointer to a **TcpTransfering** object representing the open TCP connection.
-- **msStart**: The time (in milliseconds) when the connection was established.
+After a process has completed and its results have been consumed, the process must be separated from the parent process using the **repel()** function. This is inherent to the **nature of processes**.
 
 ## EXAMPLES
+
+### Example: Basic Event Listening
+
+In header file of **MsgDispatching()**
 ```cpp
-EventListening *eventListener = EventListening::create();
-Json::Value eventData;
-if (eventListener->pop("event1", eventData) > 0) {
-    // Process the eventData
+/* member variables */
+EventListening *mpEventListening;
+```
+
+In source file of **MsgDispatching()**
+```cpp
+MsgDispatching::MsgDispatching()
+  : Processing("MsgDispatching")
+  , mpEventListening(NULL) // initialize pointer
+{
+  mState = StStart;
+}
+
+Success MsgDispatching::process()
+{
+  Success success;
+  Value reply;
+  string answer;
+
+  switch (mState)
+  {
+  case StStart:
+
+    // create AND CHECK
+    mpEventListening = EventListening::create();
+    if (!mpEventListening)
+      return procErrLog(-1, "could not create process");
+
+    // start listening for events
+    start(mpEventListening);
+
+    mState = StMain;
+
+    break;
+  case StMain:
+
+    if (EventListening::pop("command-system", reply) < 1)
+      break;
+
+    // process events
+    answer = reply["answer"].asString();
+
+    ...
+
+    break;
+  default:
+    break;
+  }
+
+  return Pending;
 }
 ```
-In this example, an event listener is created, and an event with the reference "event1" is dequeued from the event queue and processed.
 
-## RETURN VALUES
-- **pop()**: Returns the size of the event message if successful, or `-1` if no matching message is found.
+## SCOPE
 
-## THREAD SAFETY
-The class employs mutexes to ensure thread-safe access to the event queue. This allows for the safe use of the `pop()` method in multi-threaded environments.
+- Linux
+- Windows
+- FreeBSD
+- MacOSX
+
+## RECURSION
+
+```
+Order                 1
+Depth                 -
+```
 
 ## NOTES
-- The class is designed for use in event-driven systems where multiple TCP connections are accepted and managed simultaneously.
-- It is not copyable or assignable to prevent issues related to resource management and connection states.
+
+**EventListening()** can be used as a service process. This means that the lifespan of this process can be the same as that of the parent.
+
+## DEPENDENCIES
+
+### Processing()
+
+The base class for all processes in a software system.
+
+```
+License               MIT
+Required              Yes
+Project Page          https://github.com/NoOrientationProgramming
+Documentation         https://github.com/NoOrientationProgramming/ProcessingCore
+Sources               https://github.com/NoOrientationProgramming/ProcessingCore
+```
+
+### jsoncpp
+
+This C++ library designed for parsing, generating, and manipulating JSON (JavaScript Object Notation) data. It provides a simple and efficient API for working with JSON structures, allowing developers to easily read and write JSON files or strings. The library supports various JSON data types, including objects, arrays, strings, numbers, booleans, and null values. 
+
+With features like easy serialization and deserialization, along with support for both UTF-8 and UTF-16 encodings, libjsoncpp is widely used in applications that require seamless integration with JSON data, such as web applications and configuration management systems. The library is open-source and can be easily integrated into various C++ projects.
+
+```
+License               MIT
+Required              Yes
+Project Page          github.com/open-source-parsers/
+Documentation         en.wikibooks.org/wiki/JsonCpp
+Sources               github.com/open-source-parsers/
+```
 
 ## SEE ALSO
-- `Processing()`, `TcpListening()`, `TcpTransfering()`, `jsoncpp`
 
-## AUTHORS
-Written by Johannes Natter.
+**Processing()**, **TcpListening()**, **TcpTransfering()**, **libjsoncpp**
+
+## COPYRIGHT
+
+Copyright (C) 2024, Johannes Natter
+
+## LICENSE
+
+This program is distributed under the terms of the GNU General Public License v3 or later. See <http://www.gnu.org/licenses/> for more information.
+
+---
 
