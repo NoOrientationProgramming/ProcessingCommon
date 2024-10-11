@@ -18,7 +18,7 @@ ProcessingCommon
 static DnsResolving *create();
 
 // configuration
-void hostnameSet(const std::string &nameHost);
+void hostnameSet(const std::string &hostname);
 
 // start / cancel
 Processing *start(Processing *pChild, DriverMode driver = DrivenByParent);
@@ -48,11 +48,11 @@ Creates a new instance of the **DnsResolving()** class. Memory is allocated usin
 
 ## CONFIGURATION
 
-### `void hostnameSet(const std::string &nameHost)`
+### `void hostnameSet(const std::string &hostname)`
 
 Sets the hostname to be resolved. This hostname is used to query both IPv4 and IPv6 addresses.
 
-- **nameHost**: The domain name to resolve (e.g., "example.com").
+- **hostname**: The domain name to resolve (e.g., "example.com").
 
 ## START
 
