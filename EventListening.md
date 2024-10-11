@@ -95,13 +95,13 @@ After a process has completed and its results have been consumed, the process mu
 
 ### Example: Basic Event Listening
 
-In header file of **MsgDispatching()**
+In the header file of **MsgDispatching()**
 ```cpp
 /* member variables */
 EventListening *mpEventListening;
 ```
 
-In source file of **MsgDispatching()**
+In the source file of **MsgDispatching()**
 ```cpp
 MsgDispatching::MsgDispatching()
   : Processing("MsgDispatching")
