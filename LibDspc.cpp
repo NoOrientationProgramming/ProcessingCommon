@@ -423,7 +423,7 @@ string hmacSha256(const string &msg, const SecByteBlock &key)
 }
 #endif
 
-// Curl
+// curl
 
 #if CONFIG_LIB_DSPC_HAVE_CURL
 void curlGlobalInit()
@@ -459,7 +459,7 @@ void curlGlobalDeInit()
 	curl_global_cleanup();
 	curlGlobalInitDone = false;
 
-	dbgLog(0, "global curl deinit done");
+	dbgLog(0, "global deinit curl done");
 }
 
 string versionCurl()

@@ -29,9 +29,11 @@
 #include <string>
 #include <mutex>
 #include <vector>
+
 #if CONFIG_LIB_DSPC_HAVE_JSONCPP
 #include <jsoncpp/json/json.h>
 #endif
+
 #if CONFIG_LIB_DSPC_HAVE_CRYPTOPP
 #include <cryptopp/secblock.h>
 #include <cryptopp/base64.h>
@@ -40,6 +42,7 @@
 #include <cryptopp/sha.h>
 #include <cryptopp/hmac.h>
 #endif
+
 #if CONFIG_LIB_DSPC_HAVE_CURL
 #include <curl/curl.h>
 #endif
@@ -83,7 +86,7 @@ bool isValidSha256(const std::string &digest);
 std::string hmacSha256(const std::string &msg, const CryptoPP::SecByteBlock &key);
 #endif
 
-// Curl
+// curl
 #if CONFIG_LIB_DSPC_HAVE_CURL
 void curlGlobalInit();
 void curlGlobalDeInit();
