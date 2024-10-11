@@ -52,47 +52,50 @@ Returns a list of resolved IPv6 addresses for the set hostname.
 
 ### Example: Simple DNS Resolution
 ```cpp
-  break;
-case StStart:
+  switch (mState)
+  {
+  case StStart:
 
-  // create AND CHECK
-  mpResolv = DnsResolving::create()
-  if (!mpResolv)
-    return procErrLog(-1, "could not create process");
+    // create AND CHECK
+    mpResolv = DnsResolving::create()
+    if (!mpResolv)
+      return procErrLog(-1, "could not create process");
 
-  // configure
-  mpResolv->nameHostSet("example.com");
+    // configure
+    mpResolv->nameHostSet("example.com");
 
-  // start
-  start(mpResolv);
+    // start
+    start(mpResolv);
 
-  mState = StDnsResolvDoneWait;
+    mState = StDnsResolvDoneWait;
 
-  break;
-case StDnsResolvDoneWait:
-
-  // wait
-  success = mpResolv->success();
-  if (success == Pending)
     break;
+  case StDnsResolvDoneWait:
 
-  // FIRST: check for errors
-  if (success != Positive)
-    return procErrLog(-1, "could not finish HTTP request");
+    // wait
+    success = mpResolv->success();
+    if (success == Pending)
+      break;
 
-  // consume results
-  for (list<string>::iterator iter = mpResolv->lstIPv4().begin();
+    // FIRST: check for errors
+    if (success != Positive)
+      return procErrLog(-1, "could not finish HTTP request");
+
+    // consume result
+    for (list<string>::iterator iter = mpResolv->lstIPv4().begin();
                               iter != mpResolv->lstIPv4().end(); ++iter)
-    procInfLog("IPv4 address: %s", iter->c_str());
+      procInfLog("IPv4 address: %s", iter->c_str());
 
-  // ALWAYS: repel
-  repel(mpResolv);
-  mpResolv = NULL;
+    // ALWAYS: repel
+    repel(mpResolv);
+    mpResolv = NULL;
 
-  mState = StNext;
+    mState = StNext;
 
-  break;
-case StNext:
+    break;
+  case StNext:
+
+    ...
 ```
 
 ## SCOPE OF APPLICATION
@@ -104,7 +107,17 @@ case StNext:
 
 ## DEPENDENCIES
 
-The class is compatible with systems that support the **c-ares** library (if configured).
+### libc-ares
+
+This library provides asynchronous DNS request handling in C, enabling programs to perform DNS lookups without blocking. It allows querying for various DNS records like A, AAAA, and CNAME, and is ideal for event-driven applications by allowing DNS operations to be handled in a non-blocking fashion.
+
+```
+License               MIT
+Required              No
+Project Page          https://c-ares.org
+Documentation         https://c-ares.org/docs.html
+Sources               https://github.com/c-ares/c-ares
+```
 
 ## RECURSION
 
@@ -113,7 +126,7 @@ The class is compatible with systems that support the **c-ares** library (if con
 
 ## SEE ALSO
 
-**getaddrinfo()**, **ares_getaddrinfo()**, **c-ares**
+**Processing()**, **c-ares**, **ares_getaddrinfo()**, **getaddrinfo()**
 
 ## COPYRIGHT
 
