@@ -569,6 +569,29 @@ string remoteAddr(int socketFd)
 	return ::inet_ntoa(addr.sin_addr);
 }
 
+string urlToHost(const string &url)
+{
+	string::size_type find, start, end;
+
+	start = 0;
+
+	find = url.find("://");
+	if (find != string::npos)
+		start = find + 3;
+
+	end = url.length();
+
+	find = url.find("?", start);
+	if (find != string::npos)
+		end = find;
+
+	find = url.find("/", start); // even closer
+	if (find != string::npos)
+		end = find;
+
+	return url.substr(start, end - start);
+}
+
 // Strings
 
 void strToVecStr(const string &str, VecStr &vStr, char delim)
