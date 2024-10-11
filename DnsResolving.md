@@ -80,7 +80,7 @@ Returns a list of resolved IPv6 addresses for the set hostname.
 
     // FIRST: check for errors
     if (success != Positive)
-      return procErrLog(-1, "could not finish HTTP request");
+      return procErrLog(-1, "could not finish DNS request");
 
     // consume result
     for (list<string>::iterator iter = mpResolv->lstIPv4().begin();
