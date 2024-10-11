@@ -63,7 +63,7 @@ In source file of **ServerConnecting()**
 ```cpp
 ServerConnecting::ServerConnecting()
   : Processing("ServerConnecting")
-  , mpResolv(NULL)
+  , mpResolv(NULL) // initialize pointer
 {
   mState = StStart;
 }
