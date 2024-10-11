@@ -133,7 +133,7 @@ Depth                 -
 
 ## COPYRIGHT
 
-Copyright (C) 2024-Now, Authors and www.dsp-crowd.com.
+Copyright (C) 2024, Johannes Natter
 
 ## LICENSE
 
