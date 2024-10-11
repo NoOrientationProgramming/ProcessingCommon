@@ -98,7 +98,7 @@ Returns a list of resolved IPv6 addresses for the set hostname.
 
 Currently, no error codes are being differentiated.
 
-Possible causes in their corresponding error codes identifiers are:
+Possible causes and their corresponding error codes identifiers are:
 
 ```
     <none>                 Dependency libc-ares not met
