@@ -126,7 +126,7 @@ Success ServerConnecting::process()
 }
 ```
 
-## SCOPE OF APPLICATION
+## SCOPE
 
 - Linux
 - Windows
