@@ -100,7 +100,7 @@ Returns a list of resolved IPv6 addresses for the set hostname.
 
 ## ERRORS
 
-**Note**: Currently, no error codes are being differentiated.
+**Note**: Error codes may not be distinctly defined at this time.
 
 Possible causes and their corresponding error codes identifiers are:
 
@@ -122,13 +122,13 @@ After a process has completed and its results have been consumed, the process mu
 
 ### Example: Simple DNS Resolution
 
-In header file of **ServerConnecting()**
+In the header file of **ServerConnecting()**
 ```cpp
   /* member variables */
   DnsResolving *mpResolv;
 ```
 
-In source file of **ServerConnecting()**
+In the source file of **ServerConnecting()**
 ```cpp
 ServerConnecting::ServerConnecting()
   : Processing("ServerConnecting")
