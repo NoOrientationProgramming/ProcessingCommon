@@ -1,9 +1,9 @@
 
-# DNS_RESOLVING() Manual Page
+# DnsResolving() Manual Page
 
-## NAME
+## ABSTRACT
 
-**DnsResolving()** - Class for resolving hostnames to IP addresses.
+Class for resolving hostnames to IP addresses.
 
 ## LIBRARY
 
