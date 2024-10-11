@@ -56,6 +56,8 @@ Sets the hostname to be resolved. This hostname is used to query both IPv4 and I
 
 ## START
 
+### `Processing *start(Processing *pChild, DriverMode driver = DrivenByParent)`
+
 Once the process is started, it progresses "in the background".
 This means that with each system tick, the process is allowed to take a small amount of processing time.
 During each tick, the process must account for other processes that are contained within the same driver tree.
@@ -68,6 +70,8 @@ A new driver can either be an internal driver, such as a worker thread (DrivenBy
 or any external driver (DrivenByExternalDriver), like a thread pool or a specialized scheduler.
 
 ## SUCCESS
+
+### `Success success()`
 
 Processes are related to functions.
 They establish a **mapping from input to output**.
@@ -96,7 +100,7 @@ Returns a list of resolved IPv6 addresses for the set hostname.
 
 ## ERRORS
 
-Currently, no error codes are being differentiated.
+**Note**: Currently, no error codes are being differentiated.
 
 Possible causes and their corresponding error codes identifiers are:
 
@@ -109,6 +113,8 @@ Possible causes and their corresponding error codes identifiers are:
 ```
 
 ## REPEL
+
+### `Processing *repel(Processing *pChild)`
 
 After a process has completed and its results have been consumed, the process must be separated from the parent process using the **repel()** function. This is inherent to the **nature of processes**.
 
