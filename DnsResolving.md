@@ -38,13 +38,15 @@ Processing *whenFinishedRepel(Processing *pChild);
 
 ## DESCRIPTION
 
-The **DnsResolving()** class allows for the resolution of hostnames into IPv4 and IPv6 addresses. It uses the c-ares library (when available) to perform asynchronous DNS queries and process the results.
+The **DnsResolving()** class allows for the resolution of hostnames into IPv4 and IPv6 addresses.
+It uses the c-ares library (when available) to perform asynchronous DNS queries and process the results.
 
 ## CREATION
 
 ### `static DnsResolving *create()`
 
-Creates a new instance of the **DnsResolving()** class. Memory is allocated using `new` with the `std::nothrow` modifier to ensure safe handling of failed allocations.
+Creates a new instance of the **DnsResolving()** class.
+Memory is allocated using `new` with the `std::nothrow` modifier to ensure safe handling of failed allocations.
 
 ## CONFIGURATION
 
@@ -68,6 +70,9 @@ All children within a driver tree share the processing time of the system ticks,
 
 A new driver can either be an internal driver, such as a worker thread (DrivenByNewInternalDriver),
 or any external driver (DrivenByExternalDriver), like a thread pool or a specialized scheduler.
+
+- **pChild**: Pointer to any process which is derived from **Processing()**.
+- **driver**: Type of driver which is responsible for the progress of the new child process. A new thread? --> DrivenByNewInternalDriver
 
 ## SUCCESS
 

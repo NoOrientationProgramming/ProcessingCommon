@@ -75,6 +75,9 @@ All children within a driver tree share the processing time of the system ticks,
 A new driver can either be an internal driver, such as a worker thread (DrivenByNewInternalDriver),
 or any external driver (DrivenByExternalDriver), like a thread pool or a specialized scheduler.
 
+- **pChild**: Pointer to any process which is derived from **Processing()**.
+- **driver**: Type of driver which is responsible for the progress of the new child process. A new thread? --> DrivenByNewInternalDriver
+
 ## SUCCESS
 
 ### `Success success()`

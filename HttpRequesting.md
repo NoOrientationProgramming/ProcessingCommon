@@ -102,6 +102,24 @@ Sets the HTTP version to be used for the request (e.g., HTTP/1.1).
 
 Enables or disables debugging mode for detailed output during the request process.
 
+## START
+
+### `Processing *start(Processing *pChild, DriverMode driver = DrivenByParent)`
+
+Once the process is started, it progresses "in the background".
+This means that with each system tick, the process is allowed to take a small amount of processing time.
+During each tick, the process must account for other processes that are contained within the same driver tree.
+
+The progression can be managed by the parent process itself (DrivenByParent = default) or optionally by a new driver.
+When a new driver is used, it creates a new driver tree.
+All children within a driver tree share the processing time of the system ticks, unless a new driver tree is created.
+
+A new driver can either be an internal driver, such as a worker thread (DrivenByNewInternalDriver),
+or any external driver (DrivenByExternalDriver), like a thread pool or a specialized scheduler.
+
+- **pChild**: Pointer to any process which is derived from **Processing()**.
+- **driver**: Type of driver which is responsible for the progress of the new child process. A new thread? --> DrivenByNewInternalDriver
+
 ## SUCCESS
 
 ### `Success success()`
@@ -134,24 +152,6 @@ Returns the response headers from the last request.
 ### `std::string &respData()`
 
 Returns the response data from the last request.
-
-## START
-
-### `Processing *start(Processing *pChild, DriverMode driver = DrivenByParent)`
-
-Starts the HTTP request process. This method allows for background processing, ensuring that the request can take place without blocking other operations.
-
-## SUCCESS
-
-### `Success success()`
-
-Returns the status of the last request operation. It indicates whether the request is still pending, completed successfully, or encountered an error.
-
-## SESSION MANAGEMENT
-
-### `void sharedDataMtxListDelete()`
-
-Deletes the mutexes used for managing shared data in the HTTP session.
 
 ## ERRORS
 
