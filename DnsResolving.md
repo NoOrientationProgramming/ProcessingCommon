@@ -27,13 +27,13 @@ The **DnsResolving()** class allows for the resolution of hostnames into IPv4 an
 
 ## CREATION
 
-#### `static DnsResolving *create()`
+### `static DnsResolving *create()`
 
 Creates a new instance of the **DnsResolving()** class. Memory is allocated using `new` with the `std::nothrow` modifier to ensure safe handling of failed allocations.
 
 ## CONFIGURATION
 
-#### `void nameHostSet(const std::string &nameHost)`
+### `void nameHostSet(const std::string &nameHost)`
 
 Sets the hostname to be resolved. This hostname is used to query both IPv4 and IPv6 addresses.
 
@@ -41,11 +41,11 @@ Sets the hostname to be resolved. This hostname is used to query both IPv4 and I
 
 ## RESULT
 
-#### `const std::list<std::string> &lstIPv4()`
+### `const std::list<std::string> &lstIPv4()`
 
 Returns a list of resolved IPv4 addresses for the set hostname.
 
-#### `const std::list<std::string> &lstIPv6()`
+### `const std::list<std::string> &lstIPv6()`
 
 Returns a list of resolved IPv6 addresses for the set hostname.
 
