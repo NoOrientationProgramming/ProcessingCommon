@@ -93,6 +93,7 @@ While **functions** are managed by the compiler and the calling procedure (ABI) 
 As long as this process is not finished, its function **success()** returns **Pending**.
 On error, success() is **not Positive** but returns some negative number.
 On success, success() returns **Positive**.
+
 ## REPEL
 
 ### `Processing *repel(Processing *pChild)`
