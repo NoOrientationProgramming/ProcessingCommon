@@ -242,7 +242,7 @@ Success HttpRequesting::process()
 		if (!mpResolv)
 			return procErrLog(-1, "could not create process");
 
-		mpResolv->nameHostSet(mNameHost);
+		mpResolv->hostnameSet(mNameHost);
 
 		start(mpResolv);
 

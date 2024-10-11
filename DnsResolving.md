@@ -18,11 +18,22 @@ ProcessingCommon
 static DnsResolving *create()
 
 // configuration
-void nameHostSet(const std::string &nameHost);
+void hostnameSet(const std::string &nameHost);
+
+// start / cancel
+Processing *start(Processing *pChild, DriverMode driver = DrivenByParent);
+Processing *cancel(Processing *pChild);
+
+// success
+Success success()
 
 // result
 const std::list<std::string> &lstIPv4();
 const std::list<std::string> &lstIPv6();
+
+// repel
+Processing *repel(Processing *pChild);
+Processing *whenFinishedRepel(Processing *pChild);
 ```
 
 ## DESCRIPTION
@@ -37,11 +48,24 @@ Creates a new instance of the **DnsResolving()** class. Memory is allocated usin
 
 ## CONFIGURATION
 
-### `void nameHostSet(const std::string &nameHost)`
+### `void hostnameSet(const std::string &nameHost)`
 
 Sets the hostname to be resolved. This hostname is used to query both IPv4 and IPv6 addresses.
 
 - **nameHost**: The domain name to resolve (e.g., "example.com").
+
+## START
+
+Once the process is started, it progresses "in the background".
+This means that with each system tick, the process is allowed to take a small amount of processing time.
+During each tick, the process must account for other processes that are contained within the same driver tree.
+
+The progression can be managed by the parent process itself (DrivenByParent = default) or optionally by a new driver.
+When a new driver is used, it creates a new driver tree.
+All children within a driver tree share the processing time of the system ticks, unless a new driver tree is created.
+
+A new driver can either be an internal driver, such as a worker thread (DrivenByNewInternalDriver),
+or any external driver (DrivenByExternalDriver), like a thread pool or a specialized scheduler.
 
 ## SUCCESS
 
@@ -73,6 +97,14 @@ Returns a list of resolved IPv6 addresses for the set hostname.
 ## ERRORS
 
 Currently, no error codes are being differentiated.
+
+Possible causes in their corresponding error codes identifiers are:
+
+```
+    <none>                 Dependency libc-ares not met
+    <none>                 libc-ares encountered an error during
+                           DNS resolution
+```
 
 ## REPEL
 
@@ -111,7 +143,7 @@ Success ServerConnecting::process()
       return procErrLog(-1, "could not create process");
 
     // configure
-    mpResolv->nameHostSet("example.com");
+    mpResolv->hostnameSet("example.com");
 
     // start
     start(mpResolv);

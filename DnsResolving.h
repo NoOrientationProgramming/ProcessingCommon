@@ -43,7 +43,7 @@ public:
 	}
 
 	// input
-	void nameHostSet(const std::string &nameHost);
+	void hostnameSet(const std::string &hostname);
 
 	// output
 	const std::list<std::string> &lstIPv4();
@@ -76,7 +76,7 @@ private:
 	/* member variables */
 	//uint32_t mStartMs;
 	uint32_t mStateSd;
-	std::string mNameHost;
+	std::string mHostname;
 	std::list<std::string> mLstIPv4;
 	std::list<std::string> mLstIPv6;
 

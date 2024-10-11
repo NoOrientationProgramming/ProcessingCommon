@@ -53,7 +53,7 @@ DnsResolving::DnsResolving()
 	: Processing("DnsResolving")
 	//, mStartMs(0)
 	, mStateSd(StSdStart)
-	, mNameHost("")
+	, mHostname("")
 #if CONFIG_LIB_DSPC_HAVE_C_ARES
 	, mOptionsAres()
 	, mChannelAres()
@@ -82,7 +82,7 @@ Success DnsResolving::process()
 	{
 	case StStart:
 
-		if (!mNameHost.size())
+		if (!mHostname.size())
 			return procErrLog(-1, "hostname not set");
 
 		mState = StGlobalInit;
@@ -193,10 +193,10 @@ bool DnsResolving::aresStart()
 	hints.ai_socktype = 0; /* Any */
 	hints.ai_protocol = 0; /* Any */
 
-	//procWrnLog("Getting address of: %s", mNameHost.c_str());
+	//procWrnLog("Getting address of: %s", mHostname.c_str());
 
 	ares_getaddrinfo(mChannelAres,
-					mNameHost.c_str(), NULL, &hints,
+					mHostname.c_str(), NULL, &hints,
 					aresRequestDone, this);
 
 	mChannelAresInitDone = true;
@@ -253,9 +253,9 @@ void DnsResolving::aresProcess()
 }
 #endif
 
-void DnsResolving::nameHostSet(const string &nameHost)
+void DnsResolving::hostnameSet(const string &hostname)
 {
-	mNameHost = nameHost;
+	mHostname = hostname;
 }
 
 const list<string> &DnsResolving::lstIPv4()
