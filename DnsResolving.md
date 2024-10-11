@@ -229,7 +229,7 @@ This library provides asynchronous DNS request handling in C, enabling programs 
 
 ```
 License               MIT
-Required              No
+Required              Yes
 Project Page          https://c-ares.org
 Documentation         https://c-ares.org/docs.html
 Sources               https://github.com/c-ares/c-ares
