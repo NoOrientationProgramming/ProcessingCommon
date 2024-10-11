@@ -10,6 +10,7 @@
 ```cpp
 #include "DnsResolving.h"
 
+// creation
 static DnsResolving *create()
 
 // configuration
