@@ -2,9 +2,11 @@
 # HTTP_REQUESTING() Manual Page
 
 ## NAME
+
 **HttpRequesting** – Perform HTTP requests and manage sessions in C++.
 
 ## SYNOPSIS
+
 ```cpp
 #include "HttpRequesting.h"
 
