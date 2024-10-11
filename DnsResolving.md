@@ -168,6 +168,14 @@ Success ServerConnecting::process()
 
 The base class for all processes in a software system.
 
+```
+License               MIT
+Required              Yes
+Project Page          https://github.com/NoOrientationProgramming
+Documentation         https://github.com/NoOrientationProgramming/ProcessingCore
+Sources               https://github.com/NoOrientationProgramming/ProcessingCore
+```
+
 ### libc-ares
 
 This library provides asynchronous DNS request handling in C, enabling programs to perform DNS lookups without blocking. It allows querying for various DNS records like A, AAAA, and CNAME, and is ideal for networking applications by allowing DNS operations to be handled in a non-blocking fashion.
