@@ -24,6 +24,7 @@ FileExecuting &msTimeoutSet(uint32_t msTimeout);
 FileExecuting &errRedirect();
 
 //// sources
+FileExecuting &envSet(const VecConstChar &envv, bool dropOld = true);
 FileExecuting &sourceEnable();
 FileExecuting &sourceSet(const char *pSrc, size_t len = 0, bool autoFree = false);
 FileExecuting &sourceSet(const std::string *pStr);
@@ -110,6 +111,13 @@ Redirects error outputs of the last launched OS process from stderr to stdout.
     <img src="https://raw.githubusercontent.com/NoOrientationProgramming/ProcessingCommon/refs/heads/main/doc/system/FileExecuting/fe-fork.svg" style="width:500px;max-width:100%"/>
   </kbd>
 </p>
+
+### `FileExecuting &envSet(const VecConstChar &envv, bool dropOld = true)`
+
+Sets the environment variables for all launched OS processes.
+
+- **envv**: List (vector) of const C-strings containing environment variables.
+- **dropOld**: When true the current environment variables will be included, otherwise not.
 
 ### `FileExecuting &sourceEnable()`
 
