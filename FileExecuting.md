@@ -114,7 +114,7 @@ The **FileExecuting()** process allows using one of several internal data source
   </kbd>
 </p>
 
-There are essentially three options. The first is to not transmit any data, which is the default state. Second, data can be transmitted manually. For this, the source must first be enabled using the `sourceEnable()` function. Data can then be sent to the OS processes during runtime with `send()`. The third option is to have the **FileExecuting()** process automatically retrieve the data. In automatic mode, sources can be a C-string, a C++ string object, a file descriptor, or a **Transfering()** process.
+There are essentially three options. The first (**Closed**) is to not transmit any data, which is the default state. Second, data can be transmitted **manually**. For this, the source must first be enabled using the `sourceEnable()` function. Data can then be sent to the OS processes during runtime with `send()`. The third option is to have the **FileExecuting()** process **automatically** retrieve the data. In automatic mode, sources can be a C-string, a C++ string object, a file descriptor, or a **Transfering()** process.
 
 ### `FileExecuting &envSet(const VecConstChar &envv, bool dropOld = true)`
 
