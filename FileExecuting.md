@@ -484,7 +484,6 @@ Success DataConverting::process()
 ## SCOPE
 
 - Linux
-- Windows
 - FreeBSD
 - MacOSX
 
