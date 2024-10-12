@@ -10,7 +10,7 @@ database "**stderr**" as stderr
 component "Sink select **(XOR)**" as sinkSelStdOut
 component "Sink select **(XOR)**" as sinkSelStdErr
 database "**Discard**\nby /dev/null\n\n(default)" as sinkDiscard
-database "**Manual**\nby Parenting()\n\nUsing\n- **read()**" as sinkManual
+database "**Manual**\nby Parenting()\n\nUsing\n- **read()**\n\nNote: Requires\n**sinkEnable()**" as sinkManual
 database "**Automatic**\nby FileExecuting()\n\nUsing **(OR)**\n- const char *, len\n- string\n- int fd\n- Transfering *\n- Pipe<>" as sinkAuto
 database "- Discard (default)\n- Automatic" as sinkComb
 database "**Manual**\nby Parenting()\n\nUsing\n- **stderrRead()**" as sinkManual2
