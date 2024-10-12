@@ -234,7 +234,7 @@ Similar to the data source, the data sinks can also be configured. Again, there 
   </kbd>
 </p>
 
-The first option is to **discard** the data. This is the default state. Another option is to **manually** receive the data. In this case, the data point must be enabled again, using `sinkEnable()``. If an **automatic** data sink is specified, enabling the sink is unnecessary. The targets can be a C-string, a C++ string object, a file descriptor, or a **Transfering()** process, just like with the data source. The received data from the last launched OS process will then be written to ALL configured data sinks.
+The first option is to **discard** the data. This is the default state. Another option is to **manually** receive the data. In this case, the data point must be enabled again, using `sinkEnable()`. If an **automatic** data sink is specified, enabling the sink is unnecessary. The targets can be a C-string, a C++ string object, a file descriptor, or a **Transfering()** process, just like with the data source. The received data from the last launched OS process will then be written to ALL configured data sinks.
 
 ### `FileExecuting &sinkEnable(int fdSel = STDOUT_FILENO)`
 
