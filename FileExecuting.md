@@ -23,7 +23,7 @@ static FileExecuting *create();
 FileExecuting &msTimeoutSet(uint32_t msTimeout);
 FileExecuting &errRedirect();
 
-//// sources
+//// source
 FileExecuting &envSet(const VecConstChar &envv, bool dropOld = true);
 FileExecuting &sourceEnable();
 FileExecuting &sourceSet(const char *pSrc, size_t len = 0, bool autoFree = false);
@@ -39,7 +39,7 @@ FileExecuting &cmdAdd(const std::string &cmd, int argc, char *argv[]);
 FileExecuting &operator|=(const VecConstChar &argv);
 FileExecuting &operator|(const VecConstChar &argv);
 
-//// sink
+//// sinks
 FileExecuting &sinkEnable(int fdSel = STDOUT_FILENO);
 FileExecuting &sinkAdd(char *pDest, size_t len, int fdSel = STDOUT_FILENO);
 FileExecuting &sinkAdd(std::string *pStr, int fdSel = STDOUT_FILENO);
@@ -83,6 +83,25 @@ Processing *whenFinishedRepel(Processing *pChild);
 The **FileExecuting()** class allows for executing file operations and managing processes.
 It uses various system calls to handle input/output and to interact with child processes.
 
+<p align="center">
+  <kbd>
+    <img src="https://raw.githubusercontent.com/NoOrientationProgramming/ProcessingCommon/refs/heads/main/doc/system/FileExecuting/fe-io.svg" style="width:400px;max-width:100%"/>
+  </kbd>
+</p>
+
+The **FileExecuting()** process allows for complete and asynchronous control over one or more OS processes. Arguments can be passed, environment variables can be set, and data can be exchanged through stdin, stdout, and stderr. Additionally, signals can be sent to the OS processes, and all states of the OS processes can be provided.
+
+<p align="center">
+  <kbd>
+    <img src="https://raw.githubusercontent.com/NoOrientationProgramming/ProcessingCommon/refs/heads/main/doc/system/FileExecuting/fe-fork.svg" style="width:530px; max-width:100%;"/>
+  </kbd>
+  <kbd style="margin-left: 10px;">
+    <img src="https://raw.githubusercontent.com/NoOrientationProgramming/ProcessingCommon/refs/heads/main/doc/system/FileExecuting/fe-parent-child-connection.svg" style="width:300px; max-width:100%;"/>
+  </kbd>
+</p>
+
+After the fork, all necessary connections (pipes) to the OS processes are established, allowing for convenient communication through the **FileExecuting()** process.
+
 ## CREATION
 
 ### `static FileExecuting *create()`
@@ -104,7 +123,7 @@ Sets the timeout for command execution in milliseconds.
 
 Redirects error outputs of the last launched OS process from stderr to stdout.
 
-### SOURCES
+### SOURCE
 
 The **FileExecuting()** process allows using one of several internal data sources to send data to a single OS process or a group of OS processes.
 
@@ -160,6 +179,13 @@ Sets a **Transfering()** process as the source for stdin of the first launched O
 
 The FileExecuting() process allows for executing one or more OS commands and subsequently communicating with their OS processes.
 When more than one command is added, the OS processes are chained together.
+
+<p align="center">
+  <kbd>
+    <img src="https://raw.githubusercontent.com/NoOrientationProgramming/ProcessingCommon/refs/heads/main/doc/system/FileExecuting/fe-pipe.svg" style="width:300px;max-width:100%"/>
+  </kbd>
+</p>
+
 This means that the output of one OS process is passed as input to the next OS process.
 When data is provided to the FileExecuting() process, it sends the data to the first OS process in the chain.
 When data is received from the FileExecuting() process, it is the output of the last OS process.
@@ -198,7 +224,17 @@ Example:
 *mpExec |= {"grep", "bar"};
 ```
 
-### SINK
+### SINKS
+
+Similar to the data source, the data sinks can also be configured. Again, there are several options. BUT: In contrast to the data source, multiple simultaneous data sinks can now be activated.
+
+<p align="center">
+  <kbd>
+    <img src="https://raw.githubusercontent.com/NoOrientationProgramming/ProcessingCommon/refs/heads/main/doc/system/FileExecuting/fe-sinks.svg" style="width:400px;max-width:100%"/>
+  </kbd>
+</p>
+
+The first option is to **discard** the data. This is the default state. Another option is to **manually** receive the data. In this case, the data point must be enabled again, using **sinkEnable()**. If an **automatic* data sink is specified, enabling the sink is unnecessary. The targets can be a C-string, a C++ string object, a file descriptor, or a **Transfering()** process, just like with the data source. The received data from the last launched OS process will then be written to ALL configured data sinks.
 
 ### `FileExecuting &sinkEnable(int fdSel = STDOUT_FILENO)`
 
