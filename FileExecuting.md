@@ -177,7 +177,7 @@ Sets a **Transfering()** process as the source for stdin of the first launched O
 
 ### COMMANDS
 
-The FileExecuting() process allows for executing one or more OS commands and subsequently communicating with their OS processes.
+The **FileExecuting()** process allows for executing one or more OS commands and subsequently communicating with their OS processes.
 When more than one command is added, the OS processes are chained together.
 
 <p align="center">
@@ -187,8 +187,8 @@ When more than one command is added, the OS processes are chained together.
 </p>
 
 This means that the output of one OS process is passed as input to the next OS process.
-When data is provided to the FileExecuting() process, it sends the data to the first OS process in the chain.
-When data is received from the FileExecuting() process, it is the output of the last OS process.
+When data is provided to the **FileExecuting()** process, it sends the data to the first OS process in the chain.
+When data is received from the **FileExecuting()** process, it is the output of the last OS process.
 
 The method `cmdAdd()` is overloaded to accept different parameter formats.
 
@@ -234,7 +234,7 @@ Similar to the data source, the data sinks can also be configured. Again, there 
   </kbd>
 </p>
 
-The first option is to **discard** the data. This is the default state. Another option is to **manually** receive the data. In this case, the data point must be enabled again, using **sinkEnable()**. If an **automatic* data sink is specified, enabling the sink is unnecessary. The targets can be a C-string, a C++ string object, a file descriptor, or a **Transfering()** process, just like with the data source. The received data from the last launched OS process will then be written to ALL configured data sinks.
+The first option is to **discard** the data. This is the default state. Another option is to **manually** receive the data. In this case, the data point must be enabled again, using `sinkEnable()``. If an **automatic** data sink is specified, enabling the sink is unnecessary. The targets can be a C-string, a C++ string object, a file descriptor, or a **Transfering()** process, just like with the data source. The received data from the last launched OS process will then be written to ALL configured data sinks.
 
 ### `FileExecuting &sinkEnable(int fdSel = STDOUT_FILENO)`
 
@@ -315,9 +315,9 @@ In **software**, processes also differ from functions.
 While **functions** are managed by the compiler and the calling procedure (ABI) on the system's **stack**,
 **processes** must be managed by the user and reside in the **heap** memory.
 
-As long as this process is not finished, its function **success()** returns **Pending**.
-On error, success() is **not Positive** but returns some negative number.
-On success, success() returns **Positive**.
+As long as this process is not finished, its function `success()` returns **Pending**.
+On error, `success()` is **not Positive** but returns some negative number.
+On success, `success()` returns **Positive**.
 
 ## RESULT
 
