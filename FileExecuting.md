@@ -3,7 +3,7 @@
 
 ## ABSTRACT
 
-Class for executing file operations and managing processes.
+Class for executing programs and managing OS processes.
 
 ## LIBRARY
 
@@ -80,8 +80,8 @@ Processing *whenFinishedRepel(Processing *pChild);
 
 ## DESCRIPTION
 
-The **FileExecuting()** class allows for executing file operations and managing processes.
-It uses various system calls to handle input/output and to interact with child processes.
+The **FileExecuting()** class allows for executing programms and managing OS processes.
+It uses various system calls to handle input/output and to interact with the launched OS processes.
 
 <p align="center">
   <kbd>
