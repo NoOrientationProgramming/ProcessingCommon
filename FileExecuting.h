@@ -34,12 +34,17 @@
 #include <signal.h>
 
 #include "Transfering.h"
-#include "LibFilesys.h"
 
 #define dTimeoutExecDefault	5000
 
 typedef std::vector<const char *> VecConstChar;
 typedef VecConstChar fec; // FileExecuting() Command
+
+struct FePairFd
+{
+	int fdRead;
+	int fdWrite;
+};
 
 struct FeNodeBuffer
 {
@@ -80,7 +85,7 @@ struct FeFileDescSetting
 
 struct FeNode
 {
-	PairFd pipe;
+	FePairFd pipe;
 	std::list<FeNodeBuffer> lstBuffers;
 	std::list<std::string *> lstStrings;
 	std::list<FeFileDescSetting> lstFds;
@@ -220,6 +225,11 @@ private:
 
 	ssize_t intSend(const void *pData, size_t lenReq);
 	ssize_t intSinkRead(void *pBuf, size_t lenReq, FeNode *pNode);
+
+	void pipeInit(FePairFd &pair);
+	void pipeClose(FePairFd &pair, bool deInit = true);
+	bool fileNonBlockingSet(int fd);
+	void fdClose(int &fd, bool deInit = true);
 
 	/* member variables */
 

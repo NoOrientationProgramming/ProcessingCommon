@@ -29,7 +29,6 @@
 #include <sys/wait.h>
 
 #include "FileExecuting.h"
-#include "LibTime.h"
 
 #define dForEach_ProcState(gen) \
 		gen(StStart) \
@@ -1381,6 +1380,54 @@ ssize_t FileExecuting::intSinkRead(void *pBuf, size_t lenReq, FeNode *pNode)
 	mBytesRead += lenRead;
 
 	return lenRead;
+}
+
+void FileExecuting::pipeInit(FePairFd &pair)
+{
+	pair.fdRead = -1;
+	pair.fdWrite = -1;
+}
+
+void FileExecuting::pipeClose(FePairFd &pair, bool deInit)
+{
+	fdClose(pair.fdRead, deInit);
+	fdClose(pair.fdWrite, deInit);
+}
+
+bool FileExecuting::fileNonBlockingSet(int fd)
+{
+	int opt = 1;
+#ifdef _WIN32
+	unsigned long nonBlockMode = 1;
+
+	opt = ioctlsocket(fd, FIONBIO, &nonBlockMode);
+	if (opt == SOCKET_ERROR)
+		return false;
+#else
+	opt = fcntl(fd, F_GETFL, 0);
+	if (opt == -1)
+		return false;
+
+	opt |= O_NONBLOCK;
+
+	opt = fcntl(fd, F_SETFL, opt);
+	if (opt == -1)
+		return false;
+#endif
+	return true;
+}
+
+void FileExecuting::fdClose(int &fd, bool deInit)
+{
+	if (fd < 0)
+		return;
+
+	close(fd);
+
+	if (!deInit)
+		return;
+
+	fd = -1;
 }
 
 void FileExecuting::processInfo(char *pBuf, char *pBufEnd)
