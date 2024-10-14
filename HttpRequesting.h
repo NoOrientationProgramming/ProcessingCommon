@@ -80,11 +80,13 @@ public:
 	std::string &respHdr();
 	std::string &respData();
 
+	CURL *easyHandleCurl();
+
 protected:
 
 	HttpRequesting();
 	HttpRequesting(const std::string &url);
-	virtual ~HttpRequesting() {}
+	virtual ~HttpRequesting();
 
 private:
 
@@ -101,10 +103,10 @@ private:
 	Success shutdown();
 	void processInfo(char *pBuf, char *pBufEnd);
 
-	Success easyHandleCreate();
-	Success curlEasyHandleBind();
-	CURLM *curlMultiInit();
-	void curlEasyHandleUnind();
+	Success easyHandleCurlConfigure();
+	Success easyHandleCurlBind();
+	CURLM *multiHandleCurlInit();
+	void easyHandleCurlUnbind();
 	Success sessionCreate(const std::string &address, const uint16_t port);
 	void sessionTerminate();
 	void sharedDataMtxListDelete();

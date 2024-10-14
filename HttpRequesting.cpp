@@ -95,6 +95,7 @@ HttpRequesting::HttpRequesting()
 	, mDoneCurl(Pending)
 {
 	mState = StStart;
+	mpCurl = curl_easy_init();
 }
 
 HttpRequesting::HttpRequesting(const string &url)
@@ -127,6 +128,16 @@ HttpRequesting::HttpRequesting(const string &url)
 	, mDoneCurl(Pending)
 {
 	mState = StStart;
+	mpCurl = curl_easy_init();
+}
+
+HttpRequesting::~HttpRequesting()
+{
+	if (!mpCurl)
+		return;
+
+	curl_easy_cleanup(mpCurl);
+	mpCurl = NULL;
 }
 
 void HttpRequesting::urlSet(const string &url)
@@ -207,6 +218,11 @@ string &HttpRequesting::respData()
 	return mRespData;
 }
 
+CURL *HttpRequesting::easyHandleCurl()
+{
+	return mpCurl;
+}
+
 Success HttpRequesting::process()
 {
 	//uint32_t curTimeMs = millis();
@@ -219,6 +235,9 @@ Success HttpRequesting::process()
 	switch (mState)
 	{
 	case StStart:
+
+		if (!mpCurl)
+			return procErrLog(-1, "could not initialize curl easy handle");
 
 		if (!mUrl.size())
 			return procErrLog(-1, "url not set");
@@ -293,9 +312,9 @@ Success HttpRequesting::process()
 		break;
 	case StEasyInit:
 
-		success = easyHandleCreate();
+		success = easyHandleCurlConfigure();
 		if (success != Positive)
-			return procErrLog(-1, "could not create curl easy handle");
+			return procErrLog(-1, "could not configure curl easy handle");
 
 		//procDbgLog(LOG_LVL, "easy handle curl created");
 
@@ -304,7 +323,7 @@ Success HttpRequesting::process()
 		break;
 	case StEasyBind:
 
-		success = curlEasyHandleBind();
+		success = easyHandleCurlBind();
 		if (success != Positive)
 			return procErrLog(-1, "could not bind curl easy handle");
 
@@ -353,18 +372,12 @@ Success HttpRequesting::shutdown()
 	{
 	case StSdStart:
 
-		curlEasyHandleUnind();
+		easyHandleCurlUnbind();
 
 		if (mpHeaderList)
 		{
 			curl_slist_free_all(mpHeaderList);
 			mpHeaderList = NULL;
-		}
-
-		if (mpCurl)
-		{
-			curl_easy_cleanup(mpCurl);
-			mpCurl = NULL;
 		}
 
 		return Positive;
@@ -383,12 +396,12 @@ Success HttpRequesting::shutdown()
  * - https://curl.se/libcurl/c/curl_multi_add_handle.html
  * - https://curl.se/libcurl/c/libcurl-errors.html
  */
-Success HttpRequesting::curlEasyHandleBind()
+Success HttpRequesting::easyHandleCurlBind()
 {
 	Guard lock(mtxCurlMulti);
 
 	if (!pCurlMulti)
-		pCurlMulti = curlMultiInit();
+		pCurlMulti = multiHandleCurlInit();
 
 	if (!pCurlMulti)
 		return procErrLog(-1, "curl multi handle not set");
@@ -404,7 +417,7 @@ Success HttpRequesting::curlEasyHandleBind()
 	return Positive;
 }
 
-CURLM *HttpRequesting::curlMultiInit()
+CURLM *HttpRequesting::multiHandleCurlInit()
 {
 	CURLM *pMulti;
 
@@ -418,7 +431,7 @@ CURLM *HttpRequesting::curlMultiInit()
 	return pMulti;
 }
 
-void HttpRequesting::curlEasyHandleUnind()
+void HttpRequesting::easyHandleCurlUnbind()
 {
 	Guard lock(mtxCurlMulti);
 
@@ -464,12 +477,15 @@ void HttpRequesting::curlEasyHandleUnind()
  *   - https://curl.haxx.se/libcurl/c/multi-app.html
  * - https://curl.haxx.se/mail/lib-2018-12/0011.html
  */
-Success HttpRequesting::easyHandleCreate()
+Success HttpRequesting::easyHandleCurlConfigure()
 {
 	list<string>::const_iterator iter;
 	struct curl_slist *pEntry;
 	string versionTls;
 	Success success = Positive;
+
+	if (!mpCurl)
+		return procErrLog(-1, "curl easy handle not initialized");
 
 	if (mUrl[4] == 's')
 		versionTls = "TLSv1.2";
@@ -492,11 +508,6 @@ Success HttpRequesting::easyHandleCreate()
 	if (sessionCreate(address, port) != Positive)
 		return procErrLog(-1, "could not create session");
 #endif
-
-	mpCurl = curl_easy_init();
-	if (!mpCurl)
-		return procErrLog(-1, "curl_easy_init() returned 0");
-
 	curl_easy_setopt(mpCurl, CURLOPT_URL, mUrl.c_str());
 
 	if (mAuthMethod == "digest")
