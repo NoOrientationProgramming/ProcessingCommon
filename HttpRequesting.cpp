@@ -81,7 +81,9 @@ HttpRequesting::HttpRequesting()
 	, mVersionTls("")
 	, mVersionHttp("HTTP/2")
 	, mModeDebug(false)
+#if CONFIG_LIB_DSPC_HAVE_C_ARES
 	, mpResolv(NULL)
+#endif
 	, mpCurl(NULL)
 	, mCurlBound(false)
 	, mpHeaderList(NULL)
@@ -111,7 +113,9 @@ HttpRequesting::HttpRequesting(const string &url)
 	, mVersionTls("")
 	, mVersionHttp("")
 	, mModeDebug(false)
+#if CONFIG_LIB_DSPC_HAVE_C_ARES
 	, mpResolv(NULL)
+#endif
 	, mpCurl(NULL)
 	, mCurlBound(false)
 	, mpHeaderList(NULL)
@@ -238,6 +242,7 @@ Success HttpRequesting::process()
 		procWrnLog("Name Host     %s", mNameHost.c_str());
 		procWrnLog("Path          %s", mPath.c_str());
 #endif
+#if CONFIG_LIB_DSPC_HAVE_C_ARES
 		mpResolv = DnsResolving::create();
 		if (!mpResolv)
 			return procErrLog(-1, "could not create process");
@@ -245,29 +250,32 @@ Success HttpRequesting::process()
 		mpResolv->hostnameSet(mNameHost);
 
 		start(mpResolv);
-
+#endif
 		mState = StDnsResolvDoneWait;
 
 		break;
 	case StDnsResolvDoneWait:
 
+#if CONFIG_LIB_DSPC_HAVE_C_ARES
 		success = mpResolv->success();
 		if (success == Pending)
 			break;
 
-		if (success != Positive)
-			procDbgLog(LOG_LVL, "forced to use curl internal DNS resolver");
-		else
+		if (success == Positive)
 		{
 			const list<string> &lstAddr = mpResolv->lstIPv4();
 
 			if (lstAddr.size())
 				mAddrHost = *lstAddr.begin();
 		}
+		else
+#endif
+			procDbgLog(LOG_LVL, "forced to use curl internal DNS resolver");
 
+#if CONFIG_LIB_DSPC_HAVE_C_ARES
 		repel(mpResolv);
 		mpResolv = NULL;
-
+#endif
 		mUrl = mProtocol;
 		mUrl += "://";
 

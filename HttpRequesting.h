@@ -31,7 +31,9 @@
 #include <vector>
 
 #include "Processing.h"
+#if CONFIG_LIB_DSPC_HAVE_C_ARES
 #include "DnsResolving.h"
+#endif
 #include "LibDspc.h"
 
 #define numSharedDataTypes		4
@@ -123,8 +125,9 @@ private:
 	std::string mVersionTls;
 	std::string mVersionHttp;
 	bool mModeDebug;
+#if CONFIG_LIB_DSPC_HAVE_C_ARES
 	DnsResolving *mpResolv;
-
+#endif
 	CURL *mpCurl;
 	bool mCurlBound;
 	struct curl_slist *mpHeaderList;
