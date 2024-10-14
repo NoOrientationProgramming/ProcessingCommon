@@ -66,6 +66,7 @@ public:
 		return new (std::nothrow) HttpRequesting(url);
 	}
 
+	// input
 	void urlSet(const std::string &url);
 	void typeSet(const std::string &type);
 	void userPwSet(const std::string &userPw);
@@ -76,11 +77,12 @@ public:
 	void versionHttpSet(const std::string &versionHttp);
 	void modeDebugSet(bool en);
 
+	CURL *easyHandleCurl();
+
+	// output
 	uint16_t respCode() const;
 	std::string &respHdr();
 	std::string &respData();
-
-	CURL *easyHandleCurl();
 
 protected:
 

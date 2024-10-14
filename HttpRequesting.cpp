@@ -140,6 +140,7 @@ HttpRequesting::~HttpRequesting()
 	mpCurl = NULL;
 }
 
+// input
 void HttpRequesting::urlSet(const string &url)
 {
 	if (!url.size())
@@ -203,6 +204,12 @@ void HttpRequesting::modeDebugSet(bool en)
 	mModeDebug = en;
 }
 
+CURL *HttpRequesting::easyHandleCurl()
+{
+	return mpCurl;
+}
+
+// output
 uint16_t HttpRequesting::respCode() const
 {
 	return mRespCode;
@@ -216,11 +223,6 @@ string &HttpRequesting::respHdr()
 string &HttpRequesting::respData()
 {
 	return mRespData;
-}
-
-CURL *HttpRequesting::easyHandleCurl()
-{
-	return mpCurl;
 }
 
 Success HttpRequesting::process()
