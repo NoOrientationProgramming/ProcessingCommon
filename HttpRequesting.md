@@ -29,6 +29,8 @@ void versionTlsSet(const std::string &versionTls);
 void versionHttpSet(const std::string &versionHttp);
 void modeDebugSet(bool en);
 
+CURL *easyHandleCurl();
+
 // start / cancel
 Processing *start(Processing *pChild, DriverMode driver = DrivenByParent);
 Processing *cancel(Processing *pChild);
@@ -101,6 +103,13 @@ Sets the HTTP version to be used for the request (e.g., HTTP/1.1).
 ### `void modeDebugSet(bool en)`
 
 Enables or disables debugging mode for detailed output during the request process.
+
+### `CURL *easyHandleCurl()`
+
+Returns the handle to a transfer in libcurl called _easy handle_.
+With this pointer you can perform multiple calls to `curl_easy_setopt()` between
+the creation of **HttpRequesting()** (function `create()`) and start of the
+process (function `start()`).
 
 ## START
 
@@ -205,9 +214,14 @@ Success ServerConnecting::process()
     if (!mpRequest)
       return procErrLog(-1, "could not create process");
 
-    // configure
-    mpRequest->typeSet("get");
+    // configure (optional)
+    mpRequest->hdrAdd("User-Agent: my-cool-app");
     mpRequest->modeDebugSet(true);
+
+    {
+      CURL *pCurl = mpRequest->easyHandleCurl();
+      curl_easy_setopt(pCurl, CURLOPT_CONNECTTIMEOUT, 5L);
+    }
 
     // start
     start(mpRequest);
@@ -276,6 +290,18 @@ Required              Yes
 Project Page          https://github.com/NoOrientationProgramming
 Documentation         https://github.com/NoOrientationProgramming/ProcessingCore
 Sources               https://github.com/NoOrientationProgramming/ProcessingCore
+```
+
+### LibDspc
+
+....
+
+```
+License               GPLv3
+Required              Yes
+Project Page          https://github.com/NoOrientationProgramming
+Documentation         https://github.com/NoOrientationProgramming/ProcessingCommon
+Sources               https://github.com/NoOrientationProgramming/ProcessingCommon
 ```
 
 ### cURL
