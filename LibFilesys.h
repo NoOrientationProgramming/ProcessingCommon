@@ -63,6 +63,7 @@ bool fileExists(const std::string &path);
 bool fileCreate(const std::string &path);
 
 bool fileNonBlockingSet(int fd);
+bool fileCopy(const std::string &pathSrc, const std::string &pathDst);
 
 bool dirExists(const std::string &path);
 bool dirCreate(const std::string &path, mode_t mode = (S_IRWXU | S_IRGRP | S_IXGRP | S_IROTH | S_IXOTH));

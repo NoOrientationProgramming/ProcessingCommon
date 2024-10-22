@@ -25,6 +25,7 @@
 
 #include <map>
 #include <cstdio>
+#include <fstream>
 #include <mutex>
 #include <stdarg.h>
 #include <string.h>
@@ -249,6 +250,19 @@ bool fileNonBlockingSet(int fd)
 	if (opt == -1)
 		return false;
 #endif
+	return true;
+}
+
+bool fileCopy(const string &pathSrc, const string &pathDst)
+{
+	ifstream src(pathSrc, std::ios::binary);
+	ofstream dst(pathDst, std::ios::binary);
+
+	if (!src || !dst)
+		return false;
+
+	dst << src.rdbuf();
+
 	return true;
 }
 
