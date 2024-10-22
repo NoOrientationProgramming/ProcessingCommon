@@ -143,7 +143,7 @@ void pipeClose(PairFd &pair, bool deInit)
 
 // - https://man7.org/linux/man-pages/man2/open.2.html
 // - https://man7.org/linux/man-pages/man3/fopen.3.html
-int fdCreate(const std::string &path, const std::string &mode, bool closeOnExec)
+int fdCreate(const string &path, const string &mode, bool closeOnExec)
 {
 	if (!path.size() || !mode.size())
 		return -1;
