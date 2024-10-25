@@ -423,6 +423,8 @@ CURLM *HttpRequesting::multiHandleCurlInit()
 {
 	CURLM *pMulti;
 
+	Processing::globalDestructorRegister(curlMultiDeInit);
+
 	pMulti = curl_multi_init();
 	if (!pMulti)
 		return NULL;
@@ -430,6 +432,8 @@ CURLM *HttpRequesting::multiHandleCurlInit()
 	curl_multi_setopt(pMulti, CURLMOPT_MAX_HOST_CONNECTIONS, 5L);
 	curl_multi_setopt(pMulti, CURLMOPT_MAX_TOTAL_CONNECTIONS, 10L);
 #endif
+	dbgLog(LOG_LVL, "global init curl multi done");
+
 	return pMulti;
 }
 
@@ -850,7 +854,7 @@ void HttpRequesting::curlMultiDeInit()
 	curl_multi_cleanup(pCurlMulti);
 	pCurlMulti = NULL;
 
-	dbgLog(0, "HttpRequesting(): multi curl cleanup done");
+	dbgLog(LOG_LVL, "global deinit curl multi done");
 }
 
 extern "C" void HttpRequesting::sharedDataLock(CURL *handle, curl_lock_data data, curl_lock_access access, void *userptr)
