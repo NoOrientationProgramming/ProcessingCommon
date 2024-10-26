@@ -94,10 +94,10 @@ void TextBox::focusSet(bool foc, bool accept)
 		// 1
 		mUtfCurrent = mUtfWork;
 		utfToStr(mUtfCurrent, mCurrent);
-
-		// 2
-		mIdxChars = mUtfCurrent.size() + 1;
 	}
+
+	// 2
+	mIdxChars = mUtfCurrent.size() + 1;
 
 	// 3
 	mIdxChars.reset();
