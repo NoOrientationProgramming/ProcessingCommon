@@ -197,66 +197,69 @@ bool TextBox::keyProcess(const KeyUser &key, const char *pListKeysDisabled)
 
 bool TextBox::print(string &msg)
 {
-	string strPrint = mFocus ? mWork : mCurrent;
+	string strIn = mFocus ? mWork : mCurrent;
+	string strPrint;
 	size_t idxAbs = mIdxChars.offset();
 	size_t idxRel = 0;
 
-	strPrint.push_back(' ');
+	strIn.push_back(' ');
 
 	if (mModifierFrame.size())
-		msg += mModifierFrame;
+		strPrint += mModifierFrame;
 
 	if (mFocus)
-		msg += "> ";
+		strPrint += "> ";
 	else
-		msg += "| ";
-	msg += "\033[0m";
+		strPrint += "| ";
+	strPrint += "\033[0m";
 
 	mCursorPrinted = false;
 
 	for (; idxRel < mIdxChars.win(); ++idxRel, ++idxAbs)
 	{
 		if (mModifierContent.size())
-			msg += mModifierContent;
+			strPrint += mModifierContent;
 
 		if (!idxRel and mIdxChars.offset())
 		{
-			msg += "\u00AB";
+			strPrint += "\u00AB";
 			continue;
 		}
 
 		if (idxRel == mIdxChars.win() - 1 and !mIdxChars.endReached())
 		{
-			msg += "\u00BB";
+			strPrint += "\u00BB";
 			continue;
 		}
 
-		if (idxAbs >= strPrint.size())
+		if (idxAbs >= strIn.size())
 		{
-			msg.push_back(' ');
-			msg += "\033[0m";
+			strPrint.push_back(' ');
+			strPrint += "\033[0m";
 			continue;
 		}
 
 		if (idxRel == mIdxChars.cursor())
-			cursorActivate(msg);
+			cursorActivate(strPrint);
 
-		if (mPasswordMode and idxAbs < strPrint.size() - 1)
-			msg.push_back('*');
+		if (mPasswordMode and idxAbs < strIn.size() - 1)
+			strPrint.push_back('*');
 		else
-			msg.push_back(strPrint[idxAbs]);
+			strPrint.push_back(strIn[idxAbs]);
 
-		msg += "\033[0m";
+		strPrint += "\033[0m";
 	}
 
 	if (mModifierFrame.size())
-		msg += mModifierFrame;
+		strPrint += mModifierFrame;
 
 	if (mFocus)
-		msg += " <";
+		strPrint += " <";
 	else
-		msg += " |";
-	msg += "\033[0m";
+		strPrint += " |";
+	strPrint += "\033[0m";
+
+	msg += strPrint;
 
 	return true;
 }
