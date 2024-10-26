@@ -28,6 +28,8 @@
 #include <chrono>
 #include <cinttypes>
 #include <string.h>
+#include <locale>
+#include <codecvt>
 
 #ifdef _WIN32
 /* See http://stackoverflow.com/questions/12765743/getaddrinfo-on-win32 */
@@ -620,5 +622,34 @@ void strToVecStr(const string &str, VecStr &vStr, char delim)
 
 	while (getline(ss, line, delim))
 		vStr.push_back(line);
+}
+
+void strPadCutTo(string &str, size_t width, bool dots, bool padLeft)
+{
+	wstring_convert<codecvt_utf8<char32_t>, char32_t> converter;
+	u32string u32str = converter.from_bytes(str);
+	size_t sz = u32str.size();
+	size_t szOld = sz;
+
+	if (sz > width)
+		u32str.erase(width);
+	else
+	if (width > sz)
+	{
+		if (padLeft)
+			u32str.insert(0, width - sz, ' ');
+		else
+			u32str.append(width - sz, ' ');
+	}
+
+	if (szOld > width and width >= 2 and dots)
+	{
+		u32str.pop_back();
+		u32str.pop_back();
+		u32str.push_back('.');
+		u32str.push_back('.');
+	}
+
+	str = converter.to_bytes(u32str);
 }
 
