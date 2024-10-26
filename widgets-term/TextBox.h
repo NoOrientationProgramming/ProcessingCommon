@@ -61,14 +61,21 @@ public:
 
 private:
 
-	void cursorActivate(std::string &msg);
+	void cursorActivate(std::u32string &strUtf);
 
-	ListIdx mIdxChars;
+	/* member variables */
 	size_t mWidth;
 	size_t mLenMax;
+	std::u32string mUtfCurrent;
+	std::u32string mUtfWork;
+	ListIdx mIdxChars;
 	bool mCursorPrinted;
 	bool mPasswordMode;
 	bool mNumbersOnly;
+
+	/* static functions */
+
+	/* static variables */
 
 };
 

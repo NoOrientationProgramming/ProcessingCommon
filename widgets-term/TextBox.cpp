@@ -32,6 +32,9 @@ using namespace std;
 TextBox::TextBox()
 	: mWidth(10)
 	, mLenMax(64)
+	, mUtfCurrent()
+	, mUtfWork()
+	, mIdxChars()
 	, mCursorPrinted(false)
 	, mPasswordMode(false)
 	, mNumbersOnly(false)
@@ -75,16 +78,28 @@ void TextBox::focusSet(bool foc, bool accept)
 
 	if (foc)
 	{
-		mWork = mCurrent;
+		// 1
+		mUtfWork = mUtfCurrent;
 
-		mIdxChars = mWork.size() + 1;
+		// 2
+		mIdxChars = mUtfWork.size() + 1;
+
+		// 3
 		mIdxChars.cursorEndSet();
 		return;
 	}
 
 	if (accept)
-		currentSet(mWork);
+	{
+		// 1
+		mUtfCurrent = mUtfWork;
+		utfToStr(mUtfCurrent, mCurrent);
 
+		// 2
+		mIdxChars = mUtfCurrent.size() + 1;
+	}
+
+	// 3
 	mIdxChars.reset();
 }
 
@@ -96,11 +111,12 @@ TextBox::operator string() const
 void TextBox::currentSet(const string &str)
 {
 	mCurrent = str;
+	strToUtf(mCurrent, mUtfCurrent);
 
 	if (mFocus)
 		return;
 
-	mIdxChars = mCurrent.size() + 1;
+	mIdxChars = mUtfCurrent.size() + 1;
 }
 
 TextBox &TextBox::operator=(const string &str)
@@ -137,7 +153,7 @@ bool TextBox::keyProcess(const KeyUser &key, const char *pListKeysDisabled)
 
 	if (keyIsBackspace(key) and mIdxChars.prevErase())
 	{
-		mWork.erase(mIdxChars.cursorAbs(), 1);
+		mUtfWork.erase(mIdxChars.cursorAbs(), 1);
 		return true;
 	}
 
@@ -155,7 +171,7 @@ bool TextBox::keyProcess(const KeyUser &key, const char *pListKeysDisabled)
 			return false;
 
 		// 3. Change text
-		mWork.erase(cursorAbs, 1);
+		mUtfWork.erase(cursorAbs, 1);
 
 		return true;
 	}
@@ -180,11 +196,11 @@ bool TextBox::keyProcess(const KeyUser &key, const char *pListKeysDisabled)
 	if (keyIsCommon(key) or extFound)
 	{
 		// TextBox behavior
-		if (mWork.size() >= mLenMax)
+		if (mUtfWork.size() >= mLenMax)
 			return false;
 
 		// 1. Change text
-		mWork.insert(mIdxChars.cursorAbs(), 1, key);
+		mUtfWork.insert(mIdxChars.cursorAbs(), 1, key);
 
 		// 2. Change list
 		mIdxChars.insert();
@@ -197,7 +213,9 @@ bool TextBox::keyProcess(const KeyUser &key, const char *pListKeysDisabled)
 
 bool TextBox::print(string &msg)
 {
-	string strIn = mFocus ? mWork : mCurrent;
+	u32string strIn = mFocus ? mUtfWork : mUtfCurrent;
+	u32string strUtfPrint;
+	u32string strUtfModFrame, strUtfModContent, strUtfTmp;
 	string strPrint;
 	size_t idxAbs = mIdxChars.offset();
 	size_t idxRel = 0;
@@ -205,71 +223,80 @@ bool TextBox::print(string &msg)
 	strIn.push_back(' ');
 
 	if (mModifierFrame.size())
-		strPrint += mModifierFrame;
+	{
+		strToUtf(mModifierFrame, strUtfModFrame);
+		strUtfPrint += strUtfModFrame;
+	}
+
+	if (mModifierContent.size())
+		strToUtf(mModifierContent, strUtfModContent);
 
 	if (mFocus)
-		strPrint += "> ";
+		strUtfPrint.push_back('>');
 	else
-		strPrint += "| ";
-	strPrint += "\033[0m";
+		strUtfPrint.push_back('|');
+	strUtfPrint.push_back(' ');
+	utfStrAdd(strUtfPrint, "\033[0m");
 
 	mCursorPrinted = false;
 
 	for (; idxRel < mIdxChars.win(); ++idxRel, ++idxAbs)
 	{
-		if (mModifierContent.size())
-			strPrint += mModifierContent;
+		if (strUtfModContent.size())
+			strUtfPrint += strUtfModContent;
 
 		if (!idxRel and mIdxChars.offset())
 		{
-			strPrint += "\u00AB";
+			utfStrAdd(strUtfPrint, "\u00AB");
 			continue;
 		}
 
 		if (idxRel == mIdxChars.win() - 1 and !mIdxChars.endReached())
 		{
-			strPrint += "\u00BB";
+			utfStrAdd(strUtfPrint, "\u00BB");
 			continue;
 		}
 
 		if (idxAbs >= strIn.size())
 		{
-			strPrint.push_back(' ');
-			strPrint += "\033[0m";
+			strUtfPrint.push_back(' ');
+			utfStrAdd(strUtfPrint, "\033[0m");
 			continue;
 		}
 
 		if (idxRel == mIdxChars.cursor())
-			cursorActivate(strPrint);
+			cursorActivate(strUtfPrint);
 
 		if (mPasswordMode and idxAbs < strIn.size() - 1)
-			strPrint.push_back('*');
+			strUtfPrint.push_back('*');
 		else
-			strPrint.push_back(strIn[idxAbs]);
+			strUtfPrint.push_back(strIn[idxAbs]);
 
-		strPrint += "\033[0m";
+		utfStrAdd(strUtfPrint, "\033[0m");
 	}
 
-	if (mModifierFrame.size())
-		strPrint += mModifierFrame;
+	if (strUtfModFrame.size())
+		strUtfPrint += strUtfModFrame;
 
+	strUtfPrint.push_back(' ');
 	if (mFocus)
-		strPrint += " <";
+		strUtfPrint.push_back('<');
 	else
-		strPrint += " |";
-	strPrint += "\033[0m";
+		strUtfPrint.push_back('|');
+	utfStrAdd(strUtfPrint, "\033[0m");
 
+	utfToStr(strUtfPrint, strPrint);
 	msg += strPrint;
 
 	return true;
 }
 
-void TextBox::cursorActivate(string &msg)
+void TextBox::cursorActivate(u32string &strUtf)
 {
 	if (mCursorPrinted or !mFocus)
 		return;
 
-	msg += "\033[4m";
+	utfStrAdd(strUtf, "\033[4m");
 	mCursorPrinted = true;
 }
 
