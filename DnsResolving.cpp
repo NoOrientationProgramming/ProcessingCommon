@@ -232,8 +232,6 @@ void DnsResolving::aresProcess()
 		return;
 	}
 
-	++fdsMax;
-
 	struct timeval tmoSelect;
 
 	tmoSelect.tv_sec = 0;
