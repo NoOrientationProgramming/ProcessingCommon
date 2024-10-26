@@ -140,10 +140,10 @@ bool TextBox::keyProcess(const KeyUser &key, const char *pListKeysDisabled)
 	if (key == keyEnd)
 		return mIdxChars.cursorEndSet();
 
-	if (key == keyLeft)
+	if (key == keyLeft || key == keyUp)
 		return mIdxChars.dec();
 
-	if (key == keyRight)
+	if (key == keyRight || key == keyDown)
 		return mIdxChars.inc();
 
 	if (key == keyPgUp || key == keyPgDn)
