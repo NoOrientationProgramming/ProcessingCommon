@@ -615,15 +615,6 @@ void urlToTriple(const string &url,
 
 // Strings
 
-void strToVecStr(const string &str, VecStr &vStr, char delim)
-{
-	istringstream ss(str);
-	string line;
-
-	while (getline(ss, line, delim))
-		vStr.push_back(line);
-}
-
 void strPadCutTo(string &str, size_t width, bool dots, bool padLeft)
 {
 	wstring_convert<codecvt_utf8<char32_t>, char32_t> converter;
@@ -651,5 +642,23 @@ void strPadCutTo(string &str, size_t width, bool dots, bool padLeft)
 	}
 
 	str = converter.to_bytes(u32str);
+}
+
+void strToVecStr(const string &str, VecStr &vStr, char delim)
+{
+	istringstream ss(str);
+	string line;
+
+	while (getline(ss, line, delim))
+		vStr.push_back(line);
+}
+
+void resToVecStr(const string &nameRes, VecStr &vStr)
+{
+	const Resource *pRes = resourceFind(nameRes.c_str());
+	if (!pRes)
+		return;
+
+	strToVecStr(pRes->pSrc, vStr);
 }
 
