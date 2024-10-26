@@ -56,6 +56,9 @@ public:
 	virtual bool keyProcess(const KeyUser &key, const char *pListKeysDisabled = NULL) = 0;
 	virtual bool print(std::string &str) = 0;
 
+	// Helper
+	static void strPadCutTo(std::string &str, size_t width, bool dots = false, bool padLeft = false);
+
 protected:
 
 	bool mFocus;
