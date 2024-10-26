@@ -26,7 +26,6 @@
 #ifndef LIST_IDX_H
 #define LIST_IDX_H
 
-#include <cstdint>
 #include <string>
 
 #include "KeyUser.h"
