@@ -26,8 +26,8 @@
 #ifndef TEXT_BOX_H
 #define TEXT_BOX_H
 
-#include "Widget.h"
 #include "ListIdx.h"
+#include "Widget.h"
 
 class TextBox : public Widget
 {
