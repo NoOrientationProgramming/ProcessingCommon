@@ -117,5 +117,76 @@ void urlToTriple(const std::string &url,
 // Strings
 void strToVecStr(const std::string &str, VecStr &vStr, char delim = '\n');
 
+// Misc
+template <typename Iterator, typename Distance>
+typename std::enable_if<
+	std::is_same<typename std::iterator_traits<Iterator>::iterator_category,
+		std::bidirectional_iterator_tag>::value,
+	Distance>::type
+advance2(Iterator& it, Iterator end, Distance n)
+{
+	if (!n || it == end)
+		return 0;
+
+	Distance stepsMoved = 0;
+
+	if (n > 0)
+		while (n-- && it != end) ++it, ++stepsMoved;
+	else
+		while (n++ && it != end) --it, --stepsMoved;
+
+	return stepsMoved;
+}
+
+template <typename Iterator, typename Distance>
+typename std::enable_if<
+	std::is_same<typename std::iterator_traits<Iterator>::iterator_category,
+		std::random_access_iterator_tag>::value,
+	Distance>::type
+advance2(Iterator& it, Iterator end, Distance n)
+{
+	if (!n || it == end)
+		return 0;
+
+	Distance stepsMax = n > 0 ? end - it : it - end;
+	Distance stepsMoved = 0;
+
+	if (n > 0 && n > stepsMax)
+		it = end, stepsMoved = stepsMax;
+	else if (n > 0 && n <= stepsMax)
+		it += n, stepsMoved = n;
+	else if (n < 0 && n > -stepsMax)
+		it = end, stepsMoved = -stepsMax;
+	else if (n < 0 && n <= -stepsMax)
+		it += n, stepsMoved = n;
+
+	return stepsMoved;
+}
+
+template <typename Iterator, typename Distance>
+typename std::enable_if<
+	std::is_same<typename std::iterator_traits<Iterator>::iterator_category,
+		std::reverse_iterator<typename std::iterator_traits<Iterator>::iterator_type>>::value,
+	Distance>::type
+advance2(Iterator& it, Iterator end, Distance n)
+{
+	if (!n || it == end)
+		return 0;
+
+	Distance stepsMax = n > 0 ? it.base() - end : end - it.base();
+	Distance stepsMoved = 0;
+
+	if (n > 0 && n > stepsMax)
+		it = end, stepsMoved = stepsMax;
+	else if (n > 0 && n <= stepsMax)
+		it += -n, stepsMoved = n;
+	else if (n < 0 && n > -stepsMax)
+		it = end, stepsMoved = -stepsMax;
+	else if (n < 0 && n <= -stepsMax)
+		it += -n, stepsMoved = n;
+
+	return stepsMoved;
+}
+
 #endif
 
