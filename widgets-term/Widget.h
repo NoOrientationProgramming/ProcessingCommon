@@ -63,11 +63,16 @@ public:
 
 protected:
 
+	/* member variables */
 	bool mFocus;
 	std::string mCurrent;
 	std::string mWork;
 	std::string mModifierFrame;
 	std::string mModifierContent;
+
+	/* static functions */
+
+	/* static variables */
 
 private:
 
