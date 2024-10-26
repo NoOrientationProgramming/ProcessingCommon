@@ -88,6 +88,25 @@ void Widget::modifierContentSet(const string &str)
 
 /* static functions */
 
+void Widget::strToUtf(const string &str, u32string &strUtf)
+{
+	wstring_convert<codecvt_utf8<char32_t>, char32_t> converter;
+	strUtf = converter.from_bytes(str);
+}
+
+void Widget::utfToStr(const u32string &strUtf, string &str)
+{
+	wstring_convert<codecvt_utf8<char32_t>, char32_t> converter;
+	str = converter.to_bytes(strUtf);
+}
+
+void Widget::utfStrAdd(u32string &strUtf, const string &str)
+{
+	u32string strUtfTmp;
+	strToUtf(str, strUtfTmp);
+	strUtf += strUtfTmp;
+}
+
 void Widget::strPadCutTo(string &str, size_t width, bool dots, bool padLeft)
 {
 	wstring_convert<codecvt_utf8<char32_t>, char32_t> converter;
