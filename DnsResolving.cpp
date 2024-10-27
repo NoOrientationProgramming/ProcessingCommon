@@ -213,6 +213,12 @@ bool DnsResolving::aresStart()
  */
 void DnsResolving::aresProcess()
 {
+	if (!mChannelAresInitDone)
+	{
+		mDoneAres = -1;
+		return;
+	}
+
 	fd_set fdsRead, fdsWrite;
 	int fdsMax, res;
 
