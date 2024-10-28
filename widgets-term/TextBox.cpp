@@ -214,8 +214,8 @@ bool TextBox::keyProcess(const KeyUser &key, const char *pListKeysDisabled)
 bool TextBox::print(string &msg)
 {
 	u32string strIn = mFocus ? mUtfWork : mUtfCurrent;
-	u32string strUtfPrint;
-	u32string strUtfModFrame, strUtfModContent, strUtfTmp;
+	u32string ustrPrint;
+	u32string ustrModFrame, ustrModContent, ustrTmp;
 	string strPrint;
 	size_t idxAbs = mIdxChars.offset();
 	size_t idxRel = 0;
@@ -224,79 +224,79 @@ bool TextBox::print(string &msg)
 
 	if (mModifierFrame.size())
 	{
-		strToUtf(mModifierFrame, strUtfModFrame);
-		strUtfPrint += strUtfModFrame;
+		strToUtf(mModifierFrame, ustrModFrame);
+		ustrPrint += ustrModFrame;
 	}
 
 	if (mModifierContent.size())
-		strToUtf(mModifierContent, strUtfModContent);
+		strToUtf(mModifierContent, ustrModContent);
 
 	if (mFocus)
-		strUtfPrint.push_back('>');
+		ustrPrint.push_back('>');
 	else
-		strUtfPrint.push_back('|');
-	strUtfPrint.push_back(' ');
-	utfStrAdd(strUtfPrint, "\033[0m");
+		ustrPrint.push_back('|');
+	ustrPrint.push_back(' ');
+	utfStrAdd(ustrPrint, "\033[0m");
 
 	mCursorPrinted = false;
 
 	for (; idxRel < mIdxChars.win(); ++idxRel, ++idxAbs)
 	{
-		if (strUtfModContent.size())
-			strUtfPrint += strUtfModContent;
+		if (ustrModContent.size())
+			ustrPrint += ustrModContent;
 
 		if (!idxRel and mIdxChars.offset())
 		{
-			utfStrAdd(strUtfPrint, "\u00AB");
+			utfStrAdd(ustrPrint, "\u00AB");
 			continue;
 		}
 
 		if (idxRel == mIdxChars.win() - 1 and !mIdxChars.endReached())
 		{
-			utfStrAdd(strUtfPrint, "\u00BB");
+			utfStrAdd(ustrPrint, "\u00BB");
 			continue;
 		}
 
 		if (idxAbs >= strIn.size())
 		{
-			strUtfPrint.push_back(' ');
-			utfStrAdd(strUtfPrint, "\033[0m");
+			ustrPrint.push_back(' ');
+			utfStrAdd(ustrPrint, "\033[0m");
 			continue;
 		}
 
 		if (idxRel == mIdxChars.cursor())
-			cursorActivate(strUtfPrint);
+			cursorActivate(ustrPrint);
 
 		if (mPasswordMode and idxAbs < strIn.size() - 1)
-			strUtfPrint.push_back('*');
+			ustrPrint.push_back('*');
 		else
-			strUtfPrint.push_back(strIn[idxAbs]);
+			ustrPrint.push_back(strIn[idxAbs]);
 
-		utfStrAdd(strUtfPrint, "\033[0m");
+		utfStrAdd(ustrPrint, "\033[0m");
 	}
 
-	if (strUtfModFrame.size())
-		strUtfPrint += strUtfModFrame;
+	if (ustrModFrame.size())
+		ustrPrint += ustrModFrame;
 
-	strUtfPrint.push_back(' ');
+	ustrPrint.push_back(' ');
 	if (mFocus)
-		strUtfPrint.push_back('<');
+		ustrPrint.push_back('<');
 	else
-		strUtfPrint.push_back('|');
-	utfStrAdd(strUtfPrint, "\033[0m");
+		ustrPrint.push_back('|');
+	utfStrAdd(ustrPrint, "\033[0m");
 
-	utfToStr(strUtfPrint, strPrint);
+	utfToStr(ustrPrint, strPrint);
 	msg += strPrint;
 
 	return true;
 }
 
-void TextBox::cursorActivate(u32string &strUtf)
+void TextBox::cursorActivate(u32string &ustr)
 {
 	if (mCursorPrinted or !mFocus)
 		return;
 
-	utfStrAdd(strUtf, "\033[4m");
+	utfStrAdd(ustr, "\033[4m");
 	mCursorPrinted = true;
 }
 

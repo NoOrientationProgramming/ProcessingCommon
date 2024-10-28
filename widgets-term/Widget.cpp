@@ -88,51 +88,51 @@ void Widget::modifierContentSet(const string &str)
 
 /* static functions */
 
-void Widget::strToUtf(const string &str, u32string &strUtf)
+void Widget::strToUtf(const string &str, u32string &ustr)
 {
 	wstring_convert<codecvt_utf8<char32_t>, char32_t> converter;
-	strUtf = converter.from_bytes(str);
+	ustr = converter.from_bytes(str);
 }
 
-void Widget::utfToStr(const u32string &strUtf, string &str)
+void Widget::utfToStr(const u32string &ustr, string &str)
 {
 	wstring_convert<codecvt_utf8<char32_t>, char32_t> converter;
-	str = converter.to_bytes(strUtf);
+	str = converter.to_bytes(ustr);
 }
 
-void Widget::utfStrAdd(u32string &strUtf, const string &str)
+void Widget::utfStrAdd(u32string &ustr, const string &str)
 {
-	u32string strUtfTmp;
-	strToUtf(str, strUtfTmp);
-	strUtf += strUtfTmp;
+	u32string ustrTmp;
+	strToUtf(str, ustrTmp);
+	ustr += ustrTmp;
 }
 
 void Widget::strPadCutTo(string &str, size_t width, bool dots, bool padLeft)
 {
 	wstring_convert<codecvt_utf8<char32_t>, char32_t> converter;
-	u32string strUtf = converter.from_bytes(str);
-	size_t sz = strUtf.size();
+	u32string ustr = converter.from_bytes(str);
+	size_t sz = ustr.size();
 	size_t szOld = sz;
 
 	if (sz > width)
-		strUtf.erase(width);
+		ustr.erase(width);
 	else
 	if (width > sz)
 	{
 		if (padLeft)
-			strUtf.insert(0, width - sz, ' ');
+			ustr.insert(0, width - sz, ' ');
 		else
-			strUtf.append(width - sz, ' ');
+			ustr.append(width - sz, ' ');
 	}
 
 	if (szOld > width and width >= 2 and dots)
 	{
-		strUtf.pop_back();
-		strUtf.pop_back();
-		strUtf.push_back('.');
-		strUtf.push_back('.');
+		ustr.pop_back();
+		ustr.pop_back();
+		ustr.push_back('.');
+		ustr.push_back('.');
 	}
 
-	str = converter.to_bytes(strUtf);
+	str = converter.to_bytes(ustr);
 }
 

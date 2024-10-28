@@ -61,7 +61,7 @@ public:
 
 private:
 
-	void cursorActivate(std::u32string &strUtf);
+	void cursorActivate(std::u32string &ustr);
 
 	/* member variables */
 	size_t mWidth;
