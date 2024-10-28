@@ -50,9 +50,14 @@ public:
 	TextBox &operator=(const std::string &str);
 
 	// Return
-	// true  .. Key processed. Widget needs to be redrawn
-	// false .. Key ignored. Widget stays the same
+	// true  .. Key processed
+	// false .. Key ignored
 	bool keyProcess(const KeyUser &key, const char *pListKeysDisabled = NULL);
+
+	// Return
+	// true  .. Widget needs to be redrawn
+	// false .. Widget stays the same
+	bool dirty() const { return mDirty; }
 
 	// Return
 	// true  .. Printing finished
@@ -61,17 +66,21 @@ public:
 
 private:
 
+	bool navigate(const KeyUser &key);
+	bool cursorJump(const KeyUser &key);
 	void cursorActivate(std::u32string &ustr);
+	bool dirtySet(bool dirty = true);
 
 	/* member variables */
 	size_t mWidth;
 	size_t mLenMax;
-	std::u32string mUtfCurrent;
-	std::u32string mUtfWork;
+	std::u32string mUstrCurrent;
+	std::u32string mUstrWork;
 	ListIdx mIdxChars;
 	bool mCursorPrinted;
 	bool mPasswordMode;
 	bool mNumbersOnly;
+	bool mDirty;
 
 	/* static functions */
 

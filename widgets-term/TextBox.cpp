@@ -32,12 +32,13 @@ using namespace std;
 TextBox::TextBox()
 	: mWidth(10)
 	, mLenMax(64)
-	, mUtfCurrent()
-	, mUtfWork()
+	, mUstrCurrent()
+	, mUstrWork()
 	, mIdxChars()
 	, mCursorPrinted(false)
 	, mPasswordMode(false)
 	, mNumbersOnly(false)
+	, mDirty(false)
 {
 	mIdxChars.winSet(mWidth);
 	currentSet("");
@@ -79,10 +80,10 @@ void TextBox::focusSet(bool foc, bool accept)
 	if (foc)
 	{
 		// 1
-		mUtfWork = mUtfCurrent;
+		mUstrWork = mUstrCurrent;
 
 		// 2
-		mIdxChars = mUtfWork.size() + 1;
+		mIdxChars = mUstrWork.size() + 1;
 
 		// 3
 		mIdxChars.cursorEndSet();
@@ -92,12 +93,12 @@ void TextBox::focusSet(bool foc, bool accept)
 	if (accept)
 	{
 		// 1
-		mUtfCurrent = mUtfWork;
-		utfToStr(mUtfCurrent, mCurrent);
+		mUstrCurrent = mUstrWork;
+		utfToStr(mUstrCurrent, mCurrent);
 	}
 
 	// 2
-	mIdxChars = mUtfCurrent.size() + 1;
+	mIdxChars = mUstrCurrent.size() + 1;
 
 	// 3
 	mIdxChars.reset();
@@ -111,12 +112,12 @@ TextBox::operator string() const
 void TextBox::currentSet(const string &str)
 {
 	mCurrent = str;
-	strToUtf(mCurrent, mUtfCurrent);
+	strToUtf(mCurrent, mUstrCurrent);
 
 	if (mFocus)
 		return;
 
-	mIdxChars = mUtfCurrent.size() + 1;
+	mIdxChars = mUstrCurrent.size() + 1;
 }
 
 TextBox &TextBox::operator=(const string &str)
@@ -129,32 +130,25 @@ bool TextBox::keyProcess(const KeyUser &key, const char *pListKeysDisabled)
 {
 	(void)pListKeysDisabled;
 
+	mDirty = false;
+
 	if (!mFocus)
 		return false;
 
 	// Navigation
 
-	if (key == keyHome)
-		return mIdxChars.reset();
+	bool navigated;
 
-	if (key == keyEnd)
-		return mIdxChars.cursorEndSet();
-
-	if (key == keyLeft || key == keyUp)
-		return mIdxChars.dec();
-
-	if (key == keyRight || key == keyDown)
-		return mIdxChars.inc();
-
-	if (key == keyPgUp || key == keyPgDn)
-		return mIdxChars.keyProcess(key);
+	navigated = navigate(key);
+	if (navigated)
+		return dirtySet();
 
 	// Removal
 
 	if (keyIsBackspace(key) and mIdxChars.prevErase())
 	{
-		mUtfWork.erase(mIdxChars.cursorAbs(), 1);
-		return true;
+		mUstrWork.erase(mIdxChars.cursorAbs(), 1);
+		return dirtySet();
 	}
 
 	if (key == keyDelete)
@@ -171,9 +165,9 @@ bool TextBox::keyProcess(const KeyUser &key, const char *pListKeysDisabled)
 			return false;
 
 		// 3. Change text
-		mUtfWork.erase(cursorAbs, 1);
+		mUstrWork.erase(cursorAbs, 1);
 
-		return true;
+		return dirtySet();
 	}
 
 	// Insertion
@@ -196,16 +190,16 @@ bool TextBox::keyProcess(const KeyUser &key, const char *pListKeysDisabled)
 	if (keyIsCommon(key) or extFound)
 	{
 		// TextBox behavior
-		if (mUtfWork.size() >= mLenMax)
+		if (mUstrWork.size() >= mLenMax)
 			return false;
 
 		// 1. Change text
-		mUtfWork.insert(mIdxChars.cursorAbs(), 1, key);
+		mUstrWork.insert(mIdxChars.cursorAbs(), 1, key);
 
 		// 2. Change list
 		mIdxChars.insert();
 
-		return true;
+		return dirtySet();
 	}
 
 	return false;
@@ -213,7 +207,7 @@ bool TextBox::keyProcess(const KeyUser &key, const char *pListKeysDisabled)
 
 bool TextBox::print(string &msg)
 {
-	u32string strIn = mFocus ? mUtfWork : mUtfCurrent;
+	u32string strIn = mFocus ? mUstrWork : mUstrCurrent;
 	u32string ustrPrint;
 	u32string ustrModFrame, ustrModContent, ustrTmp;
 	string strPrint;
@@ -288,7 +282,77 @@ bool TextBox::print(string &msg)
 	utfToStr(ustrPrint, strPrint);
 	msg += strPrint;
 
+	mDirty = false;
+
 	return true;
+}
+
+bool TextBox::navigate(const KeyUser &key)
+{
+	if (key == keyHome)
+		return mIdxChars.reset();
+
+	if (key == keyEnd)
+		return mIdxChars.cursorEndSet();
+
+	if (key.mModCtrl && (key == keyLeft || key == keyRight))
+		return cursorJump(key);
+
+	if (key == keyLeft || key == keyUp)
+		return mIdxChars.dec();
+
+	if (key == keyRight || key == keyDown)
+		return mIdxChars.inc();
+
+	if (key == keyPgUp || key == keyPgDn)
+		return mIdxChars.keyProcess(key);
+
+	return false;
+}
+
+bool TextBox::cursorJump(const KeyUser &key)
+{
+	if (!mUstrWork.size())
+		return false;
+
+	bool isRight = key == keyRight;
+	int direction = isRight ? 1 : -1;
+	bool statePrev = (direction + 1) >> 1;
+	bool stateCursor = !statePrev;
+	uint16_t idxAbs = mIdxChars.cursorAbs();
+	uint16_t idxStop = statePrev ? mUstrWork.size() : 0;
+	bool changed = false;
+
+	const char32_t *pCursor = mUstrWork.c_str() + idxAbs;
+	const char32_t *pPrev = NULL;
+
+	while (true)
+	{
+		if (idxAbs == idxStop)
+			break;
+
+		changed = true;
+
+		if (isRight)
+			mIdxChars.inc();
+		else
+			mIdxChars.dec();
+
+		pCursor += direction;
+		idxAbs += direction;
+
+		if (idxAbs)
+			pPrev = pCursor - 1;
+
+		if (!pPrev)
+			continue;
+
+		if (keyIsAlphaNum(*pPrev) == statePrev &&
+			keyIsAlphaNum(*pCursor) == stateCursor)
+			break;
+	}
+
+	return changed;
 }
 
 void TextBox::cursorActivate(u32string &ustr)
@@ -298,5 +362,11 @@ void TextBox::cursorActivate(u32string &ustr)
 
 	utfStrAdd(ustr, "\033[4m");
 	mCursorPrinted = true;
+}
+
+bool TextBox::dirtySet(bool dirty)
+{
+	mDirty = dirty;
+	return mDirty;
 }
 
