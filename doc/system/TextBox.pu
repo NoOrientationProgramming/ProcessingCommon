@@ -1,0 +1,31 @@
+
+@startuml
+
+skinparam backgroundColor #ffffff
+
+frame "Message-\nDispatching()" as pMsg
+frame "TextBox\n(InputFiltering())" as pTxt
+frame "User" as pUser
+
+database "- Frame-\n  Fragment" as sTxtToUser
+database "- Keys" as sUserToTxt
+
+database "- currentSet()\n- insert()" as sCoreToTxt
+database "- current()\n- clipboard()" as sTxtToCore
+
+pUser -- sUserToTxt
+sUserToTxt --> pTxt
+
+pUser <-- sTxtToUser
+sTxtToUser -- pTxt
+
+pTxt -- sTxtToCore
+sTxtToCore --> pMsg
+
+pTxt <-- sCoreToTxt
+sCoreToTxt -- pMsg
+
+footer **TextBox** System Core and User Interface\n(C) DSP-Crowd Electronics GmbH
+
+@enduml
+
