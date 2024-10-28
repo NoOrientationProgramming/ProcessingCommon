@@ -76,7 +76,8 @@ private:
 	size_t mLenMax;
 	std::u32string mUstrCurrent;
 	std::u32string mUstrWork;
-	ListIdx mIdxChars;
+	ListIdx mIdxFront;
+	ListIdx mIdxBack;
 	bool mCursorPrinted;
 	bool mPasswordMode;
 	bool mNumbersOnly;
