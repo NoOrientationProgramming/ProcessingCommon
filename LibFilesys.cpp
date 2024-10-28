@@ -206,13 +206,6 @@ void fdClose(int &fd, bool deInit)
 	fd = -1;
 }
 
-void fdStdClose()
-{
-	fclose(stdin);
-	fclose(stdout);
-	fclose(stderr);
-}
-
 bool fileExists(const string &path)
 {
 	FILE *pFile = fopen(path.c_str(), "r");
@@ -235,6 +228,13 @@ bool fileCreate(const string &path)
 	fclose(pFile);
 
 	return true;
+}
+
+void filesStdClose()
+{
+	fclose(stdin);
+	fclose(stdout);
+	fclose(stderr);
 }
 
 bool fileNonBlockingSet(int fd)

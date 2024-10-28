@@ -58,10 +58,10 @@ void pipeClose(PairFd &pair, bool deInit = true);
 
 int fdCreate(const std::string &path, const std::string &mode, bool closeOnExec = true);
 void fdClose(int &fd, bool deInit = true);
-void fdStdClose();
 
 bool fileExists(const std::string &path);
 bool fileCreate(const std::string &path);
+void filesStdClose();
 
 bool fileNonBlockingSet(int fd);
 bool fileCopy(const std::string &pathSrc, const std::string &pathDst);
