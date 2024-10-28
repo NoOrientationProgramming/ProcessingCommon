@@ -57,7 +57,7 @@ public:
 	// Return
 	// true  .. Widget needs to be redrawn
 	// false .. Widget stays the same
-	bool dirty() const { return mDirty; }
+	bool dirty();
 
 	// Return
 	// true  .. Printing finished

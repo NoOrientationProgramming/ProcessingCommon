@@ -129,9 +129,11 @@ TextBox &TextBox::operator=(const string &str)
 bool TextBox::keyProcess(const KeyUser &key, const char *pListKeysDisabled)
 {
 	(void)pListKeysDisabled;
-
 	mDirty = false;
 
+	// TODO: Cut/Copy
+
+	// Indexes can be changed during focus mode only
 	if (!mFocus)
 		return false;
 
@@ -203,6 +205,13 @@ bool TextBox::keyProcess(const KeyUser &key, const char *pListKeysDisabled)
 	}
 
 	return false;
+}
+
+bool TextBox::dirty()
+{
+	bool bkupDirty = mDirty;
+	mDirty = false;
+	return bkupDirty;
 }
 
 bool TextBox::print(string &msg)
@@ -281,8 +290,6 @@ bool TextBox::print(string &msg)
 
 	utfToStr(ustrPrint, strPrint);
 	msg += strPrint;
-
-	mDirty = false;
 
 	return true;
 }
