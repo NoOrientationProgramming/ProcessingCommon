@@ -148,12 +148,7 @@ bool TextBox::keyProcess(const KeyUser &key, const char *pListKeysDisabled)
 	// Navigation
 
 	// mIdxFront may change here
-	bool navigated = navigate(key);
-
-	if (!key.mModShift)
-		mIdxBack = mIdxFront;
-
-	if (navigated)
+	if (navigate(key))
 		return dirtySet();
 
 	// Removal
@@ -161,6 +156,7 @@ bool TextBox::keyProcess(const KeyUser &key, const char *pListKeysDisabled)
 	if (keyIsBackspace(key) and mIdxFront.prevErase())
 	{
 		mUstrWork.erase(mIdxFront.cursorAbs(), 1);
+		mIdxBack = mIdxFront;
 		return dirtySet();
 	}
 
@@ -176,6 +172,7 @@ bool TextBox::keyProcess(const KeyUser &key, const char *pListKeysDisabled)
 		// 2. Change list
 		if (!mIdxFront.currErase())
 			return false;
+		mIdxBack = mIdxFront;
 
 		// 3. Change text
 		mUstrWork.erase(cursorAbs, 1);
@@ -211,6 +208,7 @@ bool TextBox::keyProcess(const KeyUser &key, const char *pListKeysDisabled)
 
 		// 2. Change list
 		mIdxFront.insert();
+		mIdxBack = mIdxFront;
 
 		return dirtySet();
 	}
@@ -235,25 +233,28 @@ bool TextBox::print(string &msg)
 	bool cursorPrint;
 	char32_t ch;
 
+	size_t idxFront = mIdxFront.cursor();
+	size_t idxBack = mIdxBack.cursor();
+	bool frontIsHigh = idxFront > idxBack;
+	size_t idxRelHigh = frontIsHigh ? idxFront : idxBack;
+	size_t idxRelLow = frontIsHigh ? idxBack : idxFront;
+	bool selectionPrint = mFocus && idxRelLow != idxRelHigh;
+
 	// extend tmp string
 	strIn.push_back(' ');
 
 	// begin: Frame
-	if (mModifierFrame.size())
-		utfStrAdd(ustrPrint, mModifierFrame);
-
+	utfStrAdd(ustrPrint, mModifierFrame);
 	if (mFocus)
 		ustrPrint.push_back('>');
 	else
 		ustrPrint.push_back('|');
 	ustrPrint.push_back(' ');
-
 	utfStrAdd(ustrPrint, "\033[0m");
 	// end: Frame
 
 	// begin: Content
-	if (mModifierContent.size())
-		utfStrAdd(ustrPrint, mModifierContent);
+	utfStrAdd(ustrPrint, mModifierContent);
 
 	for (; idxRel < mIdxFront.win(); ++idxRel, ++idxAbs)
 	{
@@ -277,6 +278,17 @@ bool TextBox::print(string &msg)
 		else
 			ch = strIn[idxAbs];
 
+		if (selectionPrint && idxRel == idxRelLow)
+			utfStrAdd(ustrPrint, mModifierSelection);
+
+		if (selectionPrint && idxRel == idxRelHigh)
+		{
+			utfStrAdd(ustrPrint, "\033[0m");
+
+			// restore after reset only
+			utfStrAdd(ustrPrint, mModifierContent);
+		}
+
 		cursorPrint = mFocus && idxRel == mIdxFront.cursor();
 
 		if (cursorPrint)
@@ -285,25 +297,27 @@ bool TextBox::print(string &msg)
 		ustrPrint.push_back(ch);
 
 		if (cursorPrint)
+		{
 			utfStrAdd(ustrPrint, "\033[0m");
 
-		if (cursorPrint && mModifierContent.size())
-			utfStrAdd(ustrPrint, mModifierContent);
+			// restore after reset only
+			bool isSelection = selectionPrint && idxRel < idxRelHigh;
+
+			utfStrAdd(ustrPrint,
+				isSelection ? mModifierSelection : mModifierContent);
+		}
 	}
 
 	utfStrAdd(ustrPrint, "\033[0m");
 	// end: Content
 
 	// begin: Frame
-	if (mModifierFrame.size())
-		utfStrAdd(ustrPrint, mModifierFrame);
-
+	utfStrAdd(ustrPrint, mModifierFrame);
 	ustrPrint.push_back(' ');
 	if (mFocus)
 		ustrPrint.push_back('<');
 	else
 		ustrPrint.push_back('|');
-
 	utfStrAdd(ustrPrint, "\033[0m");
 	// end: Frame
 
@@ -315,25 +329,34 @@ bool TextBox::print(string &msg)
 
 bool TextBox::navigate(const KeyUser &key)
 {
+	bool processed = false;
+	bool changed = false;
+
 	if (key == keyHome)
-		return mIdxFront.reset();
-
+		processed = true, changed = mIdxFront.reset();
+	else
 	if (key == keyEnd)
-		return mIdxFront.cursorEndSet();
-
+		processed = true, changed = mIdxFront.cursorEndSet();
+	else
 	if (key.mModCtrl && (key == keyLeft || key == keyRight))
-		return cursorJump(key);
-
+		processed = true, changed = cursorJump(key);
+	else
 	if (key == keyLeft || key == keyUp)
-		return mIdxFront.dec();
-
+		processed = true, changed = mIdxFront.dec();
+	else
 	if (key == keyRight || key == keyDown)
-		return mIdxFront.inc();
-
+		processed = true, changed = mIdxFront.inc();
+	else
 	if (key == keyPgUp || key == keyPgDn)
-		return mIdxFront.keyProcess(key);
+		processed = true, changed = mIdxFront.keyProcess(key);
 
-	return false;
+	if (processed && !key.mModShift)
+	{
+		mIdxBack = mIdxFront;
+		changed = true;
+	}
+
+	return changed;
 }
 
 bool TextBox::cursorJump(const KeyUser &key)
