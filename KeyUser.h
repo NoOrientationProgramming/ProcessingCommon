@@ -130,6 +130,7 @@ const uint16_t keyBackspace    = 0x7F;
 const uint16_t keyBackspaceWin = 0x08;
 const uint16_t keyEnter        = 0x0D;
 const uint16_t keyEsc          = 0x1B;
+const uint16_t keyCtrlV        = 0x16;
 const uint16_t keyCtrlX        = 0x18;
 const uint16_t keyCtrlC        = 0x03;
 const uint16_t keyCtrlD        = 0x04;
