@@ -34,6 +34,7 @@ TextBox::TextBox()
 	, mLenMax(64)
 	, mUstrCurrent()
 	, mUstrWork()
+	, mClipboard("")
 	, mIdxFront()
 	, mIdxBack()
 	, mPasswordMode(false)
@@ -45,6 +46,8 @@ TextBox::TextBox()
 
 	currentSet("");
 }
+
+/* configuration */
 
 void TextBox::widthSet(uint16_t width)
 {
@@ -84,37 +87,28 @@ void TextBox::focusSet(bool foc, bool accept)
 
 	if (foc)
 	{
-		// 1
 		mUstrWork = mUstrCurrent;
 
-		// 2
 		mIdxFront = mUstrWork.size() + 1;
-
-		// 3
 		mIdxFront.cursorEndSet();
+
 		mIdxBack = mIdxFront;
 		return;
 	}
 
 	if (accept)
 	{
-		// 1
 		mUstrCurrent = mUstrWork;
 		utfToStr(mUstrCurrent, mCurrent);
 	}
 
-	// 2
 	mIdxFront = mUstrCurrent.size() + 1;
-
-	// 3
 	mIdxFront.reset();
+
 	mIdxBack = mIdxFront;
 }
 
-TextBox::operator string() const
-{
-	return current();
-}
+/* input */
 
 void TextBox::currentSet(const string &str)
 {
@@ -134,14 +128,39 @@ TextBox &TextBox::operator=(const string &str)
 	return *this;
 }
 
+void TextBox::paste(const string &str)
+{
+	if (!mFocus)
+		currentSet(str);
+	else
+		selectionReplace(str);
+}
+
+/* input / output */
+
 bool TextBox::keyProcess(const KeyUser &key, const char *pListKeysDisabled)
 {
 	(void)pListKeysDisabled;
 	mDirty = false;
 
-	// TODO: Cut/Copy
+	if (key == keyCtrlX)
+	{
+		clipboardSet();
 
-	// Indexes can be changed during focus mode only
+		if (!mFocus)
+			mUstrCurrent.clear();
+		else
+			selectionReplace();
+
+		return dirtySet();
+	}
+
+	if (key == keyCtrlC)
+	{
+		clipboardSet();
+		return true; // processed but not dirty
+	}
+
 	if (!mFocus)
 		return false;
 
@@ -153,15 +172,34 @@ bool TextBox::keyProcess(const KeyUser &key, const char *pListKeysDisabled)
 
 	// Removal
 
-	if (keyIsBackspace(key) and mIdxFront.prevErase())
+	bool isSelection = mIdxFront.cursorAbs() !=
+					mIdxBack.cursorAbs();
+
+	if (keyIsBackspace(key))
 	{
+		if (isSelection)
+		{
+			selectionReplace();
+			return dirtySet();
+		}
+
+		if (!mIdxFront.prevErase())
+			return false;
+
 		mUstrWork.erase(mIdxFront.cursorAbs(), 1);
 		mIdxBack = mIdxFront;
+
 		return dirtySet();
 	}
 
 	if (key == keyDelete)
 	{
+		if (isSelection)
+		{
+			selectionReplace();
+			return dirtySet();
+		}
+
 		// TextBox behavior
 		if (mIdxFront.cursorAbs() == mIdxFront.size() - 1)
 			return false;
@@ -216,6 +254,13 @@ bool TextBox::keyProcess(const KeyUser &key, const char *pListKeysDisabled)
 	return false;
 }
 
+/* output */
+
+TextBox::operator string() const
+{
+	return current();
+}
+
 bool TextBox::dirty()
 {
 	bool bkupDirty = mDirty;
@@ -233,17 +278,14 @@ bool TextBox::print(string &msg)
 	bool cursorPrint;
 	char32_t ch;
 
-	size_t idxFront = mIdxFront.cursor();
-	size_t idxBack = mIdxBack.cursor();
-	bool frontIsHigh = idxFront > idxBack;
-	size_t idxRelHigh = frontIsHigh ? idxFront : idxBack;
-	size_t idxRelLow = frontIsHigh ? idxBack : idxFront;
-	bool selectionPrint = mFocus && idxRelLow != idxRelHigh;
+	size_t idxAbsLow = listIdxLow().cursorAbs();
+	size_t idxAbsHigh = listIdxHigh().cursorAbs();
+	bool selectionPrint = mFocus && idxAbsLow != idxAbsHigh;
 
 	// extend tmp string
 	strIn.push_back(' ');
 
-	// begin: Frame
+	// Frame
 	utfStrAdd(ustrPrint, mModifierFrame);
 	if (mFocus)
 		ustrPrint.push_back('>');
@@ -251,9 +293,8 @@ bool TextBox::print(string &msg)
 		ustrPrint.push_back('|');
 	ustrPrint.push_back(' ');
 	utfStrAdd(ustrPrint, "\033[0m");
-	// end: Frame
 
-	// begin: Content
+	// Content
 	utfStrAdd(ustrPrint, mModifierContent);
 
 	for (; idxRel < mIdxFront.win(); ++idxRel, ++idxAbs)
@@ -278,18 +319,16 @@ bool TextBox::print(string &msg)
 		else
 			ch = strIn[idxAbs];
 
-		if (selectionPrint && idxRel == idxRelLow)
+		if (selectionPrint && idxAbs == idxAbsLow)
 			utfStrAdd(ustrPrint, mModifierSelection);
 
-		if (selectionPrint && idxRel == idxRelHigh)
+		if (selectionPrint && idxAbs == idxAbsHigh)
 		{
 			utfStrAdd(ustrPrint, "\033[0m");
-
-			// restore after reset only
-			utfStrAdd(ustrPrint, mModifierContent);
+			utfStrAdd(ustrPrint, mModifierContent); // restore after reset only
 		}
 
-		cursorPrint = mFocus && idxRel == mIdxFront.cursor();
+		cursorPrint = mFocus && idxAbs == mIdxFront.cursorAbs();
 
 		if (cursorPrint)
 			utfStrAdd(ustrPrint, "\033[4m");
@@ -301,7 +340,7 @@ bool TextBox::print(string &msg)
 			utfStrAdd(ustrPrint, "\033[0m");
 
 			// restore after reset only
-			bool isSelection = selectionPrint && idxRel < idxRelHigh;
+			bool isSelection = selectionPrint && idxAbs < idxAbsHigh;
 
 			utfStrAdd(ustrPrint,
 				isSelection ? mModifierSelection : mModifierContent);
@@ -309,9 +348,8 @@ bool TextBox::print(string &msg)
 	}
 
 	utfStrAdd(ustrPrint, "\033[0m");
-	// end: Content
 
-	// begin: Frame
+	// Frame
 	utfStrAdd(ustrPrint, mModifierFrame);
 	ustrPrint.push_back(' ');
 	if (mFocus)
@@ -319,12 +357,70 @@ bool TextBox::print(string &msg)
 	else
 		ustrPrint.push_back('|');
 	utfStrAdd(ustrPrint, "\033[0m");
-	// end: Frame
 
+	// Output
 	utfToStr(ustrPrint, strPrint);
 	msg += strPrint;
 
 	return true;
+}
+
+string TextBox::clipboard(bool clear)
+{
+	if (!clear)
+		return mClipboard;
+
+	string strRet = mClipboard;
+	mClipboard = "";
+
+	return strRet;
+}
+
+/* private */
+
+void TextBox::clipboardSet()
+{
+	if (!mFocus)
+	{
+		mClipboard = mCurrent;
+		return;
+	}
+
+	size_t idxAbsLow = listIdxLow().cursorAbs();
+	size_t len = listIdxHigh().cursorAbs() - idxAbsLow;
+
+	u32string ustr = mUstrWork.substr(idxAbsLow, len);
+	utfToStr(ustr, mClipboard);
+}
+
+void TextBox::selectionReplace(const std::string &str)
+{
+	ListIdx &idxLow = listIdxLow();
+	ListIdx &idxHigh = listIdxHigh();
+	size_t i, len = idxHigh.cursorAbs() - idxLow.cursorAbs();
+
+	// 1. clear
+	for (i = 0; i < len; ++i)
+	{
+		idxHigh.prevErase();
+		idxLow.currErase();
+		mUstrWork.erase(idxHigh.cursorAbs(), 1);
+	}
+
+	// 2. insert
+	u32string ustr;
+	strToUtf(str, ustr);
+
+	for (i = 0; i < ustr.size(); ++i)
+	{
+		if (mUstrWork.size() >= mLenMax)
+			break;
+
+		mUstrWork.insert(mIdxFront.cursorAbs(), 1, ustr[i]);
+		mIdxFront.insert();
+	}
+
+	mIdxBack = mIdxFront;
 }
 
 bool TextBox::navigate(const KeyUser &key)
@@ -402,6 +498,18 @@ bool TextBox::cursorJump(const KeyUser &key)
 	}
 
 	return changed;
+}
+
+ListIdx &TextBox::listIdxLow()
+{
+	return mIdxFront.cursorAbs() > mIdxBack.cursorAbs() ?
+			mIdxBack : mIdxFront;
+}
+
+ListIdx &TextBox::listIdxHigh()
+{
+	return mIdxFront.cursorAbs() > mIdxBack.cursorAbs() ?
+			mIdxFront : mIdxBack;
 }
 
 bool TextBox::dirtySet(bool dirty)
