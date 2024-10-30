@@ -2,22 +2,35 @@
 @startuml
 
 skinparam backgroundColor #ffffff
+skinparam {
+	rectangle {
+		BackgroundColor White
+		BorderColor White
+		FontColor White
+	}
+}
 
 frame "User" as pUser
-frame "KeyFiltering()" as pTn
-frame "Message-\nDispatching()" as pCore
-frame "TextBox\n(InputFiltering())" as pTxt
 
 database "- Frames" as sTnToUser
 database "Bytes" as sUserToTn
 
-database "- Frames" as sCoreToTn
-database "- Keys\n  - Printable or\n  - Control" as sTnToCore
+frame "UserServing()" as pSrv {
 
-database "Clipboard" as sMsgClipboard
+	frame "KeyFiltering()" as pTn
+	frame "Message-\nDispatching()" as pCore
+	frame "TextBox\n(InputFiltering())" as pTxt
 
-database "- Frame-\n  Fragments\n- current()\n- clipboard()" as sTxtToCore
-database "- Keys\n\n- currentSet()\n- paste()" as sCoreToTxt
+	database "- Frames" as sCoreToTn
+	database "- Keys\n  - Printable or\n  - Control" as sTnToCore
+
+	database "Clipboard" as sMsgClipboard
+	rectangle "xxxxxxxxxxxxxxxxxx" as sDummy1
+	rectangle "xxxxxxxxxxxxxxxxxx" as sDummy2
+
+	database "- Frame-\n  Fragments\n- current()\n- clipboard()" as sTxtToCore
+	database "- Keys\n\n- currentSet()\n- paste()" as sCoreToTxt
+}
 
 pUser -- sUserToTn
 sUserToTn --> pTn
@@ -29,7 +42,9 @@ sTnToCore --> pCore
 pTn <-- sCoreToTn
 sCoreToTn -- pCore
 
+sDummy1 -r[hidden]- sMsgClipboard
 sMsgClipboard <-> pCore
+pCore -r[hidden]- sDummy2
 
 pCore -- sCoreToTxt
 sCoreToTxt --> pTxt
