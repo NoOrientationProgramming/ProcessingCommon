@@ -36,6 +36,8 @@ public:
 	TextBox();
 	virtual ~TextBox() {}
 
+	/* configuration */
+
 	void widthSet(uint16_t width);
 	void lenMaxSet(uint16_t lenMax);
 	void cursorBoundSet(uint32_t bnd);
@@ -45,14 +47,23 @@ public:
 
 	void focusSet(bool foc, bool accept = true);
 
-	operator std::string() const;
+	/* input */
+
 	void currentSet(const std::string &str);
 	TextBox &operator=(const std::string &str);
+
+	void paste(const std::string &str);
+
+	/* input / output */
 
 	// Return
 	// true  .. Key processed
 	// false .. Key ignored
 	bool keyProcess(const KeyUser &key, const char *pListKeysDisabled = NULL);
+
+	/* output */
+
+	operator std::string() const;
 
 	// Return
 	// true  .. Widget needs to be redrawn
@@ -64,11 +75,16 @@ public:
 	// false .. Printing not finished
 	bool print(std::string &msg);
 
+	std::string clipboard(bool clear = false);
+
 private:
 
+	void clipboardSet();
+	void selectionReplace(const std::string &str = "");
 	bool navigate(const KeyUser &key);
 	bool cursorJump(const KeyUser &key);
-	void cursorActivate(std::u32string &ustr);
+	ListIdx &listIdxLow();
+	ListIdx &listIdxHigh();
 	bool dirtySet(bool dirty = true);
 
 	/* member variables */
@@ -76,8 +92,9 @@ private:
 	size_t mLenMax;
 	std::u32string mUstrCurrent;
 	std::u32string mUstrWork;
-	ListIdx mIdxChars;
-	bool mCursorPrinted;
+	std::string mClipboard;
+	ListIdx mIdxFront;
+	ListIdx mIdxBack;
 	bool mPasswordMode;
 	bool mNumbersOnly;
 	bool mDirty;

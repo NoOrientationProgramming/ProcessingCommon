@@ -34,15 +34,20 @@ TextBox::TextBox()
 	, mLenMax(64)
 	, mUstrCurrent()
 	, mUstrWork()
-	, mIdxChars()
-	, mCursorPrinted(false)
+	, mClipboard("")
+	, mIdxFront()
+	, mIdxBack()
 	, mPasswordMode(false)
 	, mNumbersOnly(false)
 	, mDirty(false)
 {
-	mIdxChars.winSet(mWidth);
+	mIdxFront.winSet(mWidth);
+	mIdxBack.winSet(mIdxFront.win());
+
 	currentSet("");
 }
+
+/* configuration */
 
 void TextBox::widthSet(uint16_t width)
 {
@@ -50,7 +55,9 @@ void TextBox::widthSet(uint16_t width)
 		return;
 
 	mWidth = width;
-	mIdxChars.winSet(width - dSizeWidthMin);
+
+	mIdxFront.winSet(width - dSizeWidthMin);
+	mIdxBack.winSet(mIdxFront.win());
 }
 
 void TextBox::lenMaxSet(uint16_t lenMax)
@@ -60,7 +67,8 @@ void TextBox::lenMaxSet(uint16_t lenMax)
 
 void TextBox::cursorBoundSet(uint32_t bnd)
 {
-	mIdxChars.cursorBoundSet(bnd);
+	mIdxFront.cursorBoundSet(bnd);
+	mIdxBack.cursorBoundSet(bnd);
 }
 
 void TextBox::passwordModeSet(bool mode)
@@ -79,35 +87,28 @@ void TextBox::focusSet(bool foc, bool accept)
 
 	if (foc)
 	{
-		// 1
 		mUstrWork = mUstrCurrent;
 
-		// 2
-		mIdxChars = mUstrWork.size() + 1;
+		mIdxFront = mUstrWork.size() + 1;
+		mIdxFront.cursorEndSet();
 
-		// 3
-		mIdxChars.cursorEndSet();
+		mIdxBack = mIdxFront;
 		return;
 	}
 
 	if (accept)
 	{
-		// 1
 		mUstrCurrent = mUstrWork;
 		utfToStr(mUstrCurrent, mCurrent);
 	}
 
-	// 2
-	mIdxChars = mUstrCurrent.size() + 1;
+	mIdxFront = mUstrCurrent.size() + 1;
+	mIdxFront.reset();
 
-	// 3
-	mIdxChars.reset();
+	mIdxBack = mIdxFront;
 }
 
-TextBox::operator string() const
-{
-	return current();
-}
+/* input */
 
 void TextBox::currentSet(const string &str)
 {
@@ -117,7 +118,8 @@ void TextBox::currentSet(const string &str)
 	if (mFocus)
 		return;
 
-	mIdxChars = mUstrCurrent.size() + 1;
+	mIdxFront = mUstrCurrent.size() + 1;
+	mIdxBack = mIdxFront.size();
 }
 
 TextBox &TextBox::operator=(const string &str)
@@ -126,45 +128,89 @@ TextBox &TextBox::operator=(const string &str)
 	return *this;
 }
 
+void TextBox::paste(const string &str)
+{
+	if (!mFocus)
+		currentSet(str);
+	else
+		selectionReplace(str);
+}
+
+/* input / output */
+
 bool TextBox::keyProcess(const KeyUser &key, const char *pListKeysDisabled)
 {
 	(void)pListKeysDisabled;
 	mDirty = false;
 
-	// TODO: Cut/Copy
+	if (key == keyCtrlX)
+	{
+		clipboardSet();
 
-	// Indexes can be changed during focus mode only
+		if (!mFocus)
+			mUstrCurrent.clear();
+		else
+			selectionReplace();
+
+		return dirtySet();
+	}
+
+	if (key == keyCtrlC)
+	{
+		clipboardSet();
+		return true; // processed but not dirty
+	}
+
 	if (!mFocus)
 		return false;
 
 	// Navigation
 
-	bool navigated;
-
-	navigated = navigate(key);
-	if (navigated)
+	// mIdxFront may change here
+	if (navigate(key))
 		return dirtySet();
 
 	// Removal
 
-	if (keyIsBackspace(key) and mIdxChars.prevErase())
+	bool isSelection = mIdxFront.cursorAbs() !=
+					mIdxBack.cursorAbs();
+
+	if (keyIsBackspace(key))
 	{
-		mUstrWork.erase(mIdxChars.cursorAbs(), 1);
+		if (isSelection)
+		{
+			selectionReplace();
+			return dirtySet();
+		}
+
+		if (!mIdxFront.prevErase())
+			return false;
+
+		mUstrWork.erase(mIdxFront.cursorAbs(), 1);
+		mIdxBack = mIdxFront;
+
 		return dirtySet();
 	}
 
 	if (key == keyDelete)
 	{
+		if (isSelection)
+		{
+			selectionReplace();
+			return dirtySet();
+		}
+
 		// TextBox behavior
-		if (mIdxChars.cursorAbs() == mIdxChars.size() - 1)
+		if (mIdxFront.cursorAbs() == mIdxFront.size() - 1)
 			return false;
 
 		// 1. Backup cursorAbs
-		uint32_t cursorAbs = mIdxChars.cursorAbs();
+		uint32_t cursorAbs = mIdxFront.cursorAbs();
 
 		// 2. Change list
-		if (!mIdxChars.currErase())
+		if (!mIdxFront.currErase())
 			return false;
+		mIdxBack = mIdxFront;
 
 		// 3. Change text
 		mUstrWork.erase(cursorAbs, 1);
@@ -196,15 +242,23 @@ bool TextBox::keyProcess(const KeyUser &key, const char *pListKeysDisabled)
 			return false;
 
 		// 1. Change text
-		mUstrWork.insert(mIdxChars.cursorAbs(), 1, key);
+		mUstrWork.insert(mIdxFront.cursorAbs(), 1, key);
 
 		// 2. Change list
-		mIdxChars.insert();
+		mIdxFront.insert();
+		mIdxBack = mIdxFront;
 
 		return dirtySet();
 	}
 
 	return false;
+}
+
+/* output */
+
+TextBox::operator string() const
+{
+	return current();
 }
 
 bool TextBox::dirty()
@@ -218,22 +272,21 @@ bool TextBox::print(string &msg)
 {
 	u32string strIn = mFocus ? mUstrWork : mUstrCurrent;
 	u32string ustrPrint;
-	u32string ustrModFrame, ustrModContent, ustrTmp;
 	string strPrint;
-	size_t idxAbs = mIdxChars.offset();
+	size_t idxAbs = mIdxFront.offset();
 	size_t idxRel = 0;
+	bool cursorPrint;
+	char32_t ch;
 
+	size_t idxAbsLow = listIdxLow().cursorAbs();
+	size_t idxAbsHigh = listIdxHigh().cursorAbs();
+	bool selectionPrint = mFocus && idxAbsLow != idxAbsHigh;
+
+	// extend tmp string
 	strIn.push_back(' ');
 
-	if (mModifierFrame.size())
-	{
-		strToUtf(mModifierFrame, ustrModFrame);
-		ustrPrint += ustrModFrame;
-	}
-
-	if (mModifierContent.size())
-		strToUtf(mModifierContent, ustrModContent);
-
+	// Frame
+	utfStrAdd(ustrPrint, mModifierFrame);
 	if (mFocus)
 		ustrPrint.push_back('>');
 	else
@@ -241,46 +294,63 @@ bool TextBox::print(string &msg)
 	ustrPrint.push_back(' ');
 	utfStrAdd(ustrPrint, "\033[0m");
 
-	mCursorPrinted = false;
+	// Content
+	utfStrAdd(ustrPrint, mModifierContent);
 
-	for (; idxRel < mIdxChars.win(); ++idxRel, ++idxAbs)
+	for (; idxRel < mIdxFront.win(); ++idxRel, ++idxAbs)
 	{
-		if (ustrModContent.size())
-			ustrPrint += ustrModContent;
-
-		if (!idxRel and mIdxChars.offset())
+		if (!idxRel and mIdxFront.offset())
 		{
 			utfStrAdd(ustrPrint, "\u00AB");
 			continue;
 		}
 
-		if (idxRel == mIdxChars.win() - 1 and !mIdxChars.endReached())
+		if (idxRel == mIdxFront.win() - 1 and !mIdxFront.endReached())
 		{
 			utfStrAdd(ustrPrint, "\u00BB");
 			continue;
 		}
 
 		if (idxAbs >= strIn.size())
+			ch = ' ';
+		else
+		if (mPasswordMode and idxAbs < strIn.size() - 1)
+			ch = '*';
+		else
+			ch = strIn[idxAbs];
+
+		if (selectionPrint && idxAbs == idxAbsLow)
+			utfStrAdd(ustrPrint, mModifierSelection);
+
+		if (selectionPrint && idxAbs == idxAbsHigh)
 		{
-			ustrPrint.push_back(' ');
 			utfStrAdd(ustrPrint, "\033[0m");
-			continue;
+			utfStrAdd(ustrPrint, mModifierContent); // restore after reset only
 		}
 
-		if (idxRel == mIdxChars.cursor())
-			cursorActivate(ustrPrint);
+		cursorPrint = mFocus && idxAbs == mIdxFront.cursorAbs();
 
-		if (mPasswordMode and idxAbs < strIn.size() - 1)
-			ustrPrint.push_back('*');
-		else
-			ustrPrint.push_back(strIn[idxAbs]);
+		if (cursorPrint)
+			utfStrAdd(ustrPrint, "\033[4m");
 
-		utfStrAdd(ustrPrint, "\033[0m");
+		ustrPrint.push_back(ch);
+
+		if (cursorPrint)
+		{
+			utfStrAdd(ustrPrint, "\033[0m");
+
+			// restore after reset only
+			bool isSelection = selectionPrint && idxAbs < idxAbsHigh;
+
+			utfStrAdd(ustrPrint,
+				isSelection ? mModifierSelection : mModifierContent);
+		}
 	}
 
-	if (ustrModFrame.size())
-		ustrPrint += ustrModFrame;
+	utfStrAdd(ustrPrint, "\033[0m");
 
+	// Frame
+	utfStrAdd(ustrPrint, mModifierFrame);
 	ustrPrint.push_back(' ');
 	if (mFocus)
 		ustrPrint.push_back('<');
@@ -288,33 +358,101 @@ bool TextBox::print(string &msg)
 		ustrPrint.push_back('|');
 	utfStrAdd(ustrPrint, "\033[0m");
 
+	// Output
 	utfToStr(ustrPrint, strPrint);
 	msg += strPrint;
 
 	return true;
 }
 
+string TextBox::clipboard(bool clear)
+{
+	if (!clear)
+		return mClipboard;
+
+	string strRet = mClipboard;
+	mClipboard = "";
+
+	return strRet;
+}
+
+/* private */
+
+void TextBox::clipboardSet()
+{
+	if (!mFocus)
+	{
+		mClipboard = mCurrent;
+		return;
+	}
+
+	size_t idxAbsLow = listIdxLow().cursorAbs();
+	size_t len = listIdxHigh().cursorAbs() - idxAbsLow;
+
+	u32string ustr = mUstrWork.substr(idxAbsLow, len);
+	utfToStr(ustr, mClipboard);
+}
+
+void TextBox::selectionReplace(const std::string &str)
+{
+	ListIdx &idxLow = listIdxLow();
+	ListIdx &idxHigh = listIdxHigh();
+	size_t i, len = idxHigh.cursorAbs() - idxLow.cursorAbs();
+
+	// 1. clear
+	for (i = 0; i < len; ++i)
+	{
+		idxHigh.prevErase();
+		idxLow.currErase();
+		mUstrWork.erase(idxHigh.cursorAbs(), 1);
+	}
+
+	// 2. insert
+	u32string ustr;
+	strToUtf(str, ustr);
+
+	for (i = 0; i < ustr.size(); ++i)
+	{
+		if (mUstrWork.size() >= mLenMax)
+			break;
+
+		mUstrWork.insert(mIdxFront.cursorAbs(), 1, ustr[i]);
+		mIdxFront.insert();
+	}
+
+	mIdxBack = mIdxFront;
+}
+
 bool TextBox::navigate(const KeyUser &key)
 {
+	bool processed = false;
+	bool changed = false;
+
 	if (key == keyHome)
-		return mIdxChars.reset();
-
+		processed = true, changed = mIdxFront.reset();
+	else
 	if (key == keyEnd)
-		return mIdxChars.cursorEndSet();
-
+		processed = true, changed = mIdxFront.cursorEndSet();
+	else
 	if (key.mModCtrl && (key == keyLeft || key == keyRight))
-		return cursorJump(key);
-
+		processed = true, changed = cursorJump(key);
+	else
 	if (key == keyLeft || key == keyUp)
-		return mIdxChars.dec();
-
+		processed = true, changed = mIdxFront.dec();
+	else
 	if (key == keyRight || key == keyDown)
-		return mIdxChars.inc();
-
+		processed = true, changed = mIdxFront.inc();
+	else
 	if (key == keyPgUp || key == keyPgDn)
-		return mIdxChars.keyProcess(key);
+		processed = true, changed = mIdxFront.keyProcess(key);
 
-	return false;
+	if (processed && !key.mModShift)
+	{
+		mIdxBack = mIdxFront;
+		changed = true;
+	}
+
+	return changed;
 }
 
 bool TextBox::cursorJump(const KeyUser &key)
@@ -326,7 +464,7 @@ bool TextBox::cursorJump(const KeyUser &key)
 	int direction = isRight ? 1 : -1;
 	bool statePrev = (direction + 1) >> 1;
 	bool stateCursor = !statePrev;
-	uint16_t idxAbs = mIdxChars.cursorAbs();
+	uint16_t idxAbs = mIdxFront.cursorAbs();
 	uint16_t idxStop = statePrev ? mUstrWork.size() : 0;
 	bool changed = false;
 
@@ -341,9 +479,9 @@ bool TextBox::cursorJump(const KeyUser &key)
 		changed = true;
 
 		if (isRight)
-			mIdxChars.inc();
+			mIdxFront.inc();
 		else
-			mIdxChars.dec();
+			mIdxFront.dec();
 
 		pCursor += direction;
 		idxAbs += direction;
@@ -362,13 +500,16 @@ bool TextBox::cursorJump(const KeyUser &key)
 	return changed;
 }
 
-void TextBox::cursorActivate(u32string &ustr)
+ListIdx &TextBox::listIdxLow()
 {
-	if (mCursorPrinted or !mFocus)
-		return;
+	return mIdxFront.cursorAbs() > mIdxBack.cursorAbs() ?
+			mIdxBack : mIdxFront;
+}
 
-	utfStrAdd(ustr, "\033[4m");
-	mCursorPrinted = true;
+ListIdx &TextBox::listIdxHigh()
+{
+	return mIdxFront.cursorAbs() > mIdxBack.cursorAbs() ?
+			mIdxFront : mIdxBack;
 }
 
 bool TextBox::dirtySet(bool dirty)
