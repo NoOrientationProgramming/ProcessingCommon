@@ -68,7 +68,6 @@ private:
 
 	bool navigate(const KeyUser &key);
 	bool cursorJump(const KeyUser &key);
-	void cursorActivate(std::u32string &ustr);
 	bool dirtySet(bool dirty = true);
 
 	/* member variables */
@@ -78,7 +77,6 @@ private:
 	std::u32string mUstrWork;
 	ListIdx mIdxFront;
 	ListIdx mIdxBack;
-	bool mCursorPrinted;
 	bool mPasswordMode;
 	bool mNumbersOnly;
 	bool mDirty;
