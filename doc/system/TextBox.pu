@@ -3,27 +3,38 @@
 
 skinparam backgroundColor #ffffff
 
-frame "Message-\nDispatching()" as pMsg
-frame "TextBox\n(InputFiltering())" as pTxt
 frame "User" as pUser
+frame "KeyFiltering()" as pTn
+frame "Message-\nDispatching()" as pCore
+frame "TextBox\n(InputFiltering())" as pTxt
 
-database "- Frame-\n  Fragment" as sTxtToUser
-database "- Keys" as sUserToTxt
+database "- Frames" as sTnToUser
+database "Bytes" as sUserToTn
 
-database "- currentSet()\n- insert()" as sCoreToTxt
-database "- current()\n- clipboard()" as sTxtToCore
+database "- Frames" as sCoreToTn
+database "- Keys\n  - Printable or\n  - Control" as sTnToCore
 
-pUser -- sUserToTxt
-sUserToTxt --> pTxt
+database "Clipboard" as sMsgClipboard
 
-pUser <-- sTxtToUser
-sTxtToUser -- pTxt
+database "- Frame-\n  Fragments\n- current()\n- clipboard()" as sTxtToCore
+database "- Keys\n\n- currentSet()\n- paste()" as sCoreToTxt
 
-pTxt -- sTxtToCore
-sTxtToCore --> pMsg
+pUser -- sUserToTn
+sUserToTn --> pTn
+pUser <-- sTnToUser
+sTnToUser -- pTn
 
-pTxt <-- sCoreToTxt
-sCoreToTxt -- pMsg
+pTn -- sTnToCore
+sTnToCore --> pCore
+pTn <-- sCoreToTn
+sCoreToTn -- pCore
+
+sMsgClipboard <-> pCore
+
+pCore -- sCoreToTxt
+sCoreToTxt --> pTxt
+pCore <-- sTxtToCore
+sTxtToCore -- pTxt
 
 footer **TextBox** System Core and User Interface\n(C) DSP-Crowd Electronics GmbH
 
