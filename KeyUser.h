@@ -155,7 +155,6 @@ enum KeyExtensions : uint16_t
 	keyF12,	keyF13,	keyF14,	keyF15,
 	keyF16,	keyF17,	keyF18,	keyF19,
 	keyF20,
-	keyShiftTab,
 };
 
 bool keyIsAlphaNum(const KeyUser &key);
