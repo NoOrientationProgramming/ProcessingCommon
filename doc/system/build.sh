@@ -4,7 +4,7 @@ if [ ! -z "$1" ]; then
 	p="$1"
 	echo "Building $p"
 	plantuml -tpng $p
-	plantuml -tsvg $p
+	#plantuml -tsvg $p
 	# apt-get install librsvg2-bin
 	bName="$(basename ${p%.*})"
 	# rsvg-convert -f pdf -o ${bName}.pdf ${bName}.svg
