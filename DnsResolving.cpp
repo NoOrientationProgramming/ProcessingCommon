@@ -113,6 +113,7 @@ Success DnsResolving::process()
 	case StAresDoneWait:
 
 #if CONFIG_LIB_DSPC_HAVE_C_ARES
+		//procWrnLog("exe 1");
 		aresProcess();
 
 		if (mDoneAres == Pending)
@@ -142,6 +143,7 @@ Success DnsResolving::shutdown()
 	case StSdStart:
 
 #if CONFIG_LIB_DSPC_HAVE_C_ARES
+		//procWrnLog("exe 2");
 		if (mChannelAresInitDone)
 		{
 			ares_destroy(mChannelAres);
@@ -203,13 +205,24 @@ bool DnsResolving::aresStart()
 
 	return true;
 }
-
+#if 0
+void fdsetCheck(fd_set *set, int max_fd)
+{
+	for (int i = 0; i < max_fd; ++i)
+	{
+		if (FD_ISSET(i, set))
+			printf("File descriptor %d is set.\n", i);
+	}
+}
+#endif
 /*
  * Literature
  * - https://c-ares.org/docs.html
  * - https://c-ares.org/docs/ares_fds.html
- * - https://man7.org/linux/man-pages/man2/select.2.html
  * - https://c-ares.org/docs/ares_process.html
+ * - https://c-ares.org/docs/ares_timeout.html
+ * - https://man7.org/linux/man-pages/man2/select.2.html
+ * - https://linux.die.net/man/3/ares_process
  */
 void DnsResolving::aresProcess()
 {
@@ -231,29 +244,38 @@ void DnsResolving::aresProcess()
 		mDoneAres = procErrLog(-1, "no file descriptors to be processed");
 		return;
 	}
+#if 0
+	procWrnLog("fdsMax = %d", fdsMax);
 
+	procWrnLog("checking fdsRead");
+	fdsetCheck(&fdsRead, FD_SETSIZE);
+
+	procWrnLog("checking fdsWrite");
+	fdsetCheck(&fdsWrite, FD_SETSIZE);
+#endif
 	if (fdsMax > 1000)
 	{
 		mDoneAres = procErrLog(-1, "socket numbers above 1000 not supported at the moment");
 		return;
 	}
 
-	struct timeval tmoSelect;
+	struct timeval tmoSelect, *pTmo;
 
 	tmoSelect.tv_sec = 0;
 	tmoSelect.tv_usec = 5000;
 
-	res = select(fdsMax, &fdsRead, &fdsWrite, NULL, &tmoSelect);
-	if (!res)
-		return;
+	pTmo = ares_timeout(mChannelAres, &tmoSelect, &tmoSelect);
 
+	res = select(fdsMax, &fdsRead, &fdsWrite, NULL, pTmo);
 	if (res < 0)
 	{
 		mDoneAres = procErrLog(-1, "select returned error: %s (%d)", strerror(errno), errno);
 		return;
 	}
 
+	//procWrnLog("foo 1");
 	ares_process(mChannelAres, &fdsRead, &fdsWrite);
+	//procWrnLog("foo 2");
 }
 #endif
 
@@ -299,6 +321,8 @@ void DnsResolving::aresRequestDone(void *arg, int status, int timeouts, struct a
 		ares_freeaddrinfo(result);
 		return;
 	}
+
+	//wrnLog("bar");
 
 	(void)timeouts;
 
