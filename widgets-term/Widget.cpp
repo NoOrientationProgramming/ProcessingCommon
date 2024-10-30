@@ -35,6 +35,7 @@ Widget::Widget()
 	, mCurrent("")
 	, mModifierFrame("")
 	, mModifierContent("")
+	, mModifierSelection("\033[48;5;99m")
 {
 }
 
@@ -84,6 +85,11 @@ void Widget::modifierFrameSet(const string &str)
 void Widget::modifierContentSet(const string &str)
 {
 	mModifierContent = str;
+}
+
+void Widget::modifierSelectionSet(const string &str)
+{
+	mModifierSelection = str;
 }
 
 /* static functions */

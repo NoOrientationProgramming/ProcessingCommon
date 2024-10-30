@@ -53,6 +53,7 @@ public:
 
 	void modifierFrameSet(const std::string &str);
 	void modifierContentSet(const std::string &str);
+	void modifierSelectionSet(const std::string &str);
 
 	// I/O
 	virtual bool keyProcess(const KeyUser &key, const char *pListKeysDisabled = NULL) = 0;
@@ -72,6 +73,7 @@ protected:
 	std::string mWork;
 	std::string mModifierFrame;
 	std::string mModifierContent;
+	std::string mModifierSelection;
 
 	/* static functions */
 
