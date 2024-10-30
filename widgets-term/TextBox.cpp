@@ -401,12 +401,10 @@ void TextBox::selectionReplace(const std::string &str)
 
 	// 1. clear
 	for (i = 0; i < len; ++i)
-	{
-		idxHigh.prevErase();
-		mUstrWork.erase(idxHigh.cursorAbs(), 1);
-	}
+		mUstrWork.erase(idxLow.cursorAbs(), 1);
 
-	idxLow = idxHigh;
+	idxLow = mUstrWork.size() + 1;
+	idxHigh = idxLow;
 
 	// 2. insert
 	u32string ustr;
