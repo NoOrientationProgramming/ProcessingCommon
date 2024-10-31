@@ -435,10 +435,10 @@ bool TextBox::cursorJump(const KeyUser &key)
 
 	bool isRight = key == keyRight;
 	int direction = isRight ? 1 : -1;
-	bool statePrev = (direction + 1) >> 1;
-	bool stateCursor = !statePrev;
+	bool stateCursor = (direction + 1) >> 1;
+	bool statePrev = !stateCursor;
 	uint16_t idxAbs = mIdxFront.cursorAbs();
-	uint16_t idxStop = statePrev ? mUstrWork.size() : 0;
+	uint16_t idxStop = stateCursor ? mUstrWork.size() : 0;
 	bool changed = false;
 
 	const char32_t *pCursor = mUstrWork.c_str() + idxAbs;
@@ -465,8 +465,8 @@ bool TextBox::cursorJump(const KeyUser &key)
 		if (!pPrev)
 			continue;
 
-		if (keyIsAlphaNum(*pPrev) == statePrev &&
-			keyIsAlphaNum(*pCursor) == stateCursor)
+		if (keyIsBoundary(*pPrev) == statePrev &&
+			keyIsBoundary(*pCursor) == stateCursor)
 			break;
 	}
 
