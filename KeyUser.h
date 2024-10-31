@@ -35,113 +35,240 @@
 #include <locale>
 #include <codecvt>
 
+typedef uint16_t CtrlKeyUser;
+
 class KeyUser
 {
 
 public:
 
 	KeyUser()
-		: mVal(0)
+		: mPrint()
+		, mCtrl()
+		, mIsPrint(false)
+		, mIsCtrl(false)
 		, mModShift(false)
 		, mModAlt(false)
 		, mModCtrl(false)
-		, mIsValid(false)
 	{
 	}
 
-	KeyUser(uint16_t key)
-		: mVal(key)
+	KeyUser(char32_t key)
+		: mPrint(key)
+		, mCtrl()
+		, mIsPrint(true)
+		, mIsCtrl(false)
 		, mModShift(false)
 		, mModAlt(false)
 		, mModCtrl(false)
-		, mIsValid(true)
 	{
 #if KEY_USER_DEBUG
-		std::cout << "KeyUser(uint16_t key): key  = " << key << std::endl;
-		std::cout << "KeyUser(uint16_t key): mVal = " << mVal << std::endl;
+		std::cout << "KeyUser(char32_t):        key    = " << key << std::endl;
+		std::cout << "KeyUser(char32_t):        mPrint = " << mPrint << std::endl;
+		std::cout << "KeyUser(char32_t):        mCtrl  = " << mCtrl << std::endl;
 #endif
 	}
 
 	bool operator==(const char &other) const
 	{
-		if (!mIsValid) return false;
 #if KEY_USER_DEBUG
-		std::cout << "operator==(char):      mVal = " << mVal << ", other = " << other << std::endl;
+		std::cout << "operator==(char):         mPrint = " << mPrint << ", other = " << other << std::endl;
 #endif
-		return mVal == other;
+		if (!mIsPrint) return false;
+		return mPrint == char32_t(other);
 	}
 
 	bool operator!=(const char &other) const
 	{
-		if (!mIsValid) return false;
 #if KEY_USER_DEBUG
-		std::cout << "operator!=(char):      mVal = " << mVal << ", other = " << other << std::endl;
+		std::cout << "operator!=(char):         mPrint = " << mPrint << ", other = " << other << std::endl;
 #endif
-		return mVal != other;
+		if (!mIsPrint) return true;
+		return mPrint != char32_t(other);
 	}
 
-	bool operator==(const uint16_t &other) const
+	bool operator>(const char &other) const
 	{
-		if (!mIsValid) return false;
 #if KEY_USER_DEBUG
-		std::cout << "operator==(uint16_t):  mVal = " << mVal << ", other = " << other << std::endl;
+		std::cout << "operator>(char):          mPrint = " << mPrint << ", other = " << other << std::endl;
 #endif
-		return mVal == other;
+		if (!mIsPrint) return false;
+		return mPrint > char32_t(other);
 	}
 
-	bool operator!=(const uint16_t &other) const
+	bool operator<(const char &other) const
 	{
-		if (!mIsValid) return false;
 #if KEY_USER_DEBUG
-		std::cout << "operator!=(uint16_t):  mVal = " << mVal << ", other = " << other << std::endl;
+		std::cout << "operator<(char):          mPrint = " << mPrint << ", other = " << other << std::endl;
 #endif
-		return mVal != other;
+		if (!mIsPrint) return false;
+		return mPrint < char32_t(other);
 	}
 
-	KeyUser &operator=(uint16_t key)
+	bool operator==(const char32_t &other) const
 	{
-		mVal = key;
-		mIsValid = true;
 #if KEY_USER_DEBUG
-		std::cout << "operator=(uint16_t): mVal = " << mVal << std::endl;
+		std::cout << "operator==(char32_t):     mPrint = " << mPrint << ", other = " << other << std::endl;
+#endif
+		if (!mIsPrint) return false;
+		return mPrint == other;
+	}
+
+	bool operator!=(const char32_t &other) const
+	{
+#if KEY_USER_DEBUG
+		std::cout << "operator!=(char32_t):     mPrint = " << mPrint << ", other = " << other << std::endl;
+#endif
+		if (!mIsPrint) return true;
+		return mPrint != other;
+	}
+
+	bool operator>(const char32_t &other) const
+	{
+#if KEY_USER_DEBUG
+		std::cout << "operator>(char32_t):      mPrint = " << mPrint << ", other = " << other << std::endl;
+#endif
+		if (!mIsPrint) return false;
+		return mPrint > other;
+	}
+
+	bool operator<(const char32_t &other) const
+	{
+#if KEY_USER_DEBUG
+		std::cout << "operator<(char32_t):      mPrint = " << mPrint << ", other = " << other << std::endl;
+#endif
+		if (!mIsPrint) return false;
+		return mPrint < other;
+	}
+
+	bool operator==(const CtrlKeyUser &other) const
+	{
+#if KEY_USER_DEBUG
+		std::cout << "operator==(CtrlKeyUser):  mCtrl = " << mCtrl << ", other = " << other << std::endl;
+#endif
+		if (!mIsCtrl) return false;
+		return mCtrl == other;
+	}
+
+	bool operator!=(const CtrlKeyUser &other) const
+	{
+#if KEY_USER_DEBUG
+		std::cout << "operator!=(CtrlKeyUser):  mCtrl = " << mCtrl << ", other = " << other << std::endl;
+#endif
+		if (!mIsCtrl) return true;
+		return mCtrl != other;
+	}
+
+	bool operator>(const CtrlKeyUser &other) const
+	{
+#if KEY_USER_DEBUG
+		std::cout << "operator>(CtrlKeyUser):   mCtrl = " << mCtrl << ", other = " << other << std::endl;
+#endif
+		if (!mIsCtrl) return false;
+		return mCtrl > other;
+	}
+
+	bool operator<(const CtrlKeyUser &other) const
+	{
+#if KEY_USER_DEBUG
+		std::cout << "operator<(CtrlKeyUser):   mCtrl = " << mCtrl << ", other = " << other << std::endl;
+#endif
+		if (!mIsCtrl) return false;
+		return mCtrl < other;
+	}
+
+	KeyUser &operator=(char key)
+	{
+		mPrint = key;
+		mIsPrint = true;
+#if KEY_USER_DEBUG
+		std::cout << "operator=(char):          mPrint = " << mPrint << std::endl;
 #endif
 		return *this;
 	}
 
-	operator uint16_t() const
+	KeyUser &operator=(char32_t key)
 	{
+		mPrint = key;
+		mIsPrint = true;
 #if KEY_USER_DEBUG
-		std::cout << "operator uint16_t(): mVal = " << mVal << std::endl;
+		std::cout << "operator=(char32_t):      mPrint = " << mPrint << std::endl;
 #endif
-		return mVal;
+		return *this;
 	}
 
-	uint16_t mVal;
-	bool mModShift;
-	bool mModAlt;
-	bool mModCtrl;
+	operator char() const
+	{
+#if KEY_USER_DEBUG
+		std::cout << "operator char():          mPrint = " << mPrint << std::endl;
+#endif
+		return mPrint;
+	}
+
+	operator char32_t() const
+	{
+#if KEY_USER_DEBUG
+		std::cout << "operator char32_t():      mPrint = " << mPrint << std::endl;
+#endif
+		return mPrint;
+	}
+
+	void keyCtrlSet(const CtrlKeyUser &key)
+	{
+		mCtrl = key;
+		mIsCtrl = true;
+#if KEY_USER_DEBUG
+		std::cout << "keyCtrlSet(CtrlKeyUser):  key    = " << key << std::endl;
+		std::cout << "keyCtrlSet(CtrlKeyUser):  mPrint = " << mPrint << std::endl;
+		std::cout << "keyCtrlSet(CtrlKeyUser):  mCtrl  = " << mCtrl << std::endl;
+#endif
+	}
+
+	char32_t val() const		{ return mPrint;	}
+	CtrlKeyUser ctr() const		{ return mCtrl;	}
+
+	bool isPrint() const		{ return mIsPrint;	}
+	bool isCtrl() const			{ return mIsCtrl;	}
+
+	bool modShift() const		{ return mModShift;	}
+	void modShiftSet(bool mod)	{ mModShift = mod;	}
+
+	bool modAlt() const			{ return mModAlt;	}
+	void modAltSet(bool mod)		{ mModAlt = mod;	}
+
+	bool modCtrl() const		{ return mModCtrl;	}
+	void modCtrlSet(bool mod)	{ mModCtrl = mod;	}
 
 private:
 
 	/* member variables */
-	bool mIsValid;
+
+	char32_t mPrint;
+	CtrlKeyUser mCtrl;
+
+	bool mIsPrint;
+	bool mIsCtrl;
+
+	bool mModShift;
+	bool mModAlt;
+	bool mModCtrl;
 
 };
 
-const uint16_t keyBackspace    = 0x7F;
-const uint16_t keyBackspaceWin = 0x08;
-const uint16_t keyEnter        = 0x0D;
-const uint16_t keyEsc          = 0x1B;
-const uint16_t keyCtrlV        = 0x16;
-const uint16_t keyCtrlX        = 0x18;
-const uint16_t keyCtrlC        = 0x03;
-const uint16_t keyCtrlD        = 0x04;
-const uint16_t keyTab          = 0x09;
-const uint16_t keyHelp         = '?';
-const uint16_t keyOpt          = '=';
-const uint16_t keySpace        = ' ';
+const CtrlKeyUser keyCtrlC        = 0x03;
+const CtrlKeyUser keyCtrlD        = 0x04;
+const CtrlKeyUser keyBackspaceWin = 0x08;
+const CtrlKeyUser keyTab          = 0x09;
+const CtrlKeyUser keyEnter        = 0x0D;
+const CtrlKeyUser keyCtrlV        = 0x16;
+const CtrlKeyUser keyCtrlX        = 0x18;
+const CtrlKeyUser keyEsc          = 0x1B;
+const CtrlKeyUser keyBackspace    = 0x7F;
+const CtrlKeyUser keyHelp         = '?';
+const CtrlKeyUser keyOpt          = '=';
+const CtrlKeyUser keySpace        = ' ';
 
-enum KeyExtensions : uint16_t
+enum KeyExtensions : CtrlKeyUser
 {
 	keyUp = 1000,
 	keyDown,
@@ -161,14 +288,16 @@ enum KeyExtensions : uint16_t
 	keyF20,
 };
 
+// Keychecks
+
 bool keyIsAlphaNum(const KeyUser &key);
 bool keyIsNum(const KeyUser &key);
-bool keyIsCommon(const KeyUser &key);
 bool keyIsCtrl(const KeyUser &key);
-bool keyIsAccept(const KeyUser &key);
-bool keyIsAbort(const KeyUser &key);
 bool keyIsBackspace(const KeyUser &key);
 bool keyIsUserDisconnect(const KeyUser &key);
+bool keyIsCommon(const KeyUser &key);
+bool keyIsAccept(const KeyUser &key);
+bool keyIsAbort(const KeyUser &key);
 bool keyIsHome(const KeyUser &key);
 bool keyIsEnd(const KeyUser &key);
 bool keyIsUp(const KeyUser &key);
