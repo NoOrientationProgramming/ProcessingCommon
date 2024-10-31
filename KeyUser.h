@@ -291,6 +291,7 @@ enum KeyExtensions : CtrlKeyUser
 // Keychecks
 
 bool keyIsAlphaNum(const KeyUser &key);
+bool keyIsBoundary(const KeyUser &key);
 bool keyIsNum(const KeyUser &key);
 bool keyIsCtrl(const KeyUser &key);
 bool keyIsBackspace(const KeyUser &key);

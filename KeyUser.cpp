@@ -46,6 +46,20 @@ bool keyIsAlphaNum(const KeyUser &key)
 	return false;
 }
 
+bool keyIsBoundary(const KeyUser &key)
+{
+	const char *chBoundaries = " .,;:-_(){}[]\"'/\\+*=%<>";
+	const char *pCh = chBoundaries;
+
+	for (; *pCh; ++pCh)
+	{
+		if (key == *pCh)
+			return true;
+	}
+
+	return false;
+}
+
 bool keyIsNum(const KeyUser &key)
 {
 	if (!key.isPrint())
