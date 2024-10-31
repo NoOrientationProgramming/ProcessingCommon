@@ -37,6 +37,12 @@
 
 typedef uint16_t CtrlKeyUser;
 
+// Unicode
+
+void strToUtf(const std::string &str, std::u32string &ustr);
+void utfToStr(const std::u32string &ustr, std::string &str);
+void utfStrAdd(std::u32string &ustr, const std::string &str);
+
 class KeyUser
 {
 
@@ -224,6 +230,19 @@ public:
 #endif
 	}
 
+	std::string utf8()
+	{
+		std::string str;
+
+		if (mIsCtrl) return str;
+
+		std::u32string ustr;
+		ustr.push_back(mPrint);
+		utfToStr(ustr, str);
+
+		return str;
+	}
+
 	char32_t val() const		{ return mPrint;	}
 	CtrlKeyUser ctr() const		{ return mCtrl;	}
 
@@ -305,12 +324,6 @@ bool keyIsUp(const KeyUser &key);
 bool keyIsDown(const KeyUser &key);
 bool keyIsUpJump(const KeyUser &key);
 bool keyIsDownJump(const KeyUser &key);
-
-// Unicode
-
-void strToUtf(const std::string &str, std::u32string &ustr);
-void utfToStr(const std::u32string &ustr, std::string &str);
-void utfStrAdd(std::u32string &ustr, const std::string &str);
 
 #endif
 
