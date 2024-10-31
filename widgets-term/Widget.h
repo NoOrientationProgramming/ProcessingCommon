@@ -27,8 +27,6 @@
 #define WIDGET_H
 
 #include <string>
-#include <locale>
-#include <codecvt>
 
 #include "KeyUser.h"
 

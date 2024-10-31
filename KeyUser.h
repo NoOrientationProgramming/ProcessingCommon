@@ -28,10 +28,12 @@
 
 #define KEY_USER_DEBUG 0
 
-#include <cstdint>
 #if KEY_USER_DEBUG
 #include <iostream>
 #endif
+#include <cstdint>
+#include <locale>
+#include <codecvt>
 
 class KeyUser
 {
