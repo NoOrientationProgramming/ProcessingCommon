@@ -60,25 +60,10 @@ void TextBox::widthSet(uint16_t width)
 	mIdxBack.winSet(mIdxFront.win());
 }
 
-void TextBox::lenMaxSet(uint16_t lenMax)
-{
-	mLenMax = lenMax;
-}
-
 void TextBox::cursorBoundSet(uint32_t bnd)
 {
 	mIdxFront.cursorBoundSet(bnd);
 	mIdxBack.cursorBoundSet(bnd);
-}
-
-void TextBox::passwordModeSet(bool mode)
-{
-	mPasswordMode = mode;
-}
-
-void TextBox::numbersOnlySet(bool only)
-{
-	mNumbersOnly = only;
 }
 
 void TextBox::focusSet(bool foc, bool accept)

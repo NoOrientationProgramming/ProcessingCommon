@@ -39,11 +39,11 @@ public:
 	/* configuration */
 
 	void widthSet(uint16_t width);
-	void lenMaxSet(uint16_t lenMax);
+	void lenMaxSet(uint16_t lenMax)		{ mLenMax = lenMax;		}
 	void cursorBoundSet(uint32_t bnd);
 
-	void passwordModeSet(bool mode = true);
-	void numbersOnlySet(bool only = true);
+	void passwordModeSet(bool mode = true);	{ mPasswordMode = mode;	}
+	void numbersOnlySet(bool only = true);	{ mNumbersOnly = only;	}
 
 	void focusSet(bool foc, bool accept = true);
 
