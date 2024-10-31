@@ -397,11 +397,11 @@ void TextBox::selectionReplace(const std::string &str)
 {
 	ListIdx &idxLow = listIdxLow();
 	ListIdx &idxHigh = listIdxHigh();
-	size_t i, len = idxHigh.cursorAbs() - idxLow.cursorAbs();
+	size_t i, len;
 
 	// 1. clear
-	for (i = 0; i < len; ++i)
-		mUstrWork.erase(idxLow.cursorAbs(), 1);
+	len = idxHigh.cursorAbs() - idxLow.cursorAbs();
+	mUstrWork.erase(idxLow.cursorAbs(), len);
 
 	idxLow = mUstrWork.size() + 1;
 	idxHigh = idxLow;
@@ -410,15 +410,16 @@ void TextBox::selectionReplace(const std::string &str)
 	u32string ustr;
 	strToUtf(str, ustr);
 
-	for (i = 0; i < ustr.size(); ++i)
-	{
-		if (mUstrWork.size() >= mLenMax)
-			break;
+	len = mUstrWork.size() + ustr.size();
+	if (len > mLenMax)
+		len = mLenMax;
+	len -= mUstrWork.size();
 
-		mUstrWork.insert(mIdxFront.cursorAbs(), 1, ustr[i]);
+	mUstrWork.insert(mIdxFront.cursorAbs(),
+					ustr.substr(0, len));
+
+	for (i = 0; i < len; ++i)
 		mIdxFront.insert();
-	}
-
 	mIdxBack = mIdxFront;
 }
 
