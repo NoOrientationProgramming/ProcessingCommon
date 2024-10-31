@@ -176,5 +176,11 @@ bool keyIsDown(const KeyUser &key);
 bool keyIsUpJump(const KeyUser &key);
 bool keyIsDownJump(const KeyUser &key);
 
+// Unicode
+
+void strToUtf(const std::string &str, std::u32string &ustr);
+void utfToStr(const std::u32string &ustr, std::string &str);
+void utfStrAdd(std::u32string &ustr, const std::string &str);
+
 #endif
 

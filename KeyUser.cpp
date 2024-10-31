@@ -166,3 +166,24 @@ bool keyIsDownJump(const KeyUser &key)
 	return false;
 }
 
+// Unicode
+
+void strToUtf(const string &str, u32string &ustr)
+{
+	wstring_convert<codecvt_utf8<char32_t>, char32_t> converter;
+	ustr = converter.from_bytes(str);
+}
+
+void utfToStr(const u32string &ustr, string &str)
+{
+	wstring_convert<codecvt_utf8<char32_t>, char32_t> converter;
+	str = converter.to_bytes(ustr);
+}
+
+void utfStrAdd(u32string &ustr, const string &str)
+{
+	u32string ustrTmp;
+	strToUtf(str, ustrTmp);
+	ustr += ustrTmp;
+}
+
