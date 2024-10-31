@@ -281,6 +281,7 @@ bool TextBox::print(string &msg)
 	size_t idxAbsLow = listIdxLow().cursorAbs();
 	size_t idxAbsHigh = listIdxHigh().cursorAbs();
 	bool selectionPrint = mFocus && idxAbsLow != idxAbsHigh;
+	bool isSelection;
 
 	// extend tmp string
 	strIn.push_back(' ');
@@ -294,8 +295,10 @@ bool TextBox::print(string &msg)
 	ustrPrint.push_back(' ');
 	utfStrAdd(ustrPrint, "\033[0m");
 
-	// Content
-	utfStrAdd(ustrPrint, mModifierContent);
+	// Content init
+	isSelection = selectionPrint && idxAbs >= idxAbsLow;
+	utfStrAdd(ustrPrint,
+		isSelection ? mModifierSelection : mModifierContent);
 
 	for (; idxRel < mIdxFront.win(); ++idxRel, ++idxAbs)
 	{
@@ -340,8 +343,7 @@ bool TextBox::print(string &msg)
 			utfStrAdd(ustrPrint, "\033[0m");
 
 			// restore after reset only
-			bool isSelection = selectionPrint && idxAbs < idxAbsHigh;
-
+			isSelection = selectionPrint && idxAbs < idxAbsHigh;
 			utfStrAdd(ustrPrint,
 				isSelection ? mModifierSelection : mModifierContent);
 		}
