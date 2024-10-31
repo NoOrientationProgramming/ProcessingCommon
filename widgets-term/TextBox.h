@@ -42,8 +42,8 @@ public:
 	void lenMaxSet(uint16_t lenMax)		{ mLenMax = lenMax;		}
 	void cursorBoundSet(uint32_t bnd);
 
-	void passwordModeSet(bool mode = true);	{ mPasswordMode = mode;	}
-	void numbersOnlySet(bool only = true);	{ mNumbersOnly = only;	}
+	void passwordModeSet(bool mode = true)	{ mPasswordMode = mode;	}
+	void numbersOnlySet(bool only = true)	{ mNumbersOnly = only;	}
 
 	void focusSet(bool foc, bool accept = true);
 
