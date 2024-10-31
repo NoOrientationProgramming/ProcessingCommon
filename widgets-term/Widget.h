@@ -27,8 +27,6 @@
 #define WIDGET_H
 
 #include <string>
-#include <locale>
-#include <codecvt>
 
 #include "KeyUser.h"
 
@@ -60,9 +58,6 @@ public:
 	virtual bool print(std::string &str) = 0;
 
 	// Helper
-	static void strToUtf(const std::string &str, std::u32string &ustr);
-	static void utfToStr(const std::u32string &ustr, std::string &str);
-	static void utfStrAdd(std::u32string &ustr, const std::string &str);
 	static void strPadCutTo(std::string &str, size_t width, bool dots = false, bool padLeft = false);
 
 protected:

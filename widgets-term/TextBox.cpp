@@ -218,40 +218,26 @@ bool TextBox::keyProcess(const KeyUser &key, const char *pListKeysDisabled)
 		return dirtySet();
 	}
 
-	// Insertion
+	// Insertion (printables only)
+
+	if (!key.isPrint())
+		return false;
 
 	if (mNumbersOnly and (key < '0' or key > '9'))
 		return false;
 
-	const char *pListKeysExt = "@.";
-	bool extFound = false;
+	// TextBox behavior (full)
+	if (mUstrWork.size() >= mLenMax)
+		return false;
 
-	for (; *pListKeysExt; ++pListKeysExt)
-	{
-		if (key != *pListKeysExt)
-			continue;
+	// 1. Change text
+	mUstrWork.insert(mIdxFront.cursorAbs(), 1, key);
 
-		extFound = true;
-		break;
-	}
+	// 2. Change list
+	mIdxFront.insert();
+	mIdxBack = mIdxFront;
 
-	if (keyIsCommon(key) or extFound)
-	{
-		// TextBox behavior
-		if (mUstrWork.size() >= mLenMax)
-			return false;
-
-		// 1. Change text
-		mUstrWork.insert(mIdxFront.cursorAbs(), 1, key);
-
-		// 2. Change list
-		mIdxFront.insert();
-		mIdxBack = mIdxFront;
-
-		return dirtySet();
-	}
-
-	return false;
+	return dirtySet();
 }
 
 /* output */
@@ -281,6 +267,7 @@ bool TextBox::print(string &msg)
 	size_t idxAbsLow = listIdxLow().cursorAbs();
 	size_t idxAbsHigh = listIdxHigh().cursorAbs();
 	bool selectionPrint = mFocus && idxAbsLow != idxAbsHigh;
+	bool isSelection;
 
 	// extend tmp string
 	strIn.push_back(' ');
@@ -294,8 +281,10 @@ bool TextBox::print(string &msg)
 	ustrPrint.push_back(' ');
 	utfStrAdd(ustrPrint, "\033[0m");
 
-	// Content
-	utfStrAdd(ustrPrint, mModifierContent);
+	// Content init
+	isSelection = selectionPrint && idxAbs >= idxAbsLow;
+	utfStrAdd(ustrPrint,
+		isSelection ? mModifierSelection : mModifierContent);
 
 	for (; idxRel < mIdxFront.win(); ++idxRel, ++idxAbs)
 	{
@@ -340,8 +329,7 @@ bool TextBox::print(string &msg)
 			utfStrAdd(ustrPrint, "\033[0m");
 
 			// restore after reset only
-			bool isSelection = selectionPrint && idxAbs < idxAbsHigh;
-
+			isSelection = selectionPrint && idxAbs < idxAbsHigh;
 			utfStrAdd(ustrPrint,
 				isSelection ? mModifierSelection : mModifierContent);
 		}
@@ -397,11 +385,11 @@ void TextBox::selectionReplace(const std::string &str)
 {
 	ListIdx &idxLow = listIdxLow();
 	ListIdx &idxHigh = listIdxHigh();
-	size_t i, len = idxHigh.cursorAbs() - idxLow.cursorAbs();
+	size_t i, len;
 
 	// 1. clear
-	for (i = 0; i < len; ++i)
-		mUstrWork.erase(idxLow.cursorAbs(), 1);
+	len = idxHigh.cursorAbs() - idxLow.cursorAbs();
+	mUstrWork.erase(idxLow.cursorAbs(), len);
 
 	idxLow = mUstrWork.size() + 1;
 	idxHigh = idxLow;
@@ -410,15 +398,16 @@ void TextBox::selectionReplace(const std::string &str)
 	u32string ustr;
 	strToUtf(str, ustr);
 
-	for (i = 0; i < ustr.size(); ++i)
-	{
-		if (mUstrWork.size() >= mLenMax)
-			break;
+	len = mUstrWork.size() + ustr.size();
+	if (len > mLenMax)
+		len = mLenMax;
+	len -= mUstrWork.size();
 
-		mUstrWork.insert(mIdxFront.cursorAbs(), 1, ustr[i]);
+	mUstrWork.insert(mIdxFront.cursorAbs(),
+					ustr.substr(0, len));
+
+	for (i = 0; i < len; ++i)
 		mIdxFront.insert();
-	}
-
 	mIdxBack = mIdxFront;
 }
 
@@ -433,7 +422,7 @@ bool TextBox::navigate(const KeyUser &key)
 	if (key == keyEnd)
 		processed = true, changed = mIdxFront.cursorEndSet();
 	else
-	if (key.mModCtrl && (key == keyLeft || key == keyRight))
+	if (key.modCtrl() && (key == keyLeft || key == keyRight))
 		processed = true, changed = cursorJump(key);
 	else
 	if (key == keyLeft || key == keyUp)
@@ -445,7 +434,7 @@ bool TextBox::navigate(const KeyUser &key)
 	if (key == keyPgUp || key == keyPgDn)
 		processed = true, changed = mIdxFront.keyProcess(key);
 
-	if (processed && !key.mModShift)
+	if (processed && !key.modShift())
 	{
 		mIdxBack = mIdxFront;
 		changed = true;

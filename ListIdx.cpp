@@ -167,10 +167,10 @@ bool ListIdx::keyProcess(const KeyUser &key, const char *pListKeysDisabled)
 	KeyUser keyCmp = key;
 
 	if (keyCmp == keyPgUp)
-		keyCmp.mVal = 'K';
+		keyCmp = 'K';
 
 	if (keyCmp == keyPgDn)
-		keyCmp.mVal = 'J';
+		keyCmp = 'J';
 
 	bool disabled = false;
 

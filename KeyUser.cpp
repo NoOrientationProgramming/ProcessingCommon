@@ -27,12 +27,17 @@
 
 using namespace std;
 
+// Keychecks
+
 bool keyIsAlphaNum(const KeyUser &key)
 {
-	if (key.mVal >= 'a' and key.mVal <= 'z')
+	if (!key.isPrint())
+		return false;
+
+	if (key.val() >= 'a' and key.val() <= 'z')
 		return true;
 
-	if (key.mVal >= 'A' and key.mVal <= 'Z')
+	if (key.val() >= 'A' and key.val() <= 'Z')
 		return true;
 
 	if (keyIsNum(key))
@@ -43,21 +48,10 @@ bool keyIsAlphaNum(const KeyUser &key)
 
 bool keyIsNum(const KeyUser &key)
 {
-	if (key.mVal >= '0' and key.mVal <= '9')
-		return true;
+	if (!key.isPrint())
+		return false;
 
-	return false;
-}
-
-bool keyIsCommon(const KeyUser &key)
-{
-	if (keyIsAlphaNum(key))
-		return true;
-
-	if (key.mVal == ' ' or key.mVal == '-' or key.mVal == '_')
-		return true;
-
-	if (key.mVal == keyHelp)
+	if (key.val() >= '0' and key.val() <= '9')
 		return true;
 
 	return false;
@@ -65,33 +59,48 @@ bool keyIsCommon(const KeyUser &key)
 
 bool keyIsCtrl(const KeyUser &key)
 {
-	if (key.mVal == keyEnter or key.mVal == keyEsc)
-		return true;
-
-	if (key.mVal == keyUp or key.mVal == keyDown)
-		return true;
-
-	if (key.mVal == keyLeft or key.mVal == keyRight)
-		return true;
-
-	if (key.mVal == keyHome or key.mVal == keyEnd)
-		return true;
-
-	if (key.mVal == keyPgUp or key.mVal == keyPgDn)
-		return true;
-
-	if (key.mVal == keyBackspace or key.mVal == keyBackspaceWin)
-		return true;
-
-	if (key.mVal == keyDelete)
-		return true;
+	if (!key.isCtrl())
+		return false;
 
 	return false;
 }
 
+bool keyIsBackspace(const KeyUser &key)
+{
+	if (!key.isCtrl())
+		return false;
+
+	return key.ctr() == keyBackspace or key.ctr() == keyBackspaceWin;
+}
+
+bool keyIsUserDisconnect(const KeyUser &key)
+{
+	if (!key.isCtrl())
+		return false;
+
+	return key.ctr() == keyCtrlC or key.ctr() == keyCtrlD;
+}
+
+bool keyIsCommon(const KeyUser &key)
+{
+	if (keyIsAlphaNum(key))
+		return true;
+
+	if (key.isCtrl() && key.ctr() == keyHelp)
+		return true;
+
+	if (!key.isPrint())
+		return false;
+
+	return key.val() == ' ' or key.val() == '-' or key.val() == '_';
+}
+
 bool keyIsAccept(const KeyUser &key)
 {
-	if (key.mVal == keyEnter or key.mVal == 'l')
+	if (key.isCtrl() && key.ctr() == keyEnter)
+		return true;
+
+	if (key.isPrint() && key.val() == 'l')
 		return true;
 
 	return false;
@@ -99,20 +108,10 @@ bool keyIsAccept(const KeyUser &key)
 
 bool keyIsAbort(const KeyUser &key)
 {
-	if (key.mVal == keyEsc or key.mVal == 'q')
+	if (key.isCtrl() && key.ctr() == keyEsc)
 		return true;
 
-	return false;
-}
-
-bool keyIsBackspace(const KeyUser &key)
-{
-	return (key.mVal == keyBackspace) or (key.mVal == keyBackspaceWin);
-}
-
-bool keyIsUserDisconnect(const KeyUser &key)
-{
-	if (key.mVal == keyCtrlC or key.mVal == keyCtrlD)
+	if (key.isPrint() && key.val() == 'q')
 		return true;
 
 	return false;
@@ -120,7 +119,10 @@ bool keyIsUserDisconnect(const KeyUser &key)
 
 bool keyIsHome(const KeyUser &key)
 {
-	if (key.mVal == 'g' or key.mVal == keyHome)
+	if (key.isCtrl() && key.ctr() == keyHome)
+		return true;
+
+	if (key.isPrint() && key.val() == 'g')
 		return true;
 
 	return false;
@@ -128,7 +130,10 @@ bool keyIsHome(const KeyUser &key)
 
 bool keyIsEnd(const KeyUser &key)
 {
-	if (key.mVal == 'G' or key.mVal == keyEnd)
+	if (key.isCtrl() && key.ctr() == keyEnd)
+		return true;
+
+	if (key.isPrint() && key.val() == 'G')
 		return true;
 
 	return false;
@@ -136,7 +141,10 @@ bool keyIsEnd(const KeyUser &key)
 
 bool keyIsUp(const KeyUser &key)
 {
-	if (key.mVal == 'k' or key.mVal == keyUp)
+	if (key.isCtrl() && key.ctr() == keyUp)
+		return true;
+
+	if (key.isPrint() && key.val() == 'k')
 		return true;
 
 	return false;
@@ -144,7 +152,10 @@ bool keyIsUp(const KeyUser &key)
 
 bool keyIsDown(const KeyUser &key)
 {
-	if (key.mVal == 'j' or key.mVal == keyDown)
+	if (key.isCtrl() && key.ctr() == keyDown)
+		return true;
+
+	if (key.isPrint() && key.val() == 'j')
 		return true;
 
 	return false;
@@ -152,7 +163,10 @@ bool keyIsDown(const KeyUser &key)
 
 bool keyIsUpJump(const KeyUser &key)
 {
-	if (key.mVal == 'K' or key.mVal == keyPgUp)
+	if (key.isCtrl() && key.ctr() == keyPgUp)
+		return true;
+
+	if (key.isPrint() && key.val() == 'K')
 		return true;
 
 	return false;
@@ -160,9 +174,33 @@ bool keyIsUpJump(const KeyUser &key)
 
 bool keyIsDownJump(const KeyUser &key)
 {
-	if (key.mVal == 'J' or key.mVal == keyPgDn)
+	if (key.isCtrl() && key.ctr() == keyPgDn)
+		return true;
+
+	if (key.isPrint() && key.val() == 'J')
 		return true;
 
 	return false;
+}
+
+// Unicode
+
+void strToUtf(const string &str, u32string &ustr)
+{
+	wstring_convert<codecvt_utf8<char32_t>, char32_t> converter;
+	ustr = converter.from_bytes(str);
+}
+
+void utfToStr(const u32string &ustr, string &str)
+{
+	wstring_convert<codecvt_utf8<char32_t>, char32_t> converter;
+	str = converter.to_bytes(ustr);
+}
+
+void utfStrAdd(u32string &ustr, const string &str)
+{
+	u32string ustrTmp;
+	strToUtf(str, ustrTmp);
+	ustr += ustrTmp;
 }
 
