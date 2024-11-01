@@ -53,7 +53,7 @@ const uint32_t cMsDelayDequeueMax = 600;
 
 EventListening::EventListening()
 	: Processing("EventListening")
-	, mStartMs(0)
+	//, mStartMs(0)
 	, mpLst(NULL)
 	, mLenBuf(0)
 {
