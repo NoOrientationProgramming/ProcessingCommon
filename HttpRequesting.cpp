@@ -404,8 +404,9 @@ Success HttpRequesting::shutdown()
  */
 Success HttpRequesting::easyHandleCurlBind()
 {
+#if CONFIG_PROC_HAVE_DRIVERS
 	Guard lock(mtxCurlMulti);
-
+#endif
 	if (!pCurlMulti)
 		pCurlMulti = multiHandleCurlInit();
 
@@ -443,8 +444,9 @@ CURLM *HttpRequesting::multiHandleCurlInit()
 
 void HttpRequesting::easyHandleCurlUnbind()
 {
+#if CONFIG_PROC_HAVE_DRIVERS
 	Guard lock(mtxCurlMulti);
-
+#endif
 	if (!mCurlBound)
 		return;
 
@@ -641,8 +643,9 @@ errCleanupCurl:
  */
 Success HttpRequesting::sessionCreate(const std::string &address, const uint16_t port)
 {
+#if CONFIG_PROC_HAVE_DRIVERS
 	Guard lock(sessionMtx);
-
+#endif
 	list<HttpSession>::iterator iter;
 	bool sessionFound = false;
 
@@ -737,8 +740,9 @@ Success HttpRequesting::sessionCreate(const std::string &address, const uint16_t
 
 void HttpRequesting::sessionTerminate()
 {
+#if CONFIG_PROC_HAVE_DRIVERS
 	Guard lock(sessionMtx);
-
+#endif
 	procDbgLog(LOG_LVL, "dereferencing session: %s:%d", mSession->address.c_str(), mSession->port);
 
 	--mSession->numReferences;
@@ -781,8 +785,9 @@ void HttpRequesting::processInfo(char *pBuf, char *pBufEnd)
  */
 void HttpRequesting::multiProcess()
 {
+#if CONFIG_PROC_HAVE_DRIVERS
 	Guard lock(mtxCurlMulti);
-
+#endif
 	int numRunningRequests, numMsgsLeft;
 	CURLMsg *curlMsg;
 	CURL *pCurl;
@@ -850,8 +855,9 @@ void HttpRequesting::multiProcess()
  */
 void HttpRequesting::curlMultiDeInit()
 {
+#if CONFIG_PROC_HAVE_DRIVERS
 	Guard lock(mtxCurlMulti);
-
+#endif
 	if (!pCurlMulti)
 		return;
 
