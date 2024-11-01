@@ -44,7 +44,9 @@ using namespace Json;
 
 #define LOG_LVL	0
 
+#if CONFIG_PROC_HAVE_DRIVERS
 mutex EventListening::mMtxEvents;
+#endif
 map<string, Value> EventListening::mEvents;
 
 const uint32_t cMsDelayDataMax = 300;
@@ -222,7 +224,9 @@ Success EventListening::msgEnqueue(TcpTransfering *pConn)
 	msgEvent.removeMember("refMsg");
 
 	{
+#if CONFIG_PROC_HAVE_DRIVERS
 		Guard lock(mMtxEvents);
+#endif
 		msgEvent["msEnqueued"] = millis();
 		mEvents[refMsg] = msgEvent;
 	}
@@ -240,7 +244,9 @@ Success EventListening::msgEnqueue(TcpTransfering *pConn)
 // msgDequeue
 ssize_t EventListening::pop(const string &refMsg, Value &msgEvent)
 {
+#if CONFIG_PROC_HAVE_DRIVERS
 	Guard lock(mMtxEvents);
+#endif
 	map<string, Value>::iterator iter;
 
 	iter = mEvents.find(refMsg);
@@ -288,7 +294,9 @@ void EventListening::processInfo(char *pBuf, char *pBufEnd)
 #endif
 	size_t numEvents;
 	{
+#if CONFIG_PROC_HAVE_DRIVERS
 		Guard lock(mMtxEvents);
+#endif
 		numEvents = mEvents.size();
 	}
 	dInfo("Messages\t\t\t%zu\n", numEvents);

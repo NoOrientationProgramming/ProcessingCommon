@@ -89,7 +89,9 @@ private:
 	/* static functions */
 
 	/* static variables */
+#if CONFIG_PROC_HAVE_DRIVERS
 	static std::mutex mMtxEvents;
+#endif
 	static std::map<std::string, Json::Value> mEvents;
 
 	/* constants */
