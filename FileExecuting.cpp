@@ -24,6 +24,7 @@
 */
 
 #include <iostream>
+#include <cstring>
 #include <fcntl.h>
 #include <signal.h>
 #include <sys/wait.h>
