@@ -142,7 +142,9 @@ private:
 	std::string mRespData;
 
 	std::list<HttpSession>::iterator mSession;
+#if 0 // TODO: Implement
 	uint8_t mRetries;
+#endif
 	Success mDoneCurl;
 
 	/* static functions */

@@ -91,7 +91,9 @@ HttpRequesting::HttpRequesting()
 	, mRespCode(0)
 	, mRespHdr("")
 	, mRespData("")
+#if 0 // TODO: Implement
 	, mRetries(2)
+#endif
 	, mDoneCurl(Pending)
 {
 	mState = StStart;
@@ -124,7 +126,9 @@ HttpRequesting::HttpRequesting(const string &url)
 	, mRespCode(0)
 	, mRespHdr("")
 	, mRespData("")
+#if 0 // TODO: Implement
 	, mRetries(2)
+#endif
 	, mDoneCurl(Pending)
 {
 	mState = StStart;
