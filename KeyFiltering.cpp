@@ -31,7 +31,7 @@ using namespace std;
 
 KeyFiltering::KeyFiltering(const char *name)
 	: Transfering(name)
-	, mKeyLastGotMs(0)
+	, mKeyLastRcvdMs(0)
 {
 }
 

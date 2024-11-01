@@ -44,6 +44,8 @@ protected:
 	KeyFiltering(const char *name);
 	virtual ~KeyFiltering() {}
 
+	uint32_t mKeyLastRcvdMs;
+
 private:
 
 	KeyFiltering() = delete;
@@ -58,7 +60,6 @@ private:
 	/* member functions */
 
 	/* member variables */
-	uint32_t mKeyLastGotMs;
 
 	/* static functions */
 
