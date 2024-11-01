@@ -118,7 +118,7 @@ public:
 
 	static FileExecuting *create()
 	{
-		return new (std::nothrow) FileExecuting;
+		return new dNoThrow FileExecuting;
 	}
 
 	// routing & change container

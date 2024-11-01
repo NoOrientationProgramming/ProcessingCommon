@@ -43,7 +43,7 @@ public:
 
 	static MailSending *create()
 	{
-		return new (std::nothrow) MailSending;
+		return new dNoThrow MailSending;
 	}
 
 	void serverSet(const std::string &server);

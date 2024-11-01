@@ -689,7 +689,7 @@ Success HttpRequesting::sessionCreate(const std::string &address, const uint16_t
 
 		for (size_t i = 0; i < numSharedDataTypes; ++i)
 		{
-			mSession->sharedDataMtxList[i] = new (nothrow) mutex;
+			mSession->sharedDataMtxList[i] = new dNoThrow mutex;
 
 			if (!mSession->sharedDataMtxList[i])
 			{

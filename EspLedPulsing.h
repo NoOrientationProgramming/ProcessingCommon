@@ -37,7 +37,7 @@ public:
 
 	static EspLedPulsing *create()
 	{
-		return new (std::nothrow) EspLedPulsing;
+		return new dNoThrow EspLedPulsing;
 	}
 
 	void pinSet(uint8_t id);

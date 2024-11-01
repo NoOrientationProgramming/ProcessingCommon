@@ -111,7 +111,7 @@ void *driverPlatformCreate(FuncInternalDrive pFctDrive, void *pProc, void *pConf
 		goto drvExit;
 	}
 
-	pDrv = new (nothrow) DriverPlatform;
+	pDrv = new dNoThrow DriverPlatform;
 	if (!pDrv)
 	{
 		errLog(-1, "could not allocate custom driver");
@@ -211,7 +211,7 @@ void *driverPlatformCreate(FuncInternalDrive pFctDrive, void *pProc, void *pConf
 	if (pConfigDriver)
 		pConfig = (ConfigDriver *)pConfigDriver;
 
-	pDrv = new (nothrow) DriverPlatform;
+	pDrv = new dNoThrow DriverPlatform;
 	if (!pDrv)
 	{
 		errLog(-1, "could not allocate custom driver");

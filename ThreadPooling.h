@@ -28,8 +28,9 @@
 
 #include <vector>
 #include <list>
+#if CONFIG_PROC_HAVE_DRIVERS
 #include <mutex>
-
+#endif
 #include "Processing.h"
 #include "Pipe.h"
 
@@ -48,7 +49,7 @@ public:
 
 	static ThreadPooling *create()
 	{
-		return new (std::nothrow) ThreadPooling;
+		return new dNoThrow ThreadPooling;
 	}
 
 	void workerCntSet(uint16_t cnt);

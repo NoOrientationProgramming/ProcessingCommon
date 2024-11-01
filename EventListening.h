@@ -47,7 +47,7 @@ public:
 
 	static EventListening *create()
 	{
-		return new (std::nothrow) EventListening;
+		return new dNoThrow EventListening;
 	}
 
 	static ssize_t pop(

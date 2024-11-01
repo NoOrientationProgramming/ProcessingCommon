@@ -88,14 +88,14 @@ Success PhyAnimating::process()
 		break;
 	case StMainStart:
 
-		mpWindow = new (nothrow) QWidget();
+		mpWindow = new dNoThrow QWidget();
 		if (!mpWindow)
 			return procErrLog(-1, "could not create window");
 
 		mpWindow->resize(1280, 800);
 		mpWindow->setMinimumSize(400, 300);
 
-		mpGrid = new (nothrow) QGridLayout();
+		mpGrid = new dNoThrow QGridLayout();
 		if (!mpGrid)
 			return procErrLog(-1, "could not create grid");
 
@@ -104,7 +104,7 @@ Success PhyAnimating::process()
 		mpGrid->setColumnStretch(0, 1);
 		mpGrid->setColumnStretch(1, 3);
 
-		mpOpt = new (nothrow) QVBoxLayout();
+		mpOpt = new dNoThrow QVBoxLayout();
 		if (!mpOpt)
 			return procErrLog(-1, "could not create vertical box");
 
@@ -173,11 +173,11 @@ void PhyAnimating::uiLineAdd(const string &strLabel)
 	QLabel *pLabel1 = NULL;
 	QLabel *pLabel2 = NULL;
 
-	pLabel1 = new (nothrow) QLabel();
+	pLabel1 = new dNoThrow QLabel();
 	if (!pLabel1)
 		return;
 
-	pLine = new (nothrow) QFrame();
+	pLine = new dNoThrow QFrame();
 	if (!pLine)
 	{
 		delete pLabel1;
@@ -190,7 +190,7 @@ void PhyAnimating::uiLineAdd(const string &strLabel)
 	pLine->setFrameShadow(QFrame::Sunken);
 
 	if (strLabel.size())
-		pLabel2 = new (nothrow) QLabel();
+		pLabel2 = new dNoThrow QLabel();
 
 	if (strLabel.size() && !pLabel2)
 	{
@@ -228,11 +228,11 @@ QLabel *PhyAnimating::uiLabelAdd(const string &strPrefix, bool alignRight)
 	QLabel *pLabelPrefix = NULL;
 	bool stretchNeeded = false;
 
-	pLayout = new (nothrow) QHBoxLayout();
+	pLayout = new dNoThrow QHBoxLayout();
 	if (!pLayout)
 		return NULL;
 
-	pLabelValue = new (nothrow) QLabel();
+	pLabelValue = new dNoThrow QLabel();
 	if (!pLabelValue)
 	{
 		delete pLayout;
@@ -242,7 +242,7 @@ QLabel *PhyAnimating::uiLabelAdd(const string &strPrefix, bool alignRight)
 	}
 
 	if (strPrefix.size())
-		pLabelPrefix = new (nothrow) QLabel();
+		pLabelPrefix = new dNoThrow QLabel();
 
 	if (strPrefix.size() && !pLabelPrefix)
 	{
@@ -278,7 +278,7 @@ QPushButton *PhyAnimating::uiButtonAdd(const string &strText)
 {
 	QPushButton *pButton;
 
-	pButton = new (nothrow) QPushButton(strText.c_str());
+	pButton = new dNoThrow QPushButton(strText.c_str());
 	if (!pButton)
 		return NULL;
 
@@ -293,11 +293,11 @@ QCheckBox *PhyAnimating::uiSwitchAdd(const string &strLabel)
 	QLabel *pLabel;
 	QCheckBox *pSwitch;
 
-	pLayout = new (nothrow) QHBoxLayout();
+	pLayout = new dNoThrow QHBoxLayout();
 	if (!pLayout)
 		return NULL;
 
-	pLabel = new (nothrow) QLabel();
+	pLabel = new dNoThrow QLabel();
 	if (!pLabel)
 	{
 		delete pLayout;
@@ -308,7 +308,7 @@ QCheckBox *PhyAnimating::uiSwitchAdd(const string &strLabel)
 
 	pLabel->setText(strLabel.c_str());
 
-	pSwitch = new (nothrow) QCheckBox();
+	pSwitch = new dNoThrow QCheckBox();
 	if (!pSwitch)
 	{
 		delete pLabel;
@@ -341,21 +341,21 @@ QSlider *PhyAnimating::uiSliderAdd(int valMax, int valStart,
 	QLabel *pLabelUnit = NULL;
 	LabelInfo inf;
 
-	pSlider = new (nothrow) QSlider(Orientation::Horizontal);
+	pSlider = new dNoThrow QSlider(Orientation::Horizontal);
 	if (!pSlider)
 		goto exitErr;
 
-	pLayout = new (nothrow) QHBoxLayout();
+	pLayout = new dNoThrow QHBoxLayout();
 	if (!pLayout)
 		goto exitErr;
 
-	pLabelPrefix = new (nothrow) QLabel();
+	pLabelPrefix = new dNoThrow QLabel();
 	if (!pLabelPrefix)
 		goto exitErr;
 
 	pLabelPrefix->setText(strPrefix.c_str());
 
-	pLabelValue = new (nothrow) QLabel();
+	pLabelValue = new dNoThrow QLabel();
 	if (!pLabelValue)
 		goto exitErr;
 
@@ -363,7 +363,7 @@ QSlider *PhyAnimating::uiSliderAdd(int valMax, int valStart,
 	pLabelValue->setText(mBufLabel);
 
 	if (strUnit.size())
-		pLabelUnit = new (nothrow) QLabel();
+		pLabelUnit = new dNoThrow QLabel();
 
 	if (strUnit.size() && !pLabelUnit)
 		goto exitErr;
@@ -444,12 +444,12 @@ QLineEdit *PhyAnimating::uiLineEditAdd(const string &strLabel)
 	QLineEdit *pLine;
 	QLabel *pLabel = NULL;
 
-	pLine = new (nothrow) QLineEdit();
+	pLine = new dNoThrow QLineEdit();
 	if (!pLine)
 		return NULL;
 
 	if (strLabel.size())
-		pLabel = new (nothrow) QLabel(strLabel.c_str());
+		pLabel = new dNoThrow QLabel(strLabel.c_str());
 
 	if (strLabel.size() && !pLabel)
 	{
@@ -473,11 +473,11 @@ QProgressBar *PhyAnimating::uiProgressAdd(const string &strLabel)
 	QProgressBar *pProgress;
 	QLabel *pLabel;
 
-	pProgress = new (nothrow) QProgressBar();
+	pProgress = new dNoThrow QProgressBar();
 	if (!pProgress)
 		return NULL;
 
-	pLabel = new (nothrow) QLabel();
+	pLabel = new dNoThrow QLabel();
 	if (!pLabel)
 	{
 		delete pProgress;
@@ -500,13 +500,13 @@ QChart *PhyAnimating::uiChartAdd()
 	QChartView *pView;
 	QChart *pChart;
 
-	pView = new (nothrow) QChartView();
+	pView = new dNoThrow QChartView();
 	if (!pView)
 		return NULL;
 
 	pView->setFocusPolicy(FocusPolicy::ClickFocus);
 
-	pChart = new (nothrow) QChart();
+	pChart = new dNoThrow QChart();
 	if (!pChart)
 	{
 		delete pView;
@@ -551,7 +551,7 @@ bool PhyAnimating::qtGlobalInit()
 
 	procDbgLog(LOG_LVL, "global Qt init");
 
-	pAppQt = new (nothrow) QApplication(qtArgc, pQtArgv);
+	pAppQt = new dNoThrow QApplication(qtArgc, pQtArgv);
 	if (!pAppQt)
 	{
 		procErrLog(-1, "could not create Qt application");

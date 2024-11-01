@@ -39,7 +39,7 @@ public:
 
 	static DnsResolving *create()
 	{
-		return new (std::nothrow) DnsResolving;
+		return new dNoThrow DnsResolving;
 	}
 
 	// input

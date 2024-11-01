@@ -59,11 +59,11 @@ public:
 
 	static HttpRequesting *create()
 	{
-		return new (std::nothrow) HttpRequesting;
+		return new dNoThrow HttpRequesting;
 	}
 	static HttpRequesting *create(const std::string &url)
 	{
-		return new (std::nothrow) HttpRequesting(url);
+		return new dNoThrow HttpRequesting(url);
 	}
 
 	// input

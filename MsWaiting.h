@@ -35,7 +35,7 @@ public:
 
 	static MsWaiting *create(uint32_t duration)
 	{
-		return new (std::nothrow) MsWaiting(duration);
+		return new dNoThrow MsWaiting(duration);
 	}
 
 protected:
