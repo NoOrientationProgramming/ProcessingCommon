@@ -239,7 +239,9 @@ private:
 
 	// container
 
+#if 0 // TODO: Implement
 	uint32_t mMsStart;
+#endif
 	uint32_t mMsTimeout;
 	std::vector<FileExecuting *> mLstExec;
 	std::vector<FeResult> mResults;

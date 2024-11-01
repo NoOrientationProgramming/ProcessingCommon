@@ -65,7 +65,9 @@ FileExecuting::FileExecuting()
 	// container & internal
 	, mIsInternal(false)
 	// container
+#if 0 // TODO: Implement
 	, mMsStart(0)
+#endif
 	, mMsTimeout(0)
 	, mNodeIn()
 	, mInternalsStarted(false)
