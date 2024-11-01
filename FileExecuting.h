@@ -248,8 +248,9 @@ private:
 	FeNode mNodeIn;
 	bool mInternalsStarted;
 	bool mConfigClosed;
+#if CONFIG_PROC_HAVE_DRIVERS
 	std::mutex mMtxConfig;
-
+#endif
 	// internal
 
 	std::string mCmd;
@@ -262,8 +263,10 @@ private:
 	FeResult *mpResult;
 	uint32_t mBytesRead;
 	uint32_t mBytesSent;
+#if CONFIG_PROC_HAVE_DRIVERS
 	std::mutex mMtxWrite;
 	std::mutex mMtxRead;
+#endif
 	VecConstChar mArgs;
 	VecConstChar mEnv;
 	FeNode mNodeOut;

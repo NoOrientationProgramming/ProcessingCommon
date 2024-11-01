@@ -116,7 +116,9 @@ Success FileExecuting::process()
 	case StStart:
 
 		{
+#if CONFIG_PROC_HAVE_DRIVERS
 			Guard lock(mMtxConfig);
+#endif
 			mConfigClosed = true;
 		}
 
@@ -294,12 +296,16 @@ Success FileExecuting::process()
 			return procErrLog(-3, "could not set non blocking mode: %s", strerror(errno));
 
 		{
+#if CONFIG_PROC_HAVE_DRIVERS
 			Guard lock(mMtxWrite);
+#endif
 			mSendReady = true;
 		}
 
 		{
+#if CONFIG_PROC_HAVE_DRIVERS
 			Guard lock(mMtxRead);
+#endif
 			mReadReady = true;
 		}
 
@@ -821,8 +827,9 @@ Success FileExecuting::shutdown()
 
 FileExecuting &FileExecuting::msTimeoutSet(uint32_t msTimeout)
 {
+#if CONFIG_PROC_HAVE_DRIVERS
 	Guard lock(mMtxConfig);
-
+#endif
 	if (mConfigClosed)
 		return *this;
 
@@ -833,8 +840,9 @@ FileExecuting &FileExecuting::msTimeoutSet(uint32_t msTimeout)
 
 FileExecuting &FileExecuting::sourceEnable()
 {
+#if CONFIG_PROC_HAVE_DRIVERS
 	Guard lock(mMtxConfig);
-
+#endif
 	if (mConfigClosed)
 		return *this;
 
@@ -848,8 +856,9 @@ FileExecuting &FileExecuting::sourceSet(const char *pSrc, size_t len, bool autoF
 	if (!pSrc)
 		return *this;
 
+#if CONFIG_PROC_HAVE_DRIVERS
 	Guard lock(mMtxConfig);
-
+#endif
 	if (mConfigClosed)
 		return *this;
 
@@ -870,8 +879,9 @@ FileExecuting &FileExecuting::sourceSet(const string *pStr)
 	if (!pStr)
 		return *this;
 
+#if CONFIG_PROC_HAVE_DRIVERS
 	Guard lock(mMtxConfig);
-
+#endif
 	if (mConfigClosed)
 		return *this;
 
@@ -889,8 +899,9 @@ FileExecuting &FileExecuting::sourceSet(int fd, bool autoClose)
 	if (fd < 0)
 		return *this;
 
+#if CONFIG_PROC_HAVE_DRIVERS
 	Guard lock(mMtxConfig);
-
+#endif
 	if (mConfigClosed)
 		return *this;
 
@@ -908,8 +919,9 @@ FileExecuting &FileExecuting::sourceSet(Transfering *pTrans)
 	if (!pTrans)
 		return *this;
 
+#if CONFIG_PROC_HAVE_DRIVERS
 	Guard lock(mMtxConfig);
-
+#endif
 	if (mConfigClosed)
 		return *this;
 
@@ -934,8 +946,9 @@ FileExecuting &FileExecuting::cmdAdd(const VecConstChar &argv)
 
 FileExecuting &FileExecuting::intCmdAdd(const string &cmd, const VecConstChar &argv)
 {
+#if CONFIG_PROC_HAVE_DRIVERS
 	Guard lock(mMtxConfig);
-
+#endif
 	if (mConfigClosed)
 		return *this;
 
@@ -991,8 +1004,9 @@ FileExecuting &FileExecuting::intCmdAdd(const string &cmd, const VecConstChar &a
 
 FileExecuting &FileExecuting::envSet(const VecConstChar &envv, bool dropOld)
 {
+#if CONFIG_PROC_HAVE_DRIVERS
 	Guard lock(mMtxConfig);
-
+#endif
 	if (mConfigClosed)
 		return *this;
 
@@ -1014,8 +1028,9 @@ FileExecuting &FileExecuting::envSet(const VecConstChar &envv, bool dropOld)
 
 FileExecuting &FileExecuting::sinkEnable(int fdSel)
 {
+#if CONFIG_PROC_HAVE_DRIVERS
 	Guard lock(mMtxConfig);
-
+#endif
 	if (mConfigClosed)
 		return *this;
 
@@ -1037,8 +1052,9 @@ FileExecuting &FileExecuting::sinkAdd(char *pDest, size_t len, int fdSel)
 	if (!pDest)
 		return *this;
 
+#if CONFIG_PROC_HAVE_DRIVERS
 	Guard lock(mMtxConfig);
-
+#endif
 	if (mConfigClosed)
 		return *this;
 
@@ -1061,8 +1077,9 @@ FileExecuting &FileExecuting::sinkAdd(string *pStr, int fdSel)
 	if (!pStr)
 		return *this;
 
+#if CONFIG_PROC_HAVE_DRIVERS
 	Guard lock(mMtxConfig);
-
+#endif
 	if (mConfigClosed)
 		return *this;
 
@@ -1088,8 +1105,9 @@ FileExecuting &FileExecuting::sinkAdd(int fd, bool autoClose, int fdSel)
 		return *this;
 	}
 
+#if CONFIG_PROC_HAVE_DRIVERS
 	Guard lock(mMtxConfig);
-
+#endif
 	if (mConfigClosed)
 		return *this;
 
@@ -1112,8 +1130,9 @@ FileExecuting &FileExecuting::sinkAdd(Transfering *pTrans, int fdSel)
 	if (!pTrans)
 		return *this;
 
+#if CONFIG_PROC_HAVE_DRIVERS
 	Guard lock(mMtxConfig);
-
+#endif
 	if (mConfigClosed)
 		return *this;
 
@@ -1133,8 +1152,9 @@ FileExecuting &FileExecuting::sinkAdd(Transfering *pTrans, int fdSel)
 
 FileExecuting &FileExecuting::errRedirect()
 {
+#if CONFIG_PROC_HAVE_DRIVERS
 	Guard lock(mMtxConfig);
-
+#endif
 	if (mConfigClosed)
 		return *this;
 
@@ -1194,7 +1214,9 @@ int FileExecuting::sigSend(int sig, ssize_t idx) const
 bool FileExecuting::boolRet(ssize_t idx, size_t offs, bool isAnd)
 {
 	{
+#if CONFIG_PROC_HAVE_DRIVERS
 		Guard lock(mMtxConfig);
+#endif
 		if (!mConfigClosed)
 			return false;
 	}
@@ -1229,7 +1251,9 @@ bool FileExecuting::boolRet(ssize_t idx, size_t offs, bool isAnd)
 int FileExecuting::intRet(ssize_t idx, size_t offs)
 {
 	{
+#if CONFIG_PROC_HAVE_DRIVERS
 		Guard lock(mMtxConfig);
+#endif
 		if (!mConfigClosed)
 			return false;
 	}
@@ -1275,8 +1299,9 @@ ssize_t FileExecuting::intSend(const void *pData, size_t lenReq)
 	if (!pData || !lenReq)
 		return procErrLog(-1, "could not send data. Buffer not set");
 
+#if CONFIG_PROC_HAVE_DRIVERS
 	Guard lock(mMtxWrite);
-
+#endif
 	if (!mSendReady)
 		return procErrLog(-1, "could not send data. Not ready");
 
@@ -1341,8 +1366,9 @@ ssize_t FileExecuting::intSinkRead(void *pBuf, size_t lenReq, FeNode *pNode)
 	if (!pBuf || !lenReq)
 		return -1;
 
+#if CONFIG_PROC_HAVE_DRIVERS
 	Guard lock(mMtxRead);
-
+#endif
 	if (!pNode)
 		return procErrLog(-1, "unable to read data. Node not set");
 
