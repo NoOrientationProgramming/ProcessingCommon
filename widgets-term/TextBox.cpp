@@ -237,12 +237,7 @@ bool TextBox::keyProcess(const KeyUser &key, const char *pListKeysDisabled)
 	if (mUstrWork.size() >= mLenMax)
 		return false;
 
-	// 1. Change text
-	mUstrWork.insert(mIdxFront.cursorAbs(), 1, key);
-
-	// 2. Change list
-	mIdxFront.insert();
-	mIdxBack = mIdxFront;
+	selectionReplace(key.utf8());
 
 	return dirtySet();
 }
