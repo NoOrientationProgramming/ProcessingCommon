@@ -46,6 +46,7 @@ public:
 	void numbersOnlySet(bool only = true)	{ mNumbersOnly = only;	}
 
 	void focusSet(bool foc, bool accept = true);
+	void selectionSet(uint16_t idxStart, uint16_t len = 0);
 
 	/* input */
 

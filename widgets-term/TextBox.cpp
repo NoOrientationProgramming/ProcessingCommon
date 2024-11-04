@@ -93,6 +93,28 @@ void TextBox::focusSet(bool foc, bool accept)
 	mIdxBack = mIdxFront;
 }
 
+void TextBox::selectionSet(uint16_t idxStart, uint16_t len)
+{
+	u32string &str = mFocus ? mUstrWork : mUstrCurrent;
+	uint16_t idxEnd = idxStart + len;
+	uint16_t idxMax = str.size();
+	uint16_t idx = 0;
+
+	mIdxFront.reset();
+
+	if (idxStart > idxMax) idxStart = idxMax;
+
+	for (; idx < idxStart; ++idx)
+		mIdxFront.inc();
+
+	mIdxBack = mIdxFront;
+
+	if (!len || idxEnd > idxMax) idxEnd = idxMax;
+
+	for (; idx < idxEnd; ++idx)
+		mIdxFront.inc();
+}
+
 /* input */
 
 void TextBox::currentSet(const string &str)
