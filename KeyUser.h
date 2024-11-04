@@ -230,7 +230,7 @@ public:
 #endif
 	}
 
-	std::string utf8()
+	std::string utf8() const
 	{
 		std::string str;
 
