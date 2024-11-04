@@ -118,6 +118,7 @@ void urlToTriple(const std::string &url,
 void strPadCutTo(std::string &str, size_t width, bool dots = false, bool padLeft = false);
 void strToVecStr(const std::string &str, VecStr &vStr, char delim = '\n');
 void resToVecStr(const std::string &nameRes, VecStr &vStr);
+std::string trim(const std::string &str);
 
 // Misc
 template <typename Iterator, typename Distance>
