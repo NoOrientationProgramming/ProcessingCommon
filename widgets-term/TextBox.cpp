@@ -240,11 +240,22 @@ bool TextBox::keyProcess(const KeyUser &key, const char *pListKeysDisabled)
 	if (mNumbersOnly and (key < '0' or key > '9'))
 		return false;
 
+	if (isSelection)
+	{
+		selectionReplace(key.utf8());
+		return dirtySet();
+	}
+
 	// TextBox behavior (full)
 	if (mUstrWork.size() >= mLenMax)
 		return false;
 
-	selectionReplace(key.utf8());
+	// 1. Change text
+	mUstrWork.insert(mIdxFront.cursorAbs(), 1, key);
+
+	// 2. Change list
+	mIdxFront.insert();
+	mIdxBack = mIdxFront;
 
 	return dirtySet();
 }
