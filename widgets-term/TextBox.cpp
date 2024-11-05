@@ -173,6 +173,13 @@ bool TextBox::keyProcess(const KeyUser &key, const char *pListKeysDisabled)
 
 	// Navigation
 
+	if (key == keyCtrlA)
+	{
+		mDirty |= mIdxBack.reset();
+		mDirty |= mIdxFront.cursorEndSet();
+		return true;
+	}
+
 	// mIdxFront may change here
 	if (navigate(key))
 		return dirtySet();
