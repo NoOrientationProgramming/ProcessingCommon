@@ -424,7 +424,7 @@ bool TextBox::navigate(const KeyUser &key)
 	if (key == keyEnd)
 		processed = true, changed = mIdxFront.cursorEndSet();
 	else
-	if (key.modCtrl() && (key == keyLeft || key == keyRight))
+	if ((key == keyLeft || key == keyRight) && key.modCtrl())
 		processed = true, changed = cursorJump(key);
 	else
 	if (key == keyLeft || key == keyUp)
