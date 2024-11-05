@@ -274,6 +274,7 @@ private:
 
 };
 
+const CtrlKeyUser keyCtrlA        = 0x01;
 const CtrlKeyUser keyCtrlC        = 0x03;
 const CtrlKeyUser keyCtrlD        = 0x04;
 const CtrlKeyUser keyBackspaceWin = 0x08;
