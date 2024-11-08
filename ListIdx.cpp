@@ -231,7 +231,7 @@ bool ListIdx::winEndPrint(string &msg,
 			const string &postfix,
 			size_t width) const
 {
-	if (!mWin)
+	if (idxRel >= mWin)
 		return true;
 
 	bool indicatorNeeded = false;
