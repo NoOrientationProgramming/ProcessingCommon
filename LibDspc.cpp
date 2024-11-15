@@ -537,25 +537,34 @@ bool isValidEmail(const string &mail)
 	return true;
 }
 
-bool isValidIp4(const string &ip)
+static bool isValidIp4(const string &ip)
 {
-	uint32_t n1, n2, n3, n4;
-	int res;
+	struct in_addr addr;
+	return inet_pton(AF_INET, ip.c_str(), &addr) == 1;
+}
 
-	if (ip.size() > dLenIp4Max)
-		return false;
+static bool isValidIp6(const string &ip)
+{
+	struct in_addr addr6;
+	return inet_pton(AF_INET6, ip.c_str(), &addr6) == 1;
+}
 
-	res = sscanf(ip.c_str(),
-				"%" PRIu32 ".%" PRIu32 ".%" PRIu32 ".%" PRIu32,
-				&n1, &n2, &n3, &n4);
+int typeIp(const string &ip)
+{
+	if (isValidIp4(ip))
+		return AF_INET;
 
-	if (res != 4)
-		return false;
+	string ipCopy;
 
-	if (!n1 || (n1 > 255) || (n2 > 255) || (n3 > 255) || (n4 > 255))
-		return false;
+	if (ip.size() > 1 && ip[0] == '[')
+		ipCopy = ip.substr(1, ip.size() - 2);
 
-	return true;
+	const string &ipCheck = ipCopy.size() ? ipCopy : ip;
+
+	if (isValidIp6(ipCheck))
+		return AF_INET6;
+
+	return AF_UNSPEC;
 }
 
 string remoteAddr(int socketFd)
@@ -573,44 +582,91 @@ string remoteAddr(int socketFd)
 
 string urlToHost(const string &url)
 {
-	string protocol, host, path;
-	urlToTriple(url, protocol, host, path);
+	string protocol, host, path, queries;
+	uint16_t port;
+
+	urlToParts(url, protocol, host, port, path, queries);
 	return host;
 }
 
-void urlToTriple(const string &url,
+// https://dev.dsp-crowd.com:80/foo?bar=bas
+void urlToParts(const string &url,
 				string &protocol,
 				string &host,
-				string &path)
+				uint16_t &port,
+				string &path,
+				string &queries)
 {
-	string::size_type find, start, endHost;
+	string::size_type idxRight = url.size() ? url.size() - 1 : 0;
+	string::size_type idxLeft = 0;
+	string::size_type idx, find, len;
 
+	// defaults
 	protocol = "";
 	host = "";
+	port = 0;
 	path = "";
-	start = 0;
+	queries = "";
 
-	find = url.find("://");
+	// protocol
+	find = url.find("://", idxLeft);
 	if (find != string::npos)
 	{
-		protocol = url.substr(0, find);
-		start = find + 3;
+		len = find - idxLeft;
+		protocol = url.substr(idxLeft, len);
+		idxLeft = find + 3;
 	}
 
-	endHost = url.length();
-
-	find = url.find("?", start);
+	// queries
+	find = url.rfind('?', idxRight);
 	if (find != string::npos)
-		endHost = find;
+	{
+		len = idxRight - find;
+		queries = url.substr(find + 1, len);
+		idxRight = find;
+		if (idxRight) --idxRight;
+	}
 
-	find = url.find("/", start); // even closer
+	// path
+	find = url.find('/', idxLeft);
 	if (find != string::npos)
-		endHost = find;
+	{
+		len = idxRight - find;
+		path = url.substr(find + 1, len);
+		idxRight = find;
+		if (idxRight) --idxRight;
+	}
 
-	host = url.substr(start, endHost - start);
+	// port
+	find = string::npos;
+	idx = idxRight;
 
-	if (endHost < url.length())
-		path = url.substr(endHost);
+	for (; idx > idxLeft; --idx)
+	{
+		if (url[idx] != ':')
+			continue;
+
+		find = idx;
+		break;
+	}
+
+	if (find != string::npos)
+	{
+		len = idxRight - find;
+
+		try {
+			port = stoi(url.substr(find + 1, len));
+		} catch (...) {
+			port = 0;
+		}
+
+		idxRight = find;
+		if (idxRight) --idxRight;
+	}
+
+	// host
+	len = (idxRight + 1) - idxLeft;
+	host = url.substr(idxLeft, len);
 }
 
 // Strings

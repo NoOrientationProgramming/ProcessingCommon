@@ -34,6 +34,7 @@
 		gen(StGlobalInit) \
 		gen(StDnsResolvStart) \
 		gen(StDnsResolvDoneWait) \
+		gen(StUrlReAsm) \
 		gen(StEasyInit) \
 		gen(StEasyBind) \
 		gen(StReqStart) \
@@ -72,7 +73,10 @@ HttpRequesting::HttpRequesting()
 	, mProtocol("")
 	, mNameHost("")
 	, mAddrHost("")
+	, mTypeIp(AF_UNSPEC)
+	, mPort(0)
 	, mPath("")
+	, mQueries("")
 	, mType("get")
 	, mUserPw("")
 	, mLstHdrs()
@@ -107,7 +111,10 @@ HttpRequesting::HttpRequesting(const string &url)
 	, mProtocol("")
 	, mNameHost("")
 	, mAddrHost("")
+	, mTypeIp(AF_UNSPEC)
+	, mPort(0)
 	, mPath("")
+	, mQueries("")
 	, mType("get")
 	, mUserPw("")
 	, mLstHdrs()
@@ -255,18 +262,31 @@ Success HttpRequesting::process()
 
 		curlGlobalInit();
 
-		mState = StDnsResolvStart;
+		urlToParts(mUrl, mProtocol, mNameHost, mPort, mPath, mQueries);
 
-		break;
-	case StDnsResolvStart:
-
-		urlToTriple(mUrl, mProtocol, mNameHost, mPath);
+		if (!mProtocol.size())
+			mProtocol = "https";
 #if 0
 		procWrnLog("URL           %s", mUrl.c_str());
 		procWrnLog("Protocol      %s", mProtocol.c_str());
 		procWrnLog("Name Host     %s", mNameHost.c_str());
+		procWrnLog("Port          %u", mPort);
 		procWrnLog("Path          %s", mPath.c_str());
+		procWrnLog("Queries       %s", mQueries.c_str());
 #endif
+		mTypeIp = typeIp(mNameHost);
+		if (mTypeIp == AF_UNSPEC)
+		{
+			procDbgLog(LOG_LVL, "resolving host");
+			mState = StDnsResolvStart;
+			break;
+		}
+
+		mState = StUrlReAsm;
+
+		break;
+	case StDnsResolvStart:
+
 #if CONFIG_LIB_DSPC_HAVE_C_ARES
 		mpResolv = DnsResolving::create();
 		if (!mpResolv)
@@ -293,14 +313,18 @@ Success HttpRequesting::process()
 			if (lstAddr.size())
 				mAddrHost = *lstAddr.begin();
 		}
-		else
-#endif
-			procDbgLog(LOG_LVL, "forced to use curl internal DNS resolver");
 
-#if CONFIG_LIB_DSPC_HAVE_C_ARES
 		repel(mpResolv);
 		mpResolv = NULL;
 #endif
+		if (!mAddrHost.size())
+			procDbgLog(LOG_LVL, "using curl internal DNS resolver");
+
+		mState = StUrlReAsm;
+
+		break;
+	case StUrlReAsm:
+
 		mUrl = mProtocol;
 		mUrl += "://";
 
@@ -311,8 +335,20 @@ Success HttpRequesting::process()
 		} else
 			mUrl += mNameHost;
 
-		mUrl += mPath;
+		if (mPath.size())
+		{
+			mUrl.push_back('/');
+			mUrl += mPath;
+		}
 
+		if (mQueries.size())
+		{
+			mUrl.push_back('?');
+			mUrl += mQueries;
+		}
+#if 0
+		procWrnLog("URL re-asm    %s", mUrl.c_str());
+#endif
 		mState = StEasyInit;
 
 		break;
@@ -521,6 +557,9 @@ Success HttpRequesting::easyHandleCurlConfigure()
 		return procErrLog(-1, "could not create session");
 #endif
 	curl_easy_setopt(mpCurl, CURLOPT_URL, mUrl.c_str());
+
+	if (mPort)
+		curl_easy_setopt(mpCurl, CURLOPT_PORT, mPort);
 
 	if (mAuthMethod == "digest")
 		curl_easy_setopt(mpCurl, CURLOPT_HTTPAUTH, CURLAUTH_DIGEST); // default: CURLAUTH_BASIC

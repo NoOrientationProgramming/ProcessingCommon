@@ -106,13 +106,15 @@ void caresGlobalDeInit();
 
 // Internet
 bool isValidEmail(const std::string &mail);
-bool isValidIp4(const std::string &ip);
+int typeIp(const std::string &ip);
 std::string remoteAddr(int socketFd);
 std::string urlToHost(const std::string &url);
-void urlToTriple(const std::string &url,
+void urlToParts(const std::string &url,
 				std::string &protocol,
 				std::string &host,
-				std::string &path);
+				uint16_t &port,
+				std::string &path,
+				std::string &queries);
 
 // Strings
 void strPadCutTo(std::string &str, size_t width, bool dots = false, bool padLeft = false);

@@ -120,7 +120,10 @@ private:
 	std::string mProtocol;
 	std::string mNameHost;
 	std::string mAddrHost;
+	int mTypeIp;
+	uint16_t mPort;
 	std::string mPath;
+	std::string mQueries;
 	std::string mType;
 	std::string mUserPw;
 	std::list<std::string> mLstHdrs;
