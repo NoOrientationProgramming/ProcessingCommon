@@ -292,6 +292,18 @@ Documentation         https://github.com/NoOrientationProgramming/ProcessingCore
 Sources               https://github.com/NoOrientationProgramming/ProcessingCore
 ```
 
+### DnsResolving()
+
+Process for DNS resolution.
+
+```
+License               GPLv3
+Required              If c-ares is used
+Project Page          https://github.com/NoOrientationProgramming
+Documentation         https://github.com/NoOrientationProgramming/ProcessingCommon
+Sources               https://github.com/NoOrientationProgramming/ProcessingCommon
+```
+
 ### LibDspc
 
 ....
