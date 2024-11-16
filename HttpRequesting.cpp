@@ -80,7 +80,7 @@ HttpRequesting::HttpRequesting()
 	, mMethod("get")
 	, mUserPw("")
 	, mLstHdrs()
-	, mData("")
+	, mData()
 	, mAuthMethod("basic")
 	, mVersionTls("")
 	, mVersionHttp("HTTP/2")
@@ -118,7 +118,7 @@ HttpRequesting::HttpRequesting(const string &url)
 	, mMethod("get")
 	, mUserPw("")
 	, mLstHdrs()
-	, mData("")
+	, mData()
 	, mAuthMethod("basic")
 	, mVersionTls("")
 	, mVersionHttp("")
@@ -183,7 +183,12 @@ void HttpRequesting::hdrAdd(const string &hdr)
 
 void HttpRequesting::dataSet(const string &data)
 {
-	mData = data;
+	mData.assign(data.begin(), data.end());
+}
+
+void HttpRequesting::dataSet(const uint8_t *pData, size_t len)
+{
+	mData.assign(pData, pData + len);
 }
 
 void HttpRequesting::authMethodSet(const string &authMethod)
@@ -548,7 +553,7 @@ Success HttpRequesting::easyHandleCurlConfigure()
 	for (; iter != mLstHdrs.end(); ++iter)
 		procDbgLog(LOG_LVL, "hdr        = %s", iter->c_str());
 
-	procDbgLog(LOG_LVL, "data       = %s", mData.c_str());
+	//hexDump(mData.data(), mData.size());
 	procDbgLog(LOG_LVL, "authMethod = %s", mAuthMethod.c_str());
 	procDbgLog(LOG_LVL, "versionTls = %s", versionTls.c_str());
 #endif
@@ -618,7 +623,10 @@ Success HttpRequesting::easyHandleCurlConfigure()
 		curl_easy_setopt(mpCurl, CURLOPT_HTTPHEADER, mpHeaderList);
 
 	if (mMethod == "post" || mMethod == "put")
-		curl_easy_setopt(mpCurl, CURLOPT_POSTFIELDS, mData.c_str());
+	{
+		curl_easy_setopt(mpCurl, CURLOPT_POSTFIELDS, mData.data());
+		curl_easy_setopt(mpCurl, CURLOPT_POSTFIELDSIZE, mData.size());
+	}
 
 	if (mUserPw.size())
 		curl_easy_setopt(mpCurl, CURLOPT_USERPWD, mUserPw.c_str());

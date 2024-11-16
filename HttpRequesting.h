@@ -72,6 +72,7 @@ public:
 	void userPwSet(const std::string &userPw);
 	void hdrAdd(const std::string &hdr);
 	void dataSet(const std::string &data);
+	void dataSet(const uint8_t *pData, size_t len);
 	void authMethodSet(const std::string &authMethod);
 	void versionTlsSet(const std::string &versionTls);
 	void versionHttpSet(const std::string &versionHttp);
@@ -127,7 +128,7 @@ private:
 	std::string mMethod;
 	std::string mUserPw;
 	std::list<std::string> mLstHdrs;
-	std::string mData;
+	std::vector<uint8_t> mData;
 	std::string mAuthMethod;
 	std::string mVersionTls;
 	std::string mVersionHttp;
