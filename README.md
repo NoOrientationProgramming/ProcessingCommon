@@ -19,7 +19,9 @@ Feel free to submit a PR to add a line to the list below.
 Each entry should include the name of your library as a link to its repository, along with a brief description.
 Please also add a license specification for your library.
 Additionally, every process should be described in an `.md` file.
-For reference, check out the examples in [ProcessingCommon](https://github.com/NoOrientationProgramming/ProcessingCommon).
+For reference, check out the examples in
+[HttpRequesting()](https://github.com/NoOrientationProgramming/ProcessingCommon/blob/main/HttpRequesting.md) and
+[FileExecuting()](https://github.com/NoOrientationProgramming/ProcessingCommon/blob/main/FileExecuting.md).
 
 | Name | Description | License |
 |:---:|---|:---:|
