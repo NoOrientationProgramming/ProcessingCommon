@@ -27,7 +27,7 @@ For reference, check out the examples in
 |:---:|---|:---:|
 | [ProcessingCommon](https://github.com/NoOrientationProgramming/ProcessingCommon) | Official processes based on the Processing() class | ![GitHub](https://img.shields.io/github/license/NoOrientationProgramming/ProcessingCommon?style=plastic) |
 
-## Overview of Library ProcessingCommon
+## Overview of library ProcessingCommon
 
 | Name | Description |
 |:---:|---|
