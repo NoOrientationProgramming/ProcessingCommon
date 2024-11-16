@@ -68,7 +68,7 @@ public:
 
 	// input
 	void urlSet(const std::string &url);
-	void typeSet(const std::string &type);
+	void methodSet(const std::string &type);
 	void userPwSet(const std::string &userPw);
 	void hdrAdd(const std::string &hdr);
 	void dataSet(const std::string &data);
@@ -124,7 +124,7 @@ private:
 	uint16_t mPort;
 	std::string mPath;
 	std::string mQueries;
-	std::string mType;
+	std::string mMethod;
 	std::string mUserPw;
 	std::list<std::string> mLstHdrs;
 	std::string mData;

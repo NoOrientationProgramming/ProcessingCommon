@@ -77,7 +77,7 @@ HttpRequesting::HttpRequesting()
 	, mPort(0)
 	, mPath("")
 	, mQueries("")
-	, mType("get")
+	, mMethod("get")
 	, mUserPw("")
 	, mLstHdrs()
 	, mData("")
@@ -115,7 +115,7 @@ HttpRequesting::HttpRequesting(const string &url)
 	, mPort(0)
 	, mPath("")
 	, mQueries("")
-	, mType("get")
+	, mMethod("get")
 	, mUserPw("")
 	, mLstHdrs()
 	, mData("")
@@ -160,12 +160,12 @@ void HttpRequesting::urlSet(const string &url)
 	mUrl = url;
 }
 
-void HttpRequesting::typeSet(const string &type)
+void HttpRequesting::methodSet(const string &method)
 {
-	if (!type.size())
+	if (!method.size())
 		return;
 
-	mType = type;
+	mMethod = method;
 }
 
 void HttpRequesting::userPwSet(const string &userPw)
@@ -542,7 +542,7 @@ Success HttpRequesting::easyHandleCurlConfigure()
 		versionTls = mVersionTls;
 #if 0
 	procDbgLog(LOG_LVL, "url        = %s", mUrl.c_str());
-	procDbgLog(LOG_LVL, "type       = %s", mType.c_str());
+	procDbgLog(LOG_LVL, "method     = %s", mMethod.c_str());
 
 	iter = mLstHdrs.begin();
 	for (; iter != mLstHdrs.end(); ++iter)
@@ -617,7 +617,7 @@ Success HttpRequesting::easyHandleCurlConfigure()
 	if (mpHeaderList)
 		curl_easy_setopt(mpCurl, CURLOPT_HTTPHEADER, mpHeaderList);
 
-	if (mType == "post" || mType == "put")
+	if (mMethod == "post" || mMethod == "put")
 		curl_easy_setopt(mpCurl, CURLOPT_POSTFIELDS, mData.c_str());
 
 	if (mUserPw.size())
