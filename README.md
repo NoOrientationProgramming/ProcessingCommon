@@ -13,7 +13,7 @@ Official processes based on the [Processing()](https://github.com/NoOrientationP
 Use the [Processing()](https://github.com/NoOrientationProgramming/ProcessingCore)
 class to create innovative processes, achieve great results, and share your work :sunglasses:
 
-## Specific process created by the community
+## Specific processes created by the community
 
 Feel free to submit a PR to add a line to the list below.
 Each entry should include the name of your library as a link to its repository, along with a brief description.
