@@ -31,9 +31,10 @@ For reference, check out the examples in
 
 | Name | Description |
 |:---:|---|
-| [HttpRequesting()](https://github.com/NoOrientationProgramming/ProcessingCommon/blob/main/HttpRequesting.md) | Class for making HTTP requests |
-| [FileExecuting()](https://github.com/NoOrientationProgramming/ProcessingCommon/blob/main/FileExecuting.md) | Class for executing programs and managing OS processes |
+| [HttpRequesting()](https://github.com/NoOrientationProgramming/ProcessingCommon/blob/main/HttpRequesting.md) | Making HTTP requests |
+| [MailSending()](https://github.com/NoOrientationProgramming/ProcessingCommon/blob/main/MailSending.md) | Sending emails using SMTP |
+| [FileExecuting()](https://github.com/NoOrientationProgramming/ProcessingCommon/blob/main/FileExecuting.md) | Executing programs and managing OS processes |
 | [EventListening()](https://github.com/NoOrientationProgramming/ProcessingCommon/blob/main/EventListening.md) | Handles incoming events through TCP connections and manages the transfer of data |
-| [DnsResolving()](https://github.com/NoOrientationProgramming/ProcessingCommon/blob/main/DnsResolving.md) | Class for resolving hostnames to IP addresses |
+| [DnsResolving()](https://github.com/NoOrientationProgramming/ProcessingCommon/blob/main/DnsResolving.md) | Resolving hostnames to IP addresses |
 | [EspLedPulsing()](https://github.com/NoOrientationProgramming/ProcessingCommon/blob/main/EspLedPulsing.md) | Controlling LED pulsing effects for a specified GPIO pin on ESP32 |
 
