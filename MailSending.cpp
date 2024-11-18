@@ -153,7 +153,7 @@ Success MailSending::process()
 		if (mCurlRes != CURLE_OK)
 			return procErrLog(-1, "curl performing failed: %s (%d)", curl_easy_strerror(mCurlRes), mCurlRes);
 
-		procDbgLog(LOG_LVL, "server returned status code %d", mRespCode);
+		procDbgLog("server returned status code %d", mRespCode);
 
 		if (mRespCode != dSmtpCodeActionOkeyCompleted)
 			return procErrLog(-1, "SMTP server did not return %d", dSmtpCodeActionOkeyCompleted);
@@ -184,15 +184,15 @@ Success MailSending::easyHandleCreate()
 	string strUrl, strUserPwd, strBodyPrefix;
 	Success success;
 
-	procDbgLog(LOG_LVL, "Recipient");
-	procDbgLog(LOG_LVL, "  Name          = %s", mRecipientName.c_str());
-	procDbgLog(LOG_LVL, "  Address       = %s", mRecipientAddr.c_str());
+	procDbgLog("Recipient");
+	procDbgLog("  Name          = %s", mRecipientName.c_str());
+	procDbgLog("  Address       = %s", mRecipientAddr.c_str());
 #if 0
-	procDbgLog(LOG_LVL, "Sender");
-	procDbgLog(LOG_LVL, "  Name          = %s", mSenderName.c_str());
-	procDbgLog(LOG_LVL, "  Address       = %s", mSenderAddr.c_str());
+	procDbgLog("Sender");
+	procDbgLog("  Name          = %s", mSenderName.c_str());
+	procDbgLog("  Address       = %s", mSenderAddr.c_str());
 #endif
-	procDbgLog(LOG_LVL, "Subject         = %s", mSubject.c_str());
+	procDbgLog("Subject         = %s", mSubject.c_str());
 
 	(void)success;
 

@@ -126,7 +126,7 @@ Success PhyAnimating::process()
 		ok = mpWindow->isVisible();
 		if (mWinVisibleOld && !ok)
 		{
-			procDbgLog(LOG_LVL, "Qt window isn't visible anymore. Shutting down");
+			procDbgLog("Qt window isn't visible anymore. Shutting down");
 			return Positive;
 		}
 		mWinVisibleOld = ok;
@@ -154,10 +154,10 @@ Success PhyAnimating::shutdown()
 	if (!mpWindow)
 		return Positive;
 
-	procDbgLog(LOG_LVL, "deleting Qt window");
+	procDbgLog("deleting Qt window");
 	delete mpWindow;
 	mpWindow = NULL;
-	procDbgLog(LOG_LVL, "deleting Qt window. Done");
+	procDbgLog("deleting Qt window. Done");
 
 	return Positive;
 }
@@ -549,7 +549,7 @@ bool PhyAnimating::qtGlobalInit()
 		return true;
 	}
 
-	procDbgLog(LOG_LVL, "global Qt init");
+	procDbgLog("global Qt init");
 
 	pAppQt = new dNoThrow QApplication(qtArgc, pQtArgv);
 	if (!pAppQt)

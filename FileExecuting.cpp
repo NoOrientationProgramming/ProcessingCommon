@@ -492,7 +492,7 @@ void FileExecuting::autoSource(FeNode *pNode)
 		if (pBuff->processed < pBuff->len)
 			return;
 
-		procDbgLog(LOG_LVL, "end-of-buffer");
+		procDbgLog("end-of-buffer");
 
 		autoSourceDone();
 		return;
@@ -531,7 +531,7 @@ void FileExecuting::autoSource(FeNode *pNode)
 
 			if (isDone)
 			{
-				procDbgLog(LOG_LVL, "end-of-file");
+				procDbgLog("end-of-file");
 				return;
 			}
 
@@ -570,7 +570,7 @@ void FileExecuting::autoSource(FeNode *pNode)
 
 			if (lenDone < 0)
 			{
-				procDbgLog(LOG_LVL, "end-of-Transfering()");
+				procDbgLog("end-of-Transfering()");
 				autoSourceDone();
 				return;
 			}
@@ -606,7 +606,7 @@ void FileExecuting::autoSourceDone()
 
 	mDone = true;
 
-	procDbgLog(LOG_LVL, "autoSourceDone()");
+	procDbgLog("autoSourceDone()");
 }
 
 void FileExecuting::autoSink(FeNode *pNode)
@@ -646,7 +646,7 @@ void FileExecuting::autoSink(FeNode *pNode)
 
 		if (lenDone < 0)
 		{
-			procDbgLog(LOG_LVL, "autoSink() finished");
+			procDbgLog("autoSink() finished");
 
 			iFd = pNode->lstFds.begin();
 			for (; iFd != pNode->lstFds.end(); ++iFd)
@@ -654,7 +654,7 @@ void FileExecuting::autoSink(FeNode *pNode)
 				if (!iFd->autoClose)
 					continue;
 
-				procDbgLog(LOG_LVL, "closing auto fd: %d", iFd->fd);
+				procDbgLog("closing auto fd: %d", iFd->fd);
 				fdClose(iFd->fd);
 			}
 
@@ -695,7 +695,7 @@ void FileExecuting::autoSink(FeNode *pNode)
 			if (pBuff->processed < pBuff->len)
 				return;
 
-			procDbgLog(LOG_LVL, "end-of-buffer");
+			procDbgLog("end-of-buffer");
 		}
 
 		// string
@@ -1397,14 +1397,14 @@ ssize_t FileExecuting::intSinkRead(void *pBuf, size_t lenReq, FeNode *pNode)
 
 	if (isDone)
 	{
-		procDbgLog(LOG_LVL, "end-of-file");
+		procDbgLog("end-of-file");
 		return -4;
 	}
 
 	if (wouldBlock)
 		return 0;
 
-	//procDbgLog(LOG_LVL, "received data. len: %d", lenRead);
+	//procDbgLog("received data. len: %d", lenRead);
 
 	mBytesRead += lenRead;
 

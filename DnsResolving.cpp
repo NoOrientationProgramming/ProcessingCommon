@@ -91,10 +91,10 @@ Success DnsResolving::process()
 	case StGlobalInit:
 
 #if CONFIG_LIB_DSPC_HAVE_C_ARES
-		procDbgLog(LOG_LVL, "using libc-ares");
+		procDbgLog("using libc-ares");
 		caresGlobalInit();
 #else
-		procDbgLog(LOG_LVL, "libc-ares required");
+		procDbgLog("libc-ares required");
 		return -1;
 #endif
 		mState = StAresStart;

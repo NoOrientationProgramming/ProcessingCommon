@@ -282,7 +282,7 @@ Success HttpRequesting::process()
 		mTypeIp = typeIp(mNameHost);
 		if (mTypeIp == AF_UNSPEC)
 		{
-			procDbgLog(LOG_LVL, "resolving host");
+			procDbgLog("resolving host");
 			mState = StDnsResolvStart;
 			break;
 		}
@@ -323,7 +323,7 @@ Success HttpRequesting::process()
 		mpResolv = NULL;
 #endif
 		if (!mAddrHost.size())
-			procDbgLog(LOG_LVL, "using curl internal DNS resolver");
+			procDbgLog("using curl internal DNS resolver");
 
 		mState = StUrlReAsm;
 
@@ -363,7 +363,7 @@ Success HttpRequesting::process()
 		if (success != Positive)
 			return procErrLog(-1, "could not configure curl easy handle");
 
-		//procDbgLog(LOG_LVL, "easy handle curl created");
+		//procDbgLog("easy handle curl created");
 
 		mState = StEasyBind;
 
@@ -374,7 +374,7 @@ Success HttpRequesting::process()
 		if (success != Positive)
 			return procErrLog(-1, "could not bind curl easy handle");
 
-		//procDbgLog(LOG_LVL, "easy handle curl bound");
+		//procDbgLog("easy handle curl bound");
 
 		mState = StReqStart;
 
@@ -397,7 +397,7 @@ Success HttpRequesting::process()
 			return procErrLog(-1, "curl performing failed: %s (%d)",
 						curl_easy_strerror(mCurlRes), mCurlRes);
 
-		procDbgLog(LOG_LVL, "server returned status code %d", mRespCode);
+		procDbgLog("server returned status code %d", mRespCode);
 
 		return Positive;
 
@@ -498,7 +498,7 @@ void HttpRequesting::easyHandleCurlUnbind()
 		procWrnLog("could not unbind curl easy handle");
 
 	mCurlBound = false;
-	//procDbgLog(LOG_LVL, "easy handle curl unbound");
+	//procDbgLog("easy handle curl unbound");
 }
 
 /*
@@ -546,16 +546,16 @@ Success HttpRequesting::easyHandleCurlConfigure()
 	if (mVersionTls.size())
 		versionTls = mVersionTls;
 #if 0
-	procDbgLog(LOG_LVL, "url        = %s", mUrl.c_str());
-	procDbgLog(LOG_LVL, "method     = %s", mMethod.c_str());
+	procDbgLog("url        = %s", mUrl.c_str());
+	procDbgLog("method     = %s", mMethod.c_str());
 
 	iter = mLstHdrs.begin();
 	for (; iter != mLstHdrs.end(); ++iter)
-		procDbgLog(LOG_LVL, "hdr        = %s", iter->c_str());
+		procDbgLog("hdr        = %s", iter->c_str());
 
 	//hexDump(mData.data(), mData.size());
-	procDbgLog(LOG_LVL, "authMethod = %s", mAuthMethod.c_str());
-	procDbgLog(LOG_LVL, "versionTls = %s", versionTls.c_str());
+	procDbgLog("authMethod = %s", mAuthMethod.c_str());
+	procDbgLog("versionTls = %s", versionTls.c_str());
 #endif
 #ifdef ENABLE_CURL_SHARE
 	if (sessionCreate(address, port) != Positive)
@@ -696,12 +696,12 @@ Success HttpRequesting::sessionCreate(const std::string &address, const uint16_t
 	list<HttpSession>::iterator iter;
 	bool sessionFound = false;
 
-	procDbgLog(LOG_LVL, "remote socket for session: %s:%d", address.c_str(), port);
-	procDbgLog(LOG_LVL, "current number of sessions: %d", sessions.size());
+	procDbgLog("remote socket for session: %s:%d", address.c_str(), port);
+	procDbgLog("current number of sessions: %d", sessions.size());
 
 	for (iter = sessions.begin(); iter != sessions.end(); ++iter)
 	{
-		procDbgLog(LOG_LVL, "%d %s %d", iter->numReferences, iter->address.c_str(), iter->port);
+		procDbgLog("%d %s %d", iter->numReferences, iter->address.c_str(), iter->port);
 
 		if (iter->address == address && iter->port == port)
 		{
@@ -717,11 +717,11 @@ Success HttpRequesting::sessionCreate(const std::string &address, const uint16_t
 
 	if (sessionFound)
 	{
-		procDbgLog(LOG_LVL, "reusing existing session");
+		procDbgLog("reusing existing session");
 
 		++mSession->numReferences;
 	} else {
-		procDbgLog(LOG_LVL, "no existing session found. Creating");
+		procDbgLog("no existing session found. Creating");
 
 		HttpSession session;
 		sessions.push_front(session);
@@ -780,7 +780,7 @@ Success HttpRequesting::sessionCreate(const std::string &address, const uint16_t
 	if (mSession->numReferences > mSession->maxReferences)
 		mSession->maxReferences = mSession->numReferences;
 
-	procDbgLog(LOG_LVL, "current number of session references: %d", mSession->numReferences);
+	procDbgLog("current number of session references: %d", mSession->numReferences);
 
 	return Positive;
 }
@@ -790,15 +790,15 @@ void HttpRequesting::sessionTerminate()
 #if CONFIG_PROC_HAVE_DRIVERS
 	Guard lock(sessionMtx);
 #endif
-	procDbgLog(LOG_LVL, "dereferencing session: %s:%d", mSession->address.c_str(), mSession->port);
+	procDbgLog("dereferencing session: %s:%d", mSession->address.c_str(), mSession->port);
 
 	--mSession->numReferences;
-	procDbgLog(LOG_LVL, "%d session references left", mSession->numReferences);
+	procDbgLog("%d session references left", mSession->numReferences);
 
 	if (mSession->numReferences)
 		return;
 
-	procDbgLog(LOG_LVL, "terminating session. max number of session references were %d",
+	procDbgLog("terminating session. max number of session references were %d",
 		mSession->maxReferences);
 
 	curl_share_cleanup(mSession->pCurlShare);
@@ -885,10 +885,10 @@ void HttpRequesting::multiProcess()
 	--mRetries;
 	if (mRetries)
 	{
-		procDbgLog(LOG_LVL, "retries left %d", mRetries);
+		procDbgLog("retries left %d", mRetries);
 		success = Pending;
 	} else
-		procDbgLog(LOG_LVL, "no retry");
+		procDbgLog("no retry");
 #endif
 }
 
