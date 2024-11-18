@@ -42,8 +42,6 @@ dProcessStateStr(ProcState);
 using namespace std;
 using namespace Json;
 
-#define LOG_LVL	0
-
 #if CONFIG_PROC_HAVE_DRIVERS
 mutex EventListening::mMtxEvents;
 #endif

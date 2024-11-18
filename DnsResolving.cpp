@@ -47,8 +47,6 @@ dProcessStateStr(ProcState);
 
 using namespace std;
 
-#define LOG_LVL	0
-
 DnsResolving::DnsResolving()
 	: Processing("DnsResolving")
 	//, mStartMs(0)

@@ -40,8 +40,6 @@ dProcessStateStr(ProcState);
 
 using namespace std;
 
-#define LOG_LVL	0
-
 MsWaiting::MsWaiting(uint32_t durationMs)
 	: Processing("MsWaiting")
 	, mStartMs(0)

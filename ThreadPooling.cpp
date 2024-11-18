@@ -53,8 +53,6 @@ dProcessStateStr(SdState);
 
 using namespace std;
 
-#define LOG_LVL	1
-
 Pipe<PoolRequest> ThreadPooling::ppPoolRequests;
 
 ThreadPooling::ThreadPooling()
@@ -316,7 +314,7 @@ void ThreadPooling::procAdd(Processing *pProc, int32_t idDriver)
 	req.pProc = pProc;
 	req.idDriverDesired = idDriver;
 
-	dbgLog(LOG_LVL, "adding proc %p to queue", pProc);
+	dbgLog("adding proc %p to queue", pProc);
 	ppPoolRequests.commit(req);
 }
 

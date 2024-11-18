@@ -46,8 +46,6 @@ dProcessStateStr(ProcState);
 
 using namespace std;
 
-#define LOG_LVL	0
-
 EspLedPulsing::EspLedPulsing()
 	: Processing("EspLedPulsing")
 	, mStartMs(0)

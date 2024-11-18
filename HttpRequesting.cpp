@@ -56,8 +56,6 @@ dProcessStateStr(ProcState);
 
 using namespace std;
 
-#define LOG_LVL			0
-
 //#define ENABLE_CURL_SHARE
 
 mutex HttpRequesting::mtxCurlMulti;
@@ -478,7 +476,7 @@ CURLM *HttpRequesting::multiHandleCurlInit()
 	curl_multi_setopt(pMulti, CURLMOPT_MAX_HOST_CONNECTIONS, 5L);
 	curl_multi_setopt(pMulti, CURLMOPT_MAX_TOTAL_CONNECTIONS, 10L);
 #endif
-	dbgLog(LOG_LVL, "global init curl multi done");
+	dbgLog("global init curl multi done");
 
 	return pMulti;
 }
@@ -844,7 +842,7 @@ void HttpRequesting::multiProcess()
 
 	while (curlMsg = curl_multi_info_read(pCurlMulti, &numMsgsLeft), curlMsg)
 	{
-		//dbgLog(LOG_LVL, "messages left: %d", numMsgsLeft);
+		//dbgLog("messages left: %d", numMsgsLeft);
 
 		if (curlMsg->msg != CURLMSG_DONE)
 			continue;
@@ -859,14 +857,14 @@ void HttpRequesting::multiProcess()
 		pReq->mCurlRes = curlMsg->data.result;
 		curl_easy_getinfo(pCurl, CURLINFO_RESPONSE_CODE, &pReq->mRespCode);
 #if 0
-		dbgLog(LOG_LVL, "curl msg done   %p", pReq);
-		dbgLog(LOG_LVL, "result          %d", pReq->mCurlRes);
-		dbgLog(LOG_LVL, "response code   %d", pReq->mRespCode);
-		dbgLog(LOG_LVL, "url             %s", pReq->mUrl.substr(33).c_str());
+		dbgLog("curl msg done   %p", pReq);
+		dbgLog("result          %d", pReq->mCurlRes);
+		dbgLog("response code   %d", pReq->mRespCode);
+		dbgLog("url             %s", pReq->mUrl.substr(33).c_str());
 #endif
 		curl_multi_remove_handle(pCurlMulti, pCurl);
 		pReq->mCurlBound = false;
-		//dbgLog(LOG_LVL, "easy handle curl unbound");
+		//dbgLog("easy handle curl unbound");
 
 		if (pReq->mpHeaderList)
 		{
@@ -911,7 +909,7 @@ void HttpRequesting::curlMultiDeInit()
 	curl_multi_cleanup(pCurlMulti);
 	pCurlMulti = NULL;
 
-	dbgLog(LOG_LVL, "global deinit curl multi done");
+	dbgLog("global deinit curl multi done");
 }
 
 extern "C" void HttpRequesting::sharedDataLock(CURL *handle, curl_lock_data data, curl_lock_access access, void *userptr)
@@ -984,7 +982,7 @@ extern "C" int HttpRequesting::curlTrace(CURL *pCurl, curl_infotype type, char *
 			return 0;
 	}
 
-	dbgLog(LOG_LVL, "%-20s from %p", pText, pReq);
+	dbgLog("%-20s from %p", pText, pReq);
 
 	if (pData && size)
 		hexDump(pData, size);

@@ -27,8 +27,6 @@
 
 using namespace std;
 
-#define LOG_LVL	0
-
 KeyFiltering::KeyFiltering(const char *name)
 	: Transfering(name)
 	, mKeyLastRcvdMs(0)

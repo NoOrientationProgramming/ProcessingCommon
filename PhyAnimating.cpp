@@ -37,8 +37,6 @@ dProcessStateEnum(ProcState);
 using namespace std;
 using namespace Qt;
 
-#define LOG_LVL	0
-
 #if CONFIG_PROC_HAVE_DRIVERS
 mutex PhyAnimating::mtxGlobalInit;
 #endif
@@ -569,17 +567,17 @@ bool PhyAnimating::qtGlobalInit()
 
 void PhyAnimating::qtGlobalDestruct()
 {
-	dbgLog(LOG_LVL, "global Qt deinit");
+	dbgLog("global Qt deinit");
 #if CONFIG_PROC_HAVE_DRIVERS
 	Guard lock(mtxGlobalInit);
 #endif
-	dbgLog(LOG_LVL, "quitting Qt application");
+	dbgLog("quitting Qt application");
 	QApplication::quit();
-	dbgLog(LOG_LVL, "quitting Qt application. Done");
+	dbgLog("quitting Qt application. Done");
 
-	dbgLog(LOG_LVL, "deleting Qt application");
+	dbgLog("deleting Qt application");
 	delete pAppQt;
 	pAppQt = NULL;
-	dbgLog(LOG_LVL, "deleting Qt application. Done");
+	dbgLog("deleting Qt application. Done");
 }
 

@@ -32,8 +32,6 @@ dProcessStateStr(MailSeState);
 
 using namespace std;
 
-#define LOG_LVL	0
-
 #define dMailSendTimeoutMs			1000
 #define dSmtpCodeActionOkeyCompleted	250
 
@@ -355,7 +353,7 @@ void MailSending::curlMultiDeInit()
 	curl_multi_cleanup(pCurlMulti);
 	pCurlMulti = NULL;
 
-	dbgLog(0, "MailSending(): multi curl cleanup done");
+	dbgLog("MailSending(): multi curl cleanup done");
 }
 
 extern "C" size_t MailSending::stringToCurlDataRead(char *ptr, size_t size, size_t nmemb, MailSending *pReq)

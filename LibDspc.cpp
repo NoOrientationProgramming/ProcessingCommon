@@ -445,7 +445,7 @@ void curlGlobalInit()
 	curl_global_init(CURL_GLOBAL_ALL);
 	curlGlobalInitDone = true;
 
-	dbgLog(0, "global init curl done");
+	dbgLog("global init curl done");
 }
 
 /*
@@ -466,7 +466,7 @@ void curlGlobalDeInit()
 	curl_global_cleanup();
 	curlGlobalInitDone = false;
 
-	dbgLog(0, "global deinit curl done");
+	dbgLog("global deinit curl done");
 }
 
 string versionCurl()
@@ -507,7 +507,7 @@ void caresGlobalInit()
 	ares_library_init(ARES_LIB_INIT_ALL);
 	caresGlobalInitDone = true;
 
-	dbgLog(0, "global init c-ares done");
+	dbgLog("global init c-ares done");
 }
 
 void caresGlobalDeInit()
@@ -520,7 +520,7 @@ void caresGlobalDeInit()
 	ares_library_cleanup();
 	caresGlobalInitDone = false;
 
-	dbgLog(0, "global deinit c-ares done");
+	dbgLog("global deinit c-ares done");
 }
 #endif
 
