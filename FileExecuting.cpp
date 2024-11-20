@@ -28,6 +28,7 @@
 #include <fcntl.h>
 #include <signal.h>
 #include <sys/wait.h>
+#include <sys/resource.h>
 
 #include "FileExecuting.h"
 
@@ -248,7 +249,12 @@ Success FileExecuting::process()
 		}
 
 		// Close all open files
-		closefrom(3); // non standard ..
+		ok = closefromInternal(3);
+		if (!ok)
+		{
+			cerr << "could close file descriptors: " << strerror(errno) << endl;
+			_exit(EXIT_FAILURE);
+		}
 
 		// Execute
 		res = execvpe(mpArgs[0], mpArgs, mUserEnv ? mpEnv : environ);
@@ -1455,6 +1461,27 @@ void FileExecuting::fdClose(int &fd, bool deInit)
 		return;
 
 	fd = -1;
+}
+
+/*
+ * Literature
+ * - https://www.man7.org/linux/man-pages/man2/getrlimit.2.html
+ */
+bool FileExecuting::closefromInternal(int fdStart)
+{
+	struct rlimit rl;
+	rlim_t fd;
+	int res;
+
+	res = getrlimit(RLIMIT_NOFILE, &rl);
+	if (res)
+		return false;
+
+	fd = fdStart;
+	for (; fd < rl.rlim_max; ++fd)
+		close(fd);
+
+	return true;
 }
 
 void FileExecuting::processInfo(char *pBuf, char *pBufEnd)

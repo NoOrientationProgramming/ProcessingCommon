@@ -230,6 +230,7 @@ private:
 	void pipeClose(FePairFd &pair, bool deInit = true);
 	bool fileNonBlockingSet(int fd);
 	void fdClose(int &fd, bool deInit = true);
+	bool closefromInternal(int fdStart);
 
 	/* member variables */
 
