@@ -92,7 +92,7 @@ HttpRequesting::HttpRequesting()
 	, mCurlRes(CURLE_OK)
 	, mRespCode(0)
 	, mRespHdr("")
-	, mRespData("")
+	, mRespData()
 #if 0 // TODO: Implement
 	, mRetries(2)
 #endif
@@ -130,7 +130,7 @@ HttpRequesting::HttpRequesting(const string &url)
 	, mCurlRes(CURLE_OK)
 	, mRespCode(0)
 	, mRespHdr("")
-	, mRespData("")
+	, mRespData()
 #if 0 // TODO: Implement
 	, mRetries(2)
 #endif
@@ -234,7 +234,12 @@ string &HttpRequesting::respHdr()
 	return mRespHdr;
 }
 
-string &HttpRequesting::respData()
+string HttpRequesting::respStr()
+{
+	return string(mRespData.begin(), mRespData.end());
+}
+
+vector<uint8_t> &HttpRequesting::respBytes()
 {
 	return mRespData;
 }
@@ -632,7 +637,7 @@ Success HttpRequesting::easyHandleCurlConfigure()
 	curl_easy_setopt(mpCurl, CURLOPT_HEADERFUNCTION, HttpRequesting::curlDataToStringWrite);
 	curl_easy_setopt(mpCurl, CURLOPT_HEADERDATA, &mRespHdr);
 
-	curl_easy_setopt(mpCurl, CURLOPT_WRITEFUNCTION, HttpRequesting::curlDataToStringWrite);
+	curl_easy_setopt(mpCurl, CURLOPT_WRITEFUNCTION, HttpRequesting::curlDataToByteVecWrite);
 	curl_easy_setopt(mpCurl, CURLOPT_WRITEDATA, &mRespData);
 
 	curl_easy_setopt(mpCurl, CURLOPT_PRIVATE, this);
@@ -939,9 +944,16 @@ extern "C" void HttpRequesting::sharedDataUnLock(CURL *handle, curl_lock_data da
 
 extern "C" size_t HttpRequesting::curlDataToStringWrite(void *ptr, size_t size, size_t nmemb, string *pData)
 {
-	pData->append((char *)ptr, size * nmemb);
+	size_t sz = size * nmemb;
+	pData->append((char *)ptr, sz);
+	return sz;
+}
 
-	return size * nmemb;
+extern "C" size_t HttpRequesting::curlDataToByteVecWrite(void *ptr, size_t size, size_t nmemb, vector<uint8_t> *pData)
+{
+	size_t sz = size * nmemb;
+	pData->insert(pData->end(), (uint8_t *)ptr, ((uint8_t *)ptr) + sz);
+	return sz;
 }
 
 extern "C" int HttpRequesting::curlTrace(CURL *pCurl, curl_infotype type, char *pData, size_t size, void *pUser)

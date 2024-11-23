@@ -83,7 +83,8 @@ public:
 	// output
 	uint16_t respCode() const;
 	std::string &respHdr();
-	std::string &respData();
+	std::string respStr();
+	std::vector<uint8_t> &respBytes();
 
 protected:
 
@@ -143,7 +144,7 @@ private:
 	CURLcode mCurlRes;
 	long mRespCode;
 	std::string mRespHdr;
-	std::string mRespData;
+	std::vector<uint8_t> mRespData;
 
 	std::list<HttpSession>::iterator mSession;
 #if 0 // TODO: Implement
@@ -157,6 +158,7 @@ private:
 	static void sharedDataLock(CURL *handle, curl_lock_data data, curl_lock_access access, void *userptr);
 	static void sharedDataUnLock(CURL *handle, curl_lock_data data, void *userptr);
 	static size_t curlDataToStringWrite(void *ptr, size_t size, size_t nmemb, std::string *pData);
+	static size_t curlDataToByteVecWrite(void *ptr, size_t size, size_t nmemb, std::vector<uint8_t> *pData);
 	static int curlTrace(CURL *pCurl, curl_infotype type, char *pData, size_t size, void *pUser);
 
 	/* static variables */
