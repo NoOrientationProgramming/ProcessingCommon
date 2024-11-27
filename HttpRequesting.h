@@ -139,7 +139,7 @@ private:
 #endif
 	CURL *mpCurl;
 	bool mCurlBound;
-	struct curl_slist *mpHeaderList;
+	struct curl_slist *mpListHeader;
 
 	CURLcode mCurlRes;
 	long mRespCode;

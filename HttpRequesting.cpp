@@ -88,7 +88,7 @@ HttpRequesting::HttpRequesting()
 #endif
 	, mpCurl(NULL)
 	, mCurlBound(false)
-	, mpHeaderList(NULL)
+	, mpListHeader(NULL)
 	, mCurlRes(CURLE_OK)
 	, mRespCode(0)
 	, mRespHdr("")
@@ -126,7 +126,7 @@ HttpRequesting::HttpRequesting(const string &url)
 #endif
 	, mpCurl(NULL)
 	, mCurlBound(false)
-	, mpHeaderList(NULL)
+	, mpListHeader(NULL)
 	, mCurlRes(CURLE_OK)
 	, mRespCode(0)
 	, mRespHdr("")
@@ -424,10 +424,10 @@ Success HttpRequesting::shutdown()
 
 		easyHandleCurlUnbind();
 
-		if (mpHeaderList)
+		if (mpListHeader)
 		{
-			curl_slist_free_all(mpHeaderList);
-			mpHeaderList = NULL;
+			curl_slist_free_all(mpListHeader);
+			mpListHeader = NULL;
 		}
 
 		return Positive;
@@ -607,23 +607,23 @@ Success HttpRequesting::easyHandleCurlConfigure()
 	else if (mVersionHttp == "HTTP/2")
 		curl_easy_setopt(mpCurl, CURLOPT_HTTP_VERSION, CURL_HTTP_VERSION_2_0);
 
-	if (mpHeaderList)
+	if (mpListHeader)
 	{
-		curl_slist_free_all(mpHeaderList);
-		mpHeaderList = NULL;
+		curl_slist_free_all(mpListHeader);
+		mpListHeader = NULL;
 	}
 
 	iter = mLstHdrs.begin();
 	for (; iter != mLstHdrs.end(); ++iter)
 	{
-		pEntry = curl_slist_append(mpHeaderList, iter->c_str());
+		pEntry = curl_slist_append(mpListHeader, iter->c_str());
 
-		if (!mpHeaderList)
-			mpHeaderList = pEntry;
+		if (!mpListHeader)
+			mpListHeader = pEntry;
 	}
 
-	if (mpHeaderList)
-		curl_easy_setopt(mpCurl, CURLOPT_HTTPHEADER, mpHeaderList);
+	if (mpListHeader)
+		curl_easy_setopt(mpCurl, CURLOPT_HTTPHEADER, mpListHeader);
 
 	if (mMethod == "post" || mMethod == "put")
 	{
@@ -666,10 +666,10 @@ Success HttpRequesting::easyHandleCurlConfigure()
 	return Positive;
 
 errCleanupCurl:
-	if (mpHeaderList)
+	if (mpListHeader)
 	{
-		curl_slist_free_all(mpHeaderList);
-		mpHeaderList = NULL;
+		curl_slist_free_all(mpListHeader);
+		mpListHeader = NULL;
 	}
 
 	curl_easy_cleanup(mpCurl);
@@ -871,10 +871,10 @@ void HttpRequesting::multiProcess()
 		pReq->mCurlBound = false;
 		//dbgLog("easy handle curl unbound");
 
-		if (pReq->mpHeaderList)
+		if (pReq->mpListHeader)
 		{
-			curl_slist_free_all(pReq->mpHeaderList);
-			pReq->mpHeaderList = NULL;
+			curl_slist_free_all(pReq->mpListHeader);
+			pReq->mpListHeader = NULL;
 		}
 
 		curl_easy_cleanup(pReq->mpCurl);
