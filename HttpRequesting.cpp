@@ -158,6 +158,14 @@ void HttpRequesting::urlSet(const string &url)
 	mUrl = url;
 }
 
+void HttpRequesting::addrHostSet(const string &addrHost)
+{
+	if (!addrHost.size())
+		return;
+
+	mAddrHost = addrHost;
+}
+
 void HttpRequesting::methodSet(const string &method)
 {
 	if (!method.size())

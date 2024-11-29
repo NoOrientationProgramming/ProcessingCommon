@@ -68,6 +68,7 @@ public:
 
 	// input
 	void urlSet(const std::string &url);
+	void addrHostSet(const std::string &addrHost);
 	void methodSet(const std::string &type);
 	void userPwSet(const std::string &userPw);
 	void hdrAdd(const std::string &hdr);
