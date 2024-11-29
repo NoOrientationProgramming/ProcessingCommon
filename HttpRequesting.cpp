@@ -31,7 +31,6 @@
 
 #define dForEach_ProcState(gen) \
 		gen(StStart) \
-		gen(StGlobalInit) \
 		gen(StDnsResolvStart) \
 		gen(StDnsResolvDoneWait) \
 		gen(StUrlReAsm) \
@@ -270,11 +269,6 @@ Success HttpRequesting::process()
 
 		if (!mUrl.size())
 			return procErrLog(-1, "url not set");
-
-		mState = StGlobalInit;
-
-		break;
-	case StGlobalInit:
 
 		curlGlobalInit();
 
