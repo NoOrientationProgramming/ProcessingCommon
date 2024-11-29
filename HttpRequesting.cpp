@@ -691,7 +691,7 @@ errCleanupCurl:
  * - https://curl.haxx.se/libcurl/c/threaded-shared-conn.html
  * - https://curl.haxx.se/libcurl/c/threaded-ssl.html
  */
-Success HttpRequesting::sessionCreate(const std::string &address, const uint16_t port)
+Success HttpRequesting::sessionCreate(const string &address, const uint16_t port)
 {
 #if CONFIG_PROC_HAVE_DRIVERS
 	Guard lock(sessionMtx);
