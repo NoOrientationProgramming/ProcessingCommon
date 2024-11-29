@@ -68,7 +68,7 @@ public:
 
 	// input
 	void urlSet(const std::string &url);
-	void addrHostSet(const std::string &addrHost);
+	void addrHostAdd(const std::string &addrHost);
 	void methodSet(const std::string &type);
 	void userPwSet(const std::string &userPw);
 	void hdrAdd(const std::string &hdr);
@@ -123,7 +123,7 @@ private:
 	std::string mProtocol;
 	std::string mNameHost;
 	std::string mAddrHost;
-	int mTypeIp;
+	int mTypeNameHost;
 	uint16_t mPort;
 	std::string mPath;
 	std::string mQueries;
@@ -141,6 +141,7 @@ private:
 	CURL *mpCurl;
 	bool mCurlBound;
 	struct curl_slist *mpListHeader;
+	struct curl_slist *mpListResolv;
 
 	CURLcode mCurlRes;
 	long mRespCode;
@@ -161,6 +162,7 @@ private:
 	static size_t curlDataToStringWrite(void *ptr, size_t size, size_t nmemb, std::string *pData);
 	static size_t curlDataToByteVecWrite(void *ptr, size_t size, size_t nmemb, std::vector<uint8_t> *pData);
 	static int curlTrace(CURL *pCurl, curl_infotype type, char *pData, size_t size, void *pUser);
+	static void curlListFree(struct curl_slist **ppList);
 
 	/* static variables */
 	static std::mutex mtxCurlMulti;
