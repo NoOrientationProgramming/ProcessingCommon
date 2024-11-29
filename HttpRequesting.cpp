@@ -31,7 +31,6 @@
 
 #define dForEach_ProcState(gen) \
 		gen(StStart) \
-		gen(StGlobalInit) \
 		gen(StDnsResolvStart) \
 		gen(StDnsResolvDoneWait) \
 		gen(StUrlReAsm) \
@@ -71,7 +70,7 @@ HttpRequesting::HttpRequesting()
 	, mProtocol("")
 	, mNameHost("")
 	, mAddrHost("")
-	, mTypeIp(AF_UNSPEC)
+	, mTypeNameHost(AF_UNSPEC)
 	, mPort(0)
 	, mPath("")
 	, mQueries("")
@@ -89,6 +88,7 @@ HttpRequesting::HttpRequesting()
 	, mpCurl(NULL)
 	, mCurlBound(false)
 	, mpListHeader(NULL)
+	, mpListResolv(NULL)
 	, mCurlRes(CURLE_OK)
 	, mRespCode(0)
 	, mRespHdr("")
@@ -109,7 +109,7 @@ HttpRequesting::HttpRequesting(const string &url)
 	, mProtocol("")
 	, mNameHost("")
 	, mAddrHost("")
-	, mTypeIp(AF_UNSPEC)
+	, mTypeNameHost(AF_UNSPEC)
 	, mPort(0)
 	, mPath("")
 	, mQueries("")
@@ -127,6 +127,7 @@ HttpRequesting::HttpRequesting(const string &url)
 	, mpCurl(NULL)
 	, mCurlBound(false)
 	, mpListHeader(NULL)
+	, mpListResolv(NULL)
 	, mCurlRes(CURLE_OK)
 	, mRespCode(0)
 	, mRespHdr("")
@@ -156,6 +157,14 @@ void HttpRequesting::urlSet(const string &url)
 		return;
 
 	mUrl = url;
+}
+
+void HttpRequesting::addrHostAdd(const string &addrHost)
+{
+	if (!addrHost.size())
+		return;
+
+	mAddrHost = addrHost;
 }
 
 void HttpRequesting::methodSet(const string &method)
@@ -263,27 +272,27 @@ Success HttpRequesting::process()
 		if (!mUrl.size())
 			return procErrLog(-1, "url not set");
 
-		mState = StGlobalInit;
-
-		break;
-	case StGlobalInit:
-
 		curlGlobalInit();
 
 		urlToParts(mUrl, mProtocol, mNameHost, mPort, mPath, mQueries);
 
 		if (!mProtocol.size())
 			mProtocol = "https";
+
+		mTypeNameHost = typeIp(mNameHost);
+
+		if (!mPort)
+			mPort = mProtocol == "https" ? 443 : 80;
 #if 0
 		procWrnLog("URL           %s", mUrl.c_str());
 		procWrnLog("Protocol      %s", mProtocol.c_str());
-		procWrnLog("Name Host     %s", mNameHost.c_str());
+		procWrnLog("Host name     %s", mNameHost.c_str());
+		procWrnLog("Host address  %s", mAddrHost.c_str());
 		procWrnLog("Port          %u", mPort);
 		procWrnLog("Path          %s", mPath.c_str());
 		procWrnLog("Queries       %s", mQueries.c_str());
 #endif
-		mTypeIp = typeIp(mNameHost);
-		if (mTypeIp == AF_UNSPEC)
+		if (mTypeNameHost == AF_UNSPEC && !mAddrHost.size())
 		{
 			procDbgLog("resolving host");
 			mState = StDnsResolvStart;
@@ -336,12 +345,7 @@ Success HttpRequesting::process()
 		mUrl = mProtocol;
 		mUrl += "://";
 
-		if (mAddrHost.size())
-		{
-			mUrl += mAddrHost;
-			hdrAdd(string("Host: ") + mNameHost);
-		} else
-			mUrl += mNameHost;
+		mUrl += mNameHost;
 
 		if (mPath.size())
 		{
@@ -424,11 +428,8 @@ Success HttpRequesting::shutdown()
 
 		easyHandleCurlUnbind();
 
-		if (mpListHeader)
-		{
-			curl_slist_free_all(mpListHeader);
-			mpListHeader = NULL;
-		}
+		curlListFree(&mpListHeader);
+		curlListFree(&mpListResolv);
 
 		return Positive;
 
@@ -442,7 +443,7 @@ Success HttpRequesting::shutdown()
 
 /*
  * Literature
- * - https://curl.haxx.se/libcurl/c/
+ * - https://curl.se/libcurl/c/
  * - https://curl.se/libcurl/c/curl_multi_add_handle.html
  * - https://curl.se/libcurl/c/libcurl-errors.html
  */
@@ -512,26 +513,27 @@ void HttpRequesting::easyHandleCurlUnbind()
  * - http://www.cplusplus.com/reference/regex/ECMAScript/
  *
  * Literature
- * - https://curl.haxx.se/libcurl/c/
- * - https://curl.haxx.se/libcurl/c/libcurl-easy.html
- * - https://curl.haxx.se/libcurl/c/post-callback.html
- * - https://curl.haxx.se/libcurl/c/multithread.html
- * - https://curl.haxx.se/libcurl/c/debug.html
- * - https://curl.haxx.se/libcurl/c/CURLOPT_URL.html
- * - https://curl.haxx.se/libcurl/c/CURLOPT_HTTPAUTH.html
- * - https://curl.haxx.se/libcurl/c/CURLOPT_SSLVERSION.html
- * - https://curl.haxx.se/libcurl/c/CURLOPT_SSL_VERIFYPEER.html
- * - https://curl.haxx.se/libcurl/c/CURLOPT_SSL_VERIFYHOST.html
- * - https://curl.haxx.se/libcurl/c/CURLOPT_CAPATH.html
- * - https://curl.haxx.se/libcurl/c/CURLOPT_PRIVATE.html
- * - https://curl.haxx.se/libcurl/c/CURLOPT_SSL_OPTIONS.html
- * - https://curl.haxx.se/docs/sslcerts.html
- * - https://curl.haxx.se/mail/archive-2015-05/0006.html
+ * - https://curl.se/libcurl/c/
+ * - https://curl.se/libcurl/c/libcurl-easy.html
+ * - https://curl.se/libcurl/c/post-callback.html
+ * - https://curl.se/libcurl/c/multithread.html
+ * - https://curl.se/libcurl/c/debug.html
+ * - https://curl.se/libcurl/c/CURLOPT_RESOLVE.html
+ * - https://curl.se/libcurl/c/CURLOPT_URL.html
+ * - https://curl.se/libcurl/c/CURLOPT_HTTPAUTH.html
+ * - https://curl.se/libcurl/c/CURLOPT_SSLVERSION.html
+ * - https://curl.se/libcurl/c/CURLOPT_SSL_VERIFYPEER.html
+ * - https://curl.se/libcurl/c/CURLOPT_SSL_VERIFYHOST.html
+ * - https://curl.se/libcurl/c/CURLOPT_CAPATH.html
+ * - https://curl.se/libcurl/c/CURLOPT_PRIVATE.html
+ * - https://curl.se/libcurl/c/CURLOPT_SSL_OPTIONS.html
+ * - https://curl.se/docs/sslcerts.html
+ * - https://curl.se/mail/archive-2015-05/0006.html
  * - https://gist.github.com/leprechau/e6b8fef41a153218e1f4
  * - https://gist.github.com/whoshuu/2dc858b8730079602044
- * - https://curl.haxx.se/libcurl/c/libcurl-multi.html
- *   - https://curl.haxx.se/libcurl/c/multi-app.html
- * - https://curl.haxx.se/mail/lib-2018-12/0011.html
+ * - https://curl.se/libcurl/c/libcurl-multi.html
+ *   - https://curl.se/libcurl/c/multi-app.html
+ * - https://curl.se/mail/lib-2018-12/0011.html
  */
 Success HttpRequesting::easyHandleCurlConfigure()
 {
@@ -607,16 +609,18 @@ Success HttpRequesting::easyHandleCurlConfigure()
 	else if (mVersionHttp == "HTTP/2")
 		curl_easy_setopt(mpCurl, CURLOPT_HTTP_VERSION, CURL_HTTP_VERSION_2_0);
 
-	if (mpListHeader)
-	{
-		curl_slist_free_all(mpListHeader);
-		mpListHeader = NULL;
-	}
+	// headers
+	curlListFree(&mpListHeader);
 
 	iter = mLstHdrs.begin();
 	for (; iter != mLstHdrs.end(); ++iter)
 	{
 		pEntry = curl_slist_append(mpListHeader, iter->c_str());
+		if (!pEntry)
+		{
+			procWrnLog("could not create header list entry");
+			break;
+		}
 
 		if (!mpListHeader)
 			mpListHeader = pEntry;
@@ -625,6 +629,22 @@ Success HttpRequesting::easyHandleCurlConfigure()
 	if (mpListHeader)
 		curl_easy_setopt(mpCurl, CURLOPT_HTTPHEADER, mpListHeader);
 
+	// resolv
+	curlListFree(&mpListResolv);
+
+	if (mTypeNameHost == AF_UNSPEC && mAddrHost.size())
+	{
+		string str = mNameHost + ":" + to_string(mPort) + ":" + mAddrHost;
+
+		mpListResolv = curl_slist_append(mpListResolv, str.c_str());
+		if (!mpListResolv)
+			procWrnLog("could not create resolv list entry");
+	}
+
+	if (mpListResolv)
+		curl_easy_setopt(mpCurl, CURLOPT_RESOLVE, mpListResolv);
+
+	// continued
 	if (mMethod == "post" || mMethod == "put")
 	{
 		curl_easy_setopt(mpCurl, CURLOPT_POSTFIELDS, mData.data());
@@ -666,11 +686,8 @@ Success HttpRequesting::easyHandleCurlConfigure()
 	return Positive;
 
 errCleanupCurl:
-	if (mpListHeader)
-	{
-		curl_slist_free_all(mpListHeader);
-		mpListHeader = NULL;
-	}
+	curlListFree(&mpListHeader);
+	curlListFree(&mpListResolv);
 
 	curl_easy_cleanup(mpCurl);
 #ifdef ENABLE_CURL_SHARE
@@ -681,17 +698,17 @@ errCleanupCurl:
 
 /*
  * Literature libcurl
- * - https://curl.haxx.se/libcurl/c/libcurl-share.html
- * - https://curl.haxx.se/libcurl/c/curl_share_init.html
- * - https://curl.haxx.se/libcurl/c/CURLOPT_SHARE.html
- * - https://curl.haxx.se/libcurl/c/curl_share_setopt.html
+ * - https://curl.se/libcurl/c/libcurl-share.html
+ * - https://curl.se/libcurl/c/curl_share_init.html
+ * - https://curl.se/libcurl/c/CURLOPT_SHARE.html
+ * - https://curl.se/libcurl/c/curl_share_setopt.html
  * - https://ec.haxx.se/libcurl-sharing.html
- * - https://curl.haxx.se/mail/lib-2016-04/0139.html
- * - https://curl.haxx.se/libcurl/c/example.html
- * - https://curl.haxx.se/libcurl/c/threaded-shared-conn.html
- * - https://curl.haxx.se/libcurl/c/threaded-ssl.html
+ * - https://curl.se/mail/lib-2016-04/0139.html
+ * - https://curl.se/libcurl/c/example.html
+ * - https://curl.se/libcurl/c/threaded-shared-conn.html
+ * - https://curl.se/libcurl/c/threaded-ssl.html
  */
-Success HttpRequesting::sessionCreate(const std::string &address, const uint16_t port)
+Success HttpRequesting::sessionCreate(const string &address, const uint16_t port)
 {
 #if CONFIG_PROC_HAVE_DRIVERS
 	Guard lock(sessionMtx);
@@ -828,10 +845,10 @@ void HttpRequesting::processInfo(char *pBuf, char *pBufEnd)
 
 /*
  * Literature
- * - https://curl.haxx.se/libcurl/c/curl_multi_perform.html
- * - https://curl.haxx.se/libcurl/c/curl_multi_info_read.html
- * - https://curl.haxx.se/libcurl/c/CURLINFO_RESPONSE_CODE.html
- * - https://curl.haxx.se/libcurl/c/CURLINFO_PRIVATE.html
+ * - https://curl.se/libcurl/c/curl_multi_perform.html
+ * - https://curl.se/libcurl/c/curl_multi_info_read.html
+ * - https://curl.se/libcurl/c/CURLINFO_RESPONSE_CODE.html
+ * - https://curl.se/libcurl/c/CURLINFO_PRIVATE.html
  */
 void HttpRequesting::multiProcess()
 {
@@ -871,11 +888,8 @@ void HttpRequesting::multiProcess()
 		pReq->mCurlBound = false;
 		//dbgLog("easy handle curl unbound");
 
-		if (pReq->mpListHeader)
-		{
-			curl_slist_free_all(pReq->mpListHeader);
-			pReq->mpListHeader = NULL;
-		}
+		curlListFree(&pReq->mpListHeader);
+		curlListFree(&pReq->mpListResolv);
 
 		curl_easy_cleanup(pReq->mpCurl);
 		pReq->mpCurl = NULL;
@@ -897,7 +911,7 @@ void HttpRequesting::multiProcess()
 
 /*
  * Literature
- * - https://curl.haxx.se/mail/lib-2016-09/0047.html
+ * - https://curl.se/mail/lib-2016-09/0047.html
  * - https://stackoverflow.com/questions/29845527/how-to-properly-uninitialize-openssl
  * - https://wiki.openssl.org/index.php/Library_Initialization
  * - Wichtig
@@ -1000,5 +1014,14 @@ extern "C" int HttpRequesting::curlTrace(CURL *pCurl, curl_infotype type, char *
 		hexDump(pData, size);
 
 	return 0;
+}
+
+void HttpRequesting::curlListFree(struct curl_slist **ppList)
+{
+	if (!ppList || !*ppList)
+		return;
+
+	curl_slist_free_all(*ppList);
+	*ppList = NULL;
 }
 
