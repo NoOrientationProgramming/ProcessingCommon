@@ -116,3 +116,10 @@ size_t tpDiffMs(const TimePoint &tpEnd, const TimePoint &tpStart)
 	return duration_cast<milliseconds>(tpEnd - tpStart).count();
 }
 
+TimePoint utcToCet(const TimePoint &tpUtc)
+{
+	time_t tTt = system_clock::to_time_t(tpUtc);
+	tm tTm = *localtime(&tTt);
+	return tpUtc + hours(tTm.tm_isdst ? 2 : 1);
+}
+

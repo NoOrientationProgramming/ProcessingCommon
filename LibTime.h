@@ -44,5 +44,7 @@ TimePoint strToTp(const std::string &str, const char *pFmt = NULL);
 size_t tpDiffSec(const TimePoint &tpEnd, const TimePoint &tpStart);
 size_t tpDiffMs(const TimePoint &tpEnd, const TimePoint &tpStart);
 
+TimePoint utcToCet(const TimePoint &tpUtc);
+
 #endif
 
