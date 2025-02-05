@@ -266,13 +266,13 @@ vector<char> toHex(const string &strIn)
 	{
 		ch = strIn[i];
 
-		if (ch >= 'a' and ch <= 'f')
+		if (ch >= 'a' && ch <= 'f')
 			digit = ch - 'a' + 10;
 		else
-		if (ch >= 'A' and ch <= 'F')
+		if (ch >= 'A' && ch <= 'F')
 			digit = ch - 'A' + 10;
 		else
-		if (ch >= '0' and ch <= '9')
+		if (ch >= '0' && ch <= '9')
 			digit = ch - '0';
 		else
 			digit = 0;
@@ -689,7 +689,7 @@ void strPadCutTo(string &str, size_t width, bool dots, bool padLeft)
 			u32str.append(width - sz, ' ');
 	}
 
-	if (szOld > width and width >= 2 and dots)
+	if (szOld > width && width >= 2 && dots)
 	{
 		u32str.pop_back();
 		u32str.pop_back();

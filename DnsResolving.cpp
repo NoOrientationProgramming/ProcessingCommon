@@ -187,7 +187,7 @@ bool DnsResolving::aresStart()
 	memset(&hints, 0, sizeof(hints));
 
 	hints.ai_flags = 0;
-	hints.ai_family = AF_UNSPEC; /* IPv4 or IPv6 */
+	hints.ai_family = AF_UNSPEC; /* IPv4 / IPv6 */
 	hints.ai_socktype = 0; /* Any */
 	hints.ai_protocol = 0; /* Any */
 

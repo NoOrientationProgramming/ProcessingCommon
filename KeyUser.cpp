@@ -34,10 +34,10 @@ bool keyIsAlphaNum(const KeyUser &key)
 	if (!key.isPrint())
 		return false;
 
-	if (key.val() >= 'a' and key.val() <= 'z')
+	if (key.val() >= 'a' && key.val() <= 'z')
 		return true;
 
-	if (key.val() >= 'A' and key.val() <= 'Z')
+	if (key.val() >= 'A' && key.val() <= 'Z')
 		return true;
 
 	if (keyIsNum(key))
@@ -51,7 +51,7 @@ bool keyIsNum(const KeyUser &key)
 	if (!key.isPrint())
 		return false;
 
-	if (key.val() >= '0' and key.val() <= '9')
+	if (key.val() >= '0' && key.val() <= '9')
 		return true;
 
 	return false;
@@ -84,7 +84,7 @@ bool keyIsBackspace(const KeyUser &key)
 	if (!key.isCtrl())
 		return false;
 
-	return key.ctr() == keyBackspace or key.ctr() == keyBackspaceWin;
+	return key.ctr() == keyBackspace || key.ctr() == keyBackspaceWin;
 }
 
 bool keyIsUserDisconnect(const KeyUser &key)
@@ -92,7 +92,7 @@ bool keyIsUserDisconnect(const KeyUser &key)
 	if (!key.isCtrl())
 		return false;
 
-	return key.ctr() == keyCtrlC or key.ctr() == keyCtrlD;
+	return key.ctr() == keyCtrlC || key.ctr() == keyCtrlD;
 }
 
 bool keyIsCommon(const KeyUser &key)
@@ -106,7 +106,7 @@ bool keyIsCommon(const KeyUser &key)
 	if (!key.isPrint())
 		return false;
 
-	return key.val() == ' ' or key.val() == '-' or key.val() == '_';
+	return key.val() == ' ' || key.val() == '-' || key.val() == '_';
 }
 
 bool keyIsAccept(const KeyUser &key)

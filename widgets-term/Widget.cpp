@@ -49,7 +49,7 @@ void Widget::focusSet(bool foc, bool accept)
 	if (foc)
 		mWork = mCurrent;
 
-	if (!foc and accept)
+	if (!foc && accept)
 		mCurrent = mWork;
 
 	mFocus = foc;
@@ -112,7 +112,7 @@ void Widget::strPadCutTo(string &str, size_t width, bool dots, bool padLeft)
 			ustr.append(width - sz, ' ');
 	}
 
-	if (szOld > width and width >= 2 and dots)
+	if (szOld > width && width >= 2 && dots)
 	{
 		ustr.pop_back();
 		ustr.pop_back();

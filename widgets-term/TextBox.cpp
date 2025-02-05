@@ -237,7 +237,7 @@ bool TextBox::keyProcess(const KeyUser &key, const char *pListKeysDisabled)
 	if (!key.isPrint())
 		return false;
 
-	if (mNumbersOnly and (key < '0' or key > '9'))
+	if (mNumbersOnly && (key < '0' || key > '9'))
 		return false;
 
 	if (isSelection)
@@ -308,13 +308,13 @@ bool TextBox::print(string &msg)
 
 	for (; idxRel < mIdxFront.win(); ++idxRel, ++idxAbs)
 	{
-		if (!idxRel and mIdxFront.offset())
+		if (!idxRel && mIdxFront.offset())
 		{
 			utfStrAdd(ustrPrint, "\u00AB");
 			continue;
 		}
 
-		if (idxRel == mIdxFront.win() - 1 and !mIdxFront.endReached())
+		if (idxRel == mIdxFront.win() - 1 && !mIdxFront.endReached())
 		{
 			utfStrAdd(ustrPrint, "\u00BB");
 			continue;
@@ -323,7 +323,7 @@ bool TextBox::print(string &msg)
 		if (idxAbs >= strIn.size())
 			ch = ' ';
 		else
-		if (mPasswordMode and idxAbs < strIn.size() - 1)
+		if (mPasswordMode && idxAbs < strIn.size() - 1)
 			ch = '*';
 		else
 			ch = strIn[idxAbs];
