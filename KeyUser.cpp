@@ -76,7 +76,7 @@ bool keyIsCtrl(const KeyUser &key)
 	if (!key.isCtrl())
 		return false;
 
-	return false;
+	return true;
 }
 
 bool keyIsBackspace(const KeyUser &key)
