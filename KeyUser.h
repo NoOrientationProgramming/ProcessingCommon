@@ -243,6 +243,30 @@ public:
 		return str;
 	}
 
+	std::string str() const
+	{
+		std::string str;
+
+		str.push_back(mModCtrl ? 'C' : '-');
+		str.push_back(mModAlt ? 'A' : '-');
+		str.push_back(mModShift ? 'S' : '-');
+		str.push_back(' ');
+
+		if (mIsPrint)
+		{
+			str += "P ";
+			str += utf8();
+		}
+
+		if (mIsCtrl)
+		{
+			str += "C ";
+			str += std::to_string(mCtrl);
+		}
+
+		return str;
+	}
+
 	char32_t val() const		{ return mPrint;	}
 	CtrlKeyUser ctr() const		{ return mCtrl;	}
 
