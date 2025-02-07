@@ -187,6 +187,7 @@ public:
 	{
 		mPrint = key;
 		mIsPrint = true;
+		mIsCtrl = false;
 #if KEY_USER_DEBUG
 		std::cout << "operator=(char):          mPrint = " << mPrint << std::endl;
 #endif
@@ -197,6 +198,7 @@ public:
 	{
 		mPrint = key;
 		mIsPrint = true;
+		mIsCtrl = false;
 #if KEY_USER_DEBUG
 		std::cout << "operator=(char32_t):      mPrint = " << mPrint << std::endl;
 #endif
@@ -222,6 +224,7 @@ public:
 	void keyCtrlSet(const CtrlKeyUser &key)
 	{
 		mCtrl = key;
+		mIsPrint = false;
 		mIsCtrl = true;
 #if KEY_USER_DEBUG
 		std::cout << "keyCtrlSet(CtrlKeyUser):  key    = " << key << std::endl;
