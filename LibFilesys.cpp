@@ -417,6 +417,8 @@ Success sysFlagsIntLock(void *pRequester, const char *filename, const char *func
 		{
 			lock_guard<mutex> lock(globalLocksMtx);
 			flock(fdLockDefault, LOCK_UN | LOCK_NB);
+
+			va_end(args);
 			return Pending;
 		}
 	}
