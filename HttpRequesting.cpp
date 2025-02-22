@@ -743,7 +743,7 @@ Success HttpRequesting::sessionCreate(const string &address, const uint16_t port
 	} else {
 		procDbgLog("no existing session found. Creating");
 
-		HttpSession session();
+		HttpSession session = {};
 		sessions.push_front(session);
 		mSession = sessions.begin();
 
