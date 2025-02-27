@@ -102,6 +102,15 @@ public:
 		return mPrint > char32_t(other);
 	}
 
+	bool operator>=(const char &other) const
+	{
+#if KEY_USER_DEBUG
+		std::cout << "operator>=(char):         mPrint = " << mPrint << ", other = " << other << std::endl;
+#endif
+		if (!mIsPrint) return false;
+		return mPrint >= char32_t(other);
+	}
+
 	bool operator<(const char &other) const
 	{
 #if KEY_USER_DEBUG
@@ -109,6 +118,15 @@ public:
 #endif
 		if (!mIsPrint) return false;
 		return mPrint < char32_t(other);
+	}
+
+	bool operator<=(const char &other) const
+	{
+#if KEY_USER_DEBUG
+		std::cout << "operator<=(char):         mPrint = " << mPrint << ", other = " << other << std::endl;
+#endif
+		if (!mIsPrint) return false;
+		return mPrint <= char32_t(other);
 	}
 
 	bool operator==(const char32_t &other) const
