@@ -482,7 +482,7 @@ void FileExecuting::autoSource(FeNode *pNode)
 		pSrc = pBuff->pSrc + pBuff->processed;
 
 		lenLeft = pBuff->len - pBuff->processed;
-		lenPlanned = MIN(lenReq, lenLeft);
+		lenPlanned = PMIN(lenReq, lenLeft);
 		lenDone = intSend(pSrc, lenPlanned);
 
 		if (lenDone < 0)
@@ -511,7 +511,7 @@ void FileExecuting::autoSource(FeNode *pNode)
 		while (lenLeft)
 		{
 			lenReq = sizeof(buf) - 1;
-			lenPlanned = MIN(lenReq, lenLeft);
+			lenPlanned = PMIN(lenReq, lenLeft);
 			lenDone = ::read(pFd->fd, buf, lenPlanned);
 
 			isErr = lenDone < 0;
@@ -566,7 +566,7 @@ void FileExecuting::autoSource(FeNode *pNode)
 		while (lenLeft)
 		{
 			lenReq = sizeof(buf) - 1;
-			lenPlanned = MIN(lenReq, lenLeft);
+			lenPlanned = PMIN(lenReq, lenLeft);
 			lenDone = pTrans->read(buf, lenPlanned);
 
 			if (!lenDone)
@@ -689,7 +689,7 @@ void FileExecuting::autoSink(FeNode *pNode)
 				continue;
 
 			lenReq = lenDone;
-			lenPlanned = MIN(lenDone, lenLeft);
+			lenPlanned = PMIN(lenDone, lenLeft);
 
 			pDest = pBuff->pDest + pBuff->processed;
 			memcpy(pDest, buf, lenPlanned);
