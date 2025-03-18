@@ -360,7 +360,7 @@ extern "C" size_t MailSending::stringToCurlDataRead(char *ptr, size_t size, size
 {
 	size_t numReq = size * nmemb;
 	size_t numLeft = pReq->mBody.size() - pReq->mNumSent;
-	size_t numRead = MIN(numReq, numLeft);
+	size_t numRead = PMIN(numReq, numLeft);
 
 	if (!numRead)
 		return 0;
