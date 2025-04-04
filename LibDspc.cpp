@@ -255,7 +255,7 @@ string toHexStr(const string &strIn)
 vector<char> toHex(const string &strIn)
 {
 	size_t szStr = strIn.size();
-	bool highByteDone = szStr & 1;
+	uint8_t highByteDone = szStr & 1;
 	char ch, digit, byte = 0;
 	vector<char> res;
 
@@ -285,7 +285,7 @@ vector<char> toHex(const string &strIn)
 		else
 			byte = digit << 4;
 
-		highByteDone = not highByteDone;
+		highByteDone ^= 1;
 	}
 
 	return res;
