@@ -254,10 +254,10 @@ string toHexStr(const string &strIn)
 
 vector<char> toHex(const string &strIn)
 {
-	vector<char> res;
 	size_t szStr = strIn.size();
 	bool highByteDone = szStr & 1;
 	char ch, digit, byte = 0;
+	vector<char> res;
 
 	if (szStr)
 		res.reserve((szStr + 1) >> 1);
