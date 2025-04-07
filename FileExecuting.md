@@ -430,7 +430,7 @@ Success DataConverting::process()
   case StStart:
 
     // create AND CHECK
-    mpExec = FileExecuting::create()
+    mpExec = FileExecuting::create();
     if (!mpExec)
       return procErrLog(-1, "could not create process");
 
