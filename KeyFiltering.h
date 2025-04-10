@@ -41,7 +41,10 @@ public:
 
 protected:
 
-	KeyFiltering(const char *name);
+	KeyFiltering(const char *name)
+		: Transfering(name)
+		, mKeyLastRcvdMs(0)
+	{}
 	virtual ~KeyFiltering() {}
 
 	uint32_t mKeyLastRcvdMs;
