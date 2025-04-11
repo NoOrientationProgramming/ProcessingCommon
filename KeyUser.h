@@ -28,6 +28,7 @@
 
 #define KEY_USER_DEBUG 0
 
+#include <string>
 #if KEY_USER_DEBUG
 #include <iostream>
 #endif
