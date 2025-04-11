@@ -327,11 +327,11 @@ bool dirCreate(const string &path, int mode)
 		ok = dirExists(node);
 		if (ok)
 			continue;
-#if defined(__unix__)
-		res = mkdir(node.c_str(), mode);
-#else
+#if defined(_WIN32)
 		(void)mode;
 		res = mkdir(node.c_str());
+#else
+		res = mkdir(node.c_str(), mode);
 #endif
 		if (res)
 			return false;
