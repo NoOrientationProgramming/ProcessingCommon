@@ -35,6 +35,9 @@
 #if defined(__linux__)
 #include <sys/prctl.h>
 #endif
+#ifdef _WIN32
+#include <winsock2.h>
+#endif
 
 #include "LibFilesys.h"
 
@@ -52,8 +55,9 @@ struct GlobalLock
 static string lockDefaultDirBase;
 static int fdLockDefault = 0;
 static mutex globalLocksMtx;
-static map<string, GlobalLock> globalLocks;
+static map<string, struct GlobalLock> globalLocks;
 
+#if defined(__unix__)
 // - https://linux.die.net/man/2/setrlimit
 // - https://www.man7.org/linux/man-pages/man3/getrlimit.3p.html
 bool maxFdsSet(rlim_t val)
@@ -82,7 +86,6 @@ bool maxFdsSet(rlim_t val)
 	return true;
 }
 
-#if defined(__linux__)
 // - https://man7.org/linux/man-pages/man2/prctl.2.html
 // - https://man7.org/linux/man-pages/man5/core.5.html
 // - https://man7.org/linux/man-pages/man5/proc.5.html
@@ -142,6 +145,7 @@ void pipeClose(PairFd &pair, bool deInit)
 	fdClose(pair.fdWrite, deInit);
 }
 
+#if defined(__unix__)
 // - https://man7.org/linux/man-pages/man2/open.2.html
 // - https://man7.org/linux/man-pages/man3/fopen.3.html
 int fdCreate(const string &path, const string &mode, bool closeOnExec)
@@ -192,6 +196,7 @@ int fdCreate(const string &path, const string &mode, bool closeOnExec)
 
 	return open(path.c_str(), flags);
 }
+#endif
 
 void fdClose(int &fd, bool deInit)
 {
@@ -309,8 +314,12 @@ bool dirCreate(const string &path, mode_t mode)
 		ok = dirExists(node);
 		if (ok)
 			continue;
-
+#ifdef _WIN32
+		(void)mode;
+		res = mkdir(node.c_str());
+#else
 		res = mkdir(node.c_str(), mode);
+#endif
 		if (res)
 			return false;
 	}
@@ -380,6 +389,7 @@ void lockDirDefaultClose()
 	close(fdLockDefault);
 }
 
+#if defined(__unix__)
 Success sysFlagsIntLock(void *pRequester, const char *filename, const char *function, const int line, UserLocks *pLocks, ...)
 {
 	if (fdLockDefault < 0 || !pLocks)
@@ -502,4 +512,5 @@ void sysFlagsIntUnlock(void *pRequester, const char *filename, const char *funct
 		iuLock = pLocks->erase(iuLock);
 	}
 }
+#endif
 
