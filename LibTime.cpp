@@ -88,14 +88,19 @@ string tpToStr(const TimePoint &tp, const char *pFmt)
 
 TimePoint strToTp(const string &str, const char *pFmt)
 {
+	TimePoint tp;
 	tm tm = {};
 
 	if (!pFmt)
 		pFmt = "%d.%m.%y %H:%M:%S";
 
-	strptime(str.c_str(), pFmt, &tm);
+	stringstream ss(str);
+	ss >> get_time(&tm, pFmt);
 
-	TimePoint tp = system_clock::from_time_t(mktime(&tm));
+	if (ss.fail())
+		return tp;
+
+	tp = system_clock::from_time_t(mktime(&tm));
 
 	return tp;
 }
