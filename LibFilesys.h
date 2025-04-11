@@ -28,10 +28,10 @@
 
 #include <string>
 #include <list>
+#if defined(__unix__)
 #include <unistd.h>
 #include <sys/stat.h>
 #include <sys/file.h>
-#if defined(__unix__)
 #include <sys/resource.h>
 #endif
 
@@ -54,14 +54,13 @@ struct PairFd
 #if defined(__unix__)
 bool maxFdsSet(rlim_t val);
 bool coreDumpsEnable(void (*pFctReq)(int signum) = NULL);
-#endif
+
 void pipeInit(PairFd &pair);
 void pipeClose(PairFd &pair, bool deInit = true);
 
-#if defined(__unix__)
 int fdCreate(const std::string &path, const std::string &mode, bool closeOnExec = true);
-#endif
 void fdClose(int &fd, bool deInit = true);
+#endif
 
 bool fileExists(const std::string &path);
 bool fileCreate(const std::string &path);
@@ -71,13 +70,17 @@ bool fileNonBlockingSet(int fd);
 bool fileCopy(const std::string &pathSrc, const std::string &pathDst);
 
 bool dirExists(const std::string &path);
+#if defined(__unix__)
 bool dirCreate(const std::string &path, mode_t mode = (S_IRWXU | S_IRGRP | S_IXGRP | S_IROTH | S_IXOTH));
+#else
+bool dirCreate(const std::string &path, int mode = 0);
+#endif
 
 bool strToFile(const std::string &str, const std::string &path);
 
+#if defined(__unix__)
 bool lockDirDefaultOpen(const std::string &dirBase);
 void lockDirDefaultClose();
-#if defined(__unix__)
 Success sysFlagsIntLock(void *pRequester, const char *filename, const char *function, const int line, UserLocks *pLocks, ...);
 #define sysFlagsLock(...)			sysFlagsIntLock(this, __PROC_FILENAME__, __FUNCTION__, __LINE__, &mLocks, ##__VA_ARGS__, NULL)
 void sysFlagsIntUnlock(void *pRequester, const char *filename, const char *function, const int line, UserLocks *pLocks);

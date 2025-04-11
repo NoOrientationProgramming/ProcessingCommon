@@ -30,13 +30,15 @@
 #include <stdarg.h>
 #include <string.h>
 
-#include <unistd.h>
+#if defined(__unix__)
 #include <signal.h>
+#endif
 #if defined(__linux__)
 #include <sys/prctl.h>
 #endif
 #ifdef _WIN32
 #include <winsock2.h>
+#include <direct.h>
 #endif
 
 #include "LibFilesys.h"
@@ -52,10 +54,12 @@ struct GlobalLock
 	string nameRes;
 };
 
+#if defined(__unix__)
 static string lockDefaultDirBase;
 static int fdLockDefault = 0;
 static mutex globalLocksMtx;
 static map<string, struct GlobalLock> globalLocks;
+#endif
 
 #if defined(__unix__)
 // - https://linux.die.net/man/2/setrlimit
@@ -131,7 +135,6 @@ bool coreDumpsEnable(void (*pFctReq)(int signum))
 
 	return true;
 }
-#endif
 
 void pipeInit(PairFd &pair)
 {
@@ -145,7 +148,6 @@ void pipeClose(PairFd &pair, bool deInit)
 	fdClose(pair.fdWrite, deInit);
 }
 
-#if defined(__unix__)
 // - https://man7.org/linux/man-pages/man2/open.2.html
 // - https://man7.org/linux/man-pages/man3/fopen.3.html
 int fdCreate(const string &path, const string &mode, bool closeOnExec)
@@ -196,7 +198,6 @@ int fdCreate(const string &path, const string &mode, bool closeOnExec)
 
 	return open(path.c_str(), flags);
 }
-#endif
 
 void fdClose(int &fd, bool deInit)
 {
@@ -210,6 +211,7 @@ void fdClose(int &fd, bool deInit)
 
 	fd = -1;
 }
+#endif
 
 bool fileExists(const string &path)
 {
@@ -280,6 +282,7 @@ bool fileCopy(const string &pathSrc, const string &pathDst)
 
 bool dirExists(const string &path)
 {
+#if defined(__unix__)
 	struct stat sb;
 	int res;
 
@@ -291,9 +294,17 @@ bool dirExists(const string &path)
 		return false;
 
 	return true;
+#else
+	(void)path;
+	return false;
+#endif
 }
 
+#if defined(__unix__)
 bool dirCreate(const string &path, mode_t mode)
+#else
+bool dirCreate(const string &path, int mode)
+#endif
 {
 	size_t pos = 0;
 	string node;
@@ -314,11 +325,11 @@ bool dirCreate(const string &path, mode_t mode)
 		ok = dirExists(node);
 		if (ok)
 			continue;
-#ifdef _WIN32
+#if defined(__unix__)
+		res = mkdir(node.c_str(), mode);
+#else
 		(void)mode;
 		res = mkdir(node.c_str());
-#else
-		res = mkdir(node.c_str(), mode);
 #endif
 		if (res)
 			return false;
@@ -347,6 +358,7 @@ bool strToFile(const string &str, const string &path)
 	return true;
 }
 
+#if defined(__unix__)
 /*
 Literature
 - https://linux.die.net/man/2/open
@@ -389,7 +401,6 @@ void lockDirDefaultClose()
 	close(fdLockDefault);
 }
 
-#if defined(__unix__)
 Success sysFlagsIntLock(void *pRequester, const char *filename, const char *function, const int line, UserLocks *pLocks, ...)
 {
 	if (fdLockDefault < 0 || !pLocks)
