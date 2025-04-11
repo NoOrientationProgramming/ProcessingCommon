@@ -37,11 +37,15 @@ public:
 	virtual void usage(TCLAP::CmdLineInterface& c)
 	{
 		std::string tmp;
+		bool reqPrinted = false;
 
 		std::cout << std::endl << dPackageName << std::endl;
-		std::cout << "Application: " << dAppName << std::endl << std::endl;
+		std::cout << "Version: " << dVersion << std::endl;
+
+		std::cout << std::endl;
 		std::cout << "Usage: " << dAppName << " [OPTION]" << std::endl;
 		std::cout << std::endl;
+
 		std::cout << "Required" << std::endl;
 		std::cout << std::endl;
 
@@ -55,6 +59,7 @@ public:
 				tmp = (*it)->getDescription();
 				tmp.erase(0, 12);
 				std::cout << tmp << std::endl;
+				reqPrinted = true;
 			}
 		}
 		for (TCLAP::ArgListIterator it = args.begin(); it != args.end(); it++) {
@@ -65,8 +70,12 @@ public:
 				tmp = (*it)->getDescription();
 				tmp.erase(0, 12);
 				std::cout << tmp << std::endl;
+				reqPrinted = true;
 			}
 		}
+
+		if (!reqPrinted)
+			std::cout << "None" << std::endl;
 
 		std::cout << std::endl;
 		std::cout << "Optional" << std::endl;
