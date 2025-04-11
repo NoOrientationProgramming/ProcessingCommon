@@ -28,8 +28,10 @@
 
 #include <string>
 #include <list>
-#if defined(__unix__)
+#ifndef _WIN32
 #include <unistd.h>
+#endif
+#if defined(__unix__)
 #include <sys/stat.h>
 #include <sys/file.h>
 #include <sys/resource.h>
