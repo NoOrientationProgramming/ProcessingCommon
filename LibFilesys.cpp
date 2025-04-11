@@ -61,35 +61,7 @@ static mutex globalLocksMtx;
 static map<string, struct GlobalLock> globalLocks;
 #endif
 
-#if defined(__unix__)
-// - https://linux.die.net/man/2/setrlimit
-// - https://www.man7.org/linux/man-pages/man3/getrlimit.3p.html
-bool maxFdsSet(rlim_t val)
-{
-	struct rlimit lim;
-	int res;
-
-	res = getrlimit(RLIMIT_NOFILE, &lim);
-	if (res)
-	{
-		int numErr = errno;
-		errLog(-1, "getrlimit(NOFILE) failed: %s (%d)", strerror(numErr), numErr);
-		return false;
-	}
-
-	lim.rlim_cur = val;
-
-	res = setrlimit(RLIMIT_NOFILE, &lim);
-	if (res)
-	{
-		int numErr = errno;
-		errLog(-1, "setrlimit(NOFILE, %u) failed: %s (%d)", val, strerror(numErr), numErr);
-		return false;
-	}
-
-	return true;
-}
-
+#if defined(__linux__)
 // - https://man7.org/linux/man-pages/man2/prctl.2.html
 // - https://man7.org/linux/man-pages/man5/core.5.html
 // - https://man7.org/linux/man-pages/man5/proc.5.html
@@ -130,6 +102,36 @@ bool coreDumpsEnable(void (*pFctReq)(int signum))
 	{
 		int numErr = errno;
 		errLog(-1, "prctl(PR_SET_DUMPABLE) failed: %s (%d)", strerror(numErr), numErr);
+		return false;
+	}
+
+	return true;
+}
+#endif
+
+#if defined(__unix__)
+// - https://linux.die.net/man/2/setrlimit
+// - https://www.man7.org/linux/man-pages/man3/getrlimit.3p.html
+bool maxFdsSet(rlim_t val)
+{
+	struct rlimit lim;
+	int res;
+
+	res = getrlimit(RLIMIT_NOFILE, &lim);
+	if (res)
+	{
+		int numErr = errno;
+		errLog(-1, "getrlimit(NOFILE) failed: %s (%d)", strerror(numErr), numErr);
+		return false;
+	}
+
+	lim.rlim_cur = val;
+
+	res = setrlimit(RLIMIT_NOFILE, &lim);
+	if (res)
+	{
+		int numErr = errno;
+		errLog(-1, "setrlimit(NOFILE, %u) failed: %s (%d)", val, strerror(numErr), numErr);
 		return false;
 	}
 

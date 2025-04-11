@@ -30,8 +30,6 @@
 #include <list>
 #ifndef _WIN32
 #include <unistd.h>
-#endif
-#if defined(__unix__)
 #include <sys/stat.h>
 #include <sys/file.h>
 #include <sys/resource.h>
@@ -53,9 +51,12 @@ struct PairFd
 	int fdWrite;
 };
 
+#if defined(__linux__)
+bool coreDumpsEnable(void (*pFctReq)(int signum) = NULL);
+#endif
+
 #if defined(__unix__)
 bool maxFdsSet(rlim_t val);
-bool coreDumpsEnable(void (*pFctReq)(int signum) = NULL);
 
 void pipeInit(PairFd &pair);
 void pipeClose(PairFd &pair, bool deInit = true);
