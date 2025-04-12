@@ -100,6 +100,9 @@ public:
 		}
 		std::cout << std::endl;
 
+		std::cout << "(C) DSP-Crowd Electronics GmbH" << std::endl;
+		std::cout << std::endl;
+
 		printAppCommands();
 	}
 
