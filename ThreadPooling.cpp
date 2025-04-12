@@ -58,7 +58,7 @@ Pipe<PoolRequest> ThreadPooling::ppPoolRequests;
 ThreadPooling::ThreadPooling()
 	: Processing("ThreadPooling")
 	, mStateSd(StSdStart)
-	, mCntInternals(0)
+	, mCntInternals(1)
 	, mpFctDriverCreate(NULL)
 	, mIsInternal(false)
 	, mNumProcessing(0)
