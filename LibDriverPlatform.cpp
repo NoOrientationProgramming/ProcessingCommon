@@ -144,7 +144,6 @@ void driverPlatformCleanUp(void *pDriver)
 	//wrnLog("REMOVE_ME: cleaning up custom driver");
 
 	DriverPlatform *pDrv = (DriverPlatform *)pDriver;
-	pDriver = NULL;
 
 	int res = pthread_join(pDrv->pthread, NULL);
 	if (res)
@@ -250,7 +249,6 @@ drvExit:
 void driverPlatformCleanUp(void *pDriver)
 {
 	DriverPlatform *pDrv = (DriverPlatform *)pDriver;
-	pDriver = NULL;
 
 	DWORD res = WaitForSingleObject(pDrv->hThread, INFINITE);
 	if (res != WAIT_OBJECT_0)
