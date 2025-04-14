@@ -438,7 +438,7 @@ Success FileExecuting::childStateRecord()
 		mpResult->childTerminated = true;
 		mpResult->childTerminatedBySig = true;
 		mpResult->codeSig = WTERMSIG(res);
-#if WCOREDUMP
+#if 0
 		mpResult->coreDumped = (bool)WCOREDUMP(res);
 #endif
 	}
@@ -669,9 +669,6 @@ void FileExecuting::autoSink(FeNode *pNode)
 			pNode->autoDone = true;
 			return;
 		}
-
-		if (lenDone < 0)
-			return;
 
 		buf[lenDone] = 0;
 
