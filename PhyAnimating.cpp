@@ -52,9 +52,12 @@ PhyAnimating::PhyAnimating(const char *name)
 	, mpOpt(NULL)
 	, mStateBase(0)
 	, mpGrid(NULL)
+	, mpView(NULL)
 	, mWinVisibleOld(false)
 	, mBaseInitDone(false)
 {
+	mBufLabel[0] = 0;
+
 	mStateBase = StStart;
 }
 
