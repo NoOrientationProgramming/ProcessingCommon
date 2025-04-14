@@ -986,19 +986,19 @@ extern "C" int HttpRequesting::curlTrace(CURL *pCurl, curl_infotype type, char *
 			pText = "== Info:";
 			break;
 		case CURLINFO_HEADER_OUT:
-			pText = "=> Send header";
+			//pText = "=> Send header";
 			return 0;
 		case CURLINFO_DATA_OUT:
-			pText = "=> Send data";
+			//pText = "=> Send data";
 			return 0;
 		case CURLINFO_SSL_DATA_OUT:
 			pText = "=> Send SSL data";
 			break;
 		case CURLINFO_HEADER_IN:
-			pText = "<= Recv header";
+			//pText = "<= Recv header";
 			return 0;
 		case CURLINFO_DATA_IN:
-			pText = "<= Recv data";
+			//pText = "<= Recv data";
 			return 0;
 		case CURLINFO_SSL_DATA_IN:
 			pText = "<= Recv SSL data";
