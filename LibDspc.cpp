@@ -110,12 +110,13 @@ void hexDump(const void *pData, size_t len,
 	uint32_t addressAbs = 0;
 	char bufLine[256];
 	char *pBufEnd = bufLine + sizeof(bufLine);
-	char *pBuf = bufLine;
-	const char *pLine = pByte;
+	char *pBuf;
+	const char *pLine;
 	uint8_t lenPrinted;
 	uint8_t numBytesPerLine = colWidth;
-	size_t i = 0;
+	size_t i;
 
+	pBuf = bufLine;
 	dInfo("%p  %s", pData, pName ? pName : "Data");
 	cout << bufLine << endl;
 
@@ -179,10 +180,10 @@ size_t hexDumpPrint(char *pBuf, char *pBufEnd,
 	char *pBufStart = pBuf;
 	const char *pByte = (const char *)pData;
 	uint32_t addressAbs = 0;
-	const char *pLine = pByte;
+	const char *pLine;
 	uint8_t lenPrinted;
 	uint8_t numBytesPerLine = colWidth;
-	size_t i = 0;
+	size_t i;
 
 	dInfo("%p  %s\n", pData, pName ? pName : "Data");
 

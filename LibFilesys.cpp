@@ -45,6 +45,7 @@
 
 using namespace std;
 
+#if defined(__unix__)
 struct GlobalLock
 {
 	void *pOwner;
@@ -54,7 +55,6 @@ struct GlobalLock
 	string nameRes;
 };
 
-#if defined(__unix__)
 static string lockDefaultDirBase;
 static int fdLockDefault = 0;
 static mutex globalLocksMtx;
