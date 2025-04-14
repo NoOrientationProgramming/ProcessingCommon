@@ -254,39 +254,39 @@ public:
 
 	std::string utf8() const
 	{
-		std::string str;
+		std::string s;
 
-		if (mIsCtrl) return str;
+		if (mIsCtrl) return s;
 
 		std::u32string ustr;
 		ustr.push_back(mPrint);
-		utfToStr(ustr, str);
+		utfToStr(ustr, s);
 
-		return str;
+		return s;
 	}
 
 	std::string str() const
 	{
-		std::string str;
+		std::string s;
 
-		str.push_back(mModCtrl ? 'C' : '-');
-		str.push_back(mModAlt ? 'A' : '-');
-		str.push_back(mModShift ? 'S' : '-');
-		str.push_back(' ');
+		s.push_back(mModCtrl ? 'C' : '-');
+		s.push_back(mModAlt ? 'A' : '-');
+		s.push_back(mModShift ? 'S' : '-');
+		s.push_back(' ');
 
 		if (mIsPrint)
 		{
-			str += "P ";
-			str += utf8();
+			s += "P ";
+			s += utf8();
 		}
 
 		if (mIsCtrl)
 		{
-			str += "C ";
-			str += std::to_string(mCtrl);
+			s += "C ";
+			s += std::to_string(mCtrl);
 		}
 
-		return str;
+		return s;
 	}
 
 	char32_t val() const		{ return mPrint;	}
