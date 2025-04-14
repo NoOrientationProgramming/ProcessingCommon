@@ -40,7 +40,6 @@ public:
 
 	void winSet(uint32_t win);
 	void sizeSet(uint32_t size);
-	void sizeMaxSet(uint32_t size);
 	ListIdx &operator=(uint32_t size);
 	void sizeJumpSet(uint16_t size);
 
@@ -115,7 +114,6 @@ private:
 	/* member variables */
 	uint32_t mWin;
 	uint32_t mSize;
-	uint32_t mSizeMax;
 	uint32_t mSizeJump;
 	uint32_t mCursor;
 	uint32_t mOffset;

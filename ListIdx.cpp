@@ -78,11 +78,6 @@ void ListIdx::sizeSet(uint32_t size)
 	sanityCheck();
 }
 
-void ListIdx::sizeMaxSet(uint32_t size)
-{
-	mSizeMax = size;
-}
-
 ListIdx &ListIdx::operator=(uint32_t size)
 {
 	sizeSet(size);
