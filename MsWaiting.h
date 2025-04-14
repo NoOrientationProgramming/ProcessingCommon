@@ -40,12 +40,12 @@ public:
 
 protected:
 
-	MsWaiting(uint32_t duration);
 	virtual ~MsWaiting() {}
 
 private:
 
 	MsWaiting() = delete;
+	MsWaiting(uint32_t duration);
 	MsWaiting(const MsWaiting &) = delete;
 	MsWaiting &operator=(const MsWaiting &) = delete;
 

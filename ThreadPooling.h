@@ -59,11 +59,11 @@ public:
 
 protected:
 
-	ThreadPooling();
 	virtual ~ThreadPooling() {}
 
 private:
 
+	ThreadPooling();
 	ThreadPooling(const ThreadPooling &) = delete;
 	ThreadPooling &operator=(const ThreadPooling &) = delete;
 

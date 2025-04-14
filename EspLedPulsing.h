@@ -47,11 +47,11 @@ public:
 
 protected:
 
-	EspLedPulsing();
 	virtual ~EspLedPulsing() {}
 
 private:
 
+	EspLedPulsing();
 	EspLedPulsing(const EspLedPulsing &) = delete;
 	EspLedPulsing &operator=(const EspLedPulsing &) = delete;
 

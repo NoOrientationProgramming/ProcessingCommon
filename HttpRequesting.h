@@ -89,12 +89,12 @@ public:
 
 protected:
 
-	HttpRequesting();
-	HttpRequesting(const std::string &url);
 	virtual ~HttpRequesting();
 
 private:
 
+	HttpRequesting();
+	HttpRequesting(const std::string &url);
 	HttpRequesting(const HttpRequesting &) = delete;
 	HttpRequesting &operator=(const HttpRequesting &) = delete;
 

@@ -56,11 +56,11 @@ public:
 
 protected:
 
-	EventListening();
 	virtual ~EventListening() {}
 
 private:
 
+	EventListening();
 	EventListening(const EventListening &) = delete;
 	EventListening &operator=(const EventListening &) = delete;
 

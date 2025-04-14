@@ -189,11 +189,11 @@ public:
 
 protected:
 
-	FileExecuting();
 	virtual ~FileExecuting() {}
 
 private:
 
+	FileExecuting();
 	FileExecuting(const FileExecuting &) = delete;
 	FileExecuting &operator=(const FileExecuting &) = delete;
 

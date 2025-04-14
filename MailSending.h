@@ -57,11 +57,11 @@ public:
 
 protected:
 
-	MailSending();
 	virtual ~MailSending();
 
 private:
 
+	MailSending();
 	MailSending(const MailSending &) = delete;
 	MailSending &operator=(const MailSending &) = delete;
 

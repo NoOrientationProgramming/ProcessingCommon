@@ -51,11 +51,11 @@ public:
 
 protected:
 
-	DnsResolving();
 	virtual ~DnsResolving() {}
 
 private:
 
+	DnsResolving();
 	DnsResolving(const DnsResolving &) = delete;
 	DnsResolving &operator=(const DnsResolving &) = delete;
 
