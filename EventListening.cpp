@@ -57,6 +57,8 @@ EventListening::EventListening()
 	, mpLst(NULL)
 	, mLenBuf(0)
 {
+	mBuf[0] = 0;
+
 	mState = StStart;
 }
 

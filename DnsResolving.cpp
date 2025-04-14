@@ -304,7 +304,6 @@ void DnsResolving::aresRequestDone(void *arg, int status, int timeouts, struct a
 	struct ares_addrinfo_node *pNode;
 	const void *pAddr;
 	char bAddr[64];
-	string addr;
 	list<string> *pList;
 
 	pNode = result->nodes;
