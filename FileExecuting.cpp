@@ -388,7 +388,7 @@ Success FileExecuting::process()
 bool FileExecuting::sinksReady(FeNode *pNode) const
 {
 	list<Transfering *>::iterator iTrans;
-	Transfering *pTrans;
+	const Transfering *pTrans;
 
 	iTrans = pNode->lstTransfers.begin();
 	for (; iTrans != pNode->lstTransfers.end(); ++iTrans)
