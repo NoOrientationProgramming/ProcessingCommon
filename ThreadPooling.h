@@ -28,9 +28,8 @@
 
 #include <vector>
 #include <list>
-#if CONFIG_PROC_HAVE_DRIVERS
 #include <mutex>
-#endif
+
 #include "Processing.h"
 #include "Pipe.h"
 
