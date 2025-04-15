@@ -109,12 +109,16 @@ void hexDump(const void *pData, size_t len,
 	const char *pByte = (const char *)pData;
 	uint32_t addressAbs = 0;
 	char bufLine[256];
-	const char *pBufEnd = bufLine + sizeof(bufLine);
-	char *pBuf;
+	char *pBuf, *pBufEnd;
 	const char *pLine;
 	uint8_t lenPrinted;
 	uint8_t numBytesPerLine = colWidth;
 	size_t i;
+
+	pBufEnd = bufLine;
+	*pBufEnd = 0;
+
+	pBufEnd = bufLine + sizeof(bufLine);
 
 	pBuf = bufLine;
 	*pBuf = 0;
