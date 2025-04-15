@@ -95,7 +95,7 @@ void TextBox::focusSet(bool foc, bool accept)
 
 void TextBox::selectionSet(uint16_t idxStart, uint16_t len)
 {
-	u32string &str = mFocus ? mUstrWork : mUstrCurrent;
+	const u32string &str = mFocus ? mUstrWork : mUstrCurrent;
 	uint16_t idxEnd = idxStart + len;
 	uint16_t idxMax = str.size();
 	uint16_t idx = 0;
