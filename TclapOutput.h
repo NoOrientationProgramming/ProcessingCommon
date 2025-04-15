@@ -26,6 +26,7 @@
 #ifndef TCLAP_OUTPUT_H
 #define TCLAP_OUTPUT_H
 
+#include <string>
 #include <tclap/CmdLine.h>
 
 // http://tclap.sourceforge.net/
@@ -34,16 +35,29 @@ class TclapOutput : public TCLAP::StdOutput
 
 public:
 
+	TclapOutput()
+		: package("<package>")
+		, version("<version>")
+		, nameApp("<appname>")
+		, copyright("<copyright>")
+	{
+	}
+
+	std::string package;
+	std::string version;
+	std::string nameApp;
+	std::string copyright;
+
 	virtual void usage(TCLAP::CmdLineInterface& c)
 	{
 		std::string tmp;
 		bool reqPrinted = false;
 
-		std::cout << std::endl << dPackageName << std::endl;
-		std::cout << "Version: " << dVersion << std::endl;
+		std::cout << std::endl << package << std::endl;
+		std::cout << "Version: " << version << std::endl;
 
 		std::cout << std::endl;
-		std::cout << "Usage: " << dAppName << " [OPTION]" << std::endl;
+		std::cout << "Usage: " << nameApp << " [OPTION]" << std::endl;
 		std::cout << std::endl;
 
 		std::cout << "Required" << std::endl;
@@ -100,7 +114,7 @@ public:
 		}
 		std::cout << std::endl;
 
-		std::cout << "(C) DSP-Crowd Electronics GmbH" << std::endl;
+		std::cout << copyright << std::endl;
 		std::cout << std::endl;
 
 		printAppCommands();
