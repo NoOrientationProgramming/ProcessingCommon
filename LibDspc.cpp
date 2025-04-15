@@ -93,7 +93,7 @@ string appVersion()
 		return err;
 
 	const char *pVersEnd = strchr(pVersStart, '\n');
-	if (!pVersStart)
+	if (!pVersEnd)
 		return err;
 
 	size_t len = pVersEnd - pVersStart;
@@ -109,7 +109,7 @@ void hexDump(const void *pData, size_t len,
 	const char *pByte = (const char *)pData;
 	uint32_t addressAbs = 0;
 	char bufLine[256];
-	char *pBufEnd = bufLine + sizeof(bufLine);
+	const char *pBufEnd = bufLine + sizeof(bufLine);
 	char *pBuf;
 	const char *pLine;
 	uint8_t lenPrinted;
@@ -117,6 +117,8 @@ void hexDump(const void *pData, size_t len,
 	size_t i;
 
 	pBuf = bufLine;
+	*pBuf = 0;
+
 	dInfo("%p  %s", pData, pName ? pName : "Data");
 	cout << bufLine << endl;
 
@@ -177,7 +179,7 @@ size_t hexDumpPrint(char *pBuf, char *pBufEnd,
 	if (!pData)
 		return 0;
 
-	char *pBufStart = pBuf;
+	const char *pBufStart = pBuf;
 	const char *pByte = (const char *)pData;
 	uint32_t addressAbs = 0;
 	const char *pLine;
@@ -300,8 +302,9 @@ size_t strReplace(string &strIn, const string &strFind, const string &strReplace
 		return pos;
 
 	string strTail = strIn.substr(pos + strFind.size());
+	string str2 = strIn.substr(0, pos);
 
-	strIn = strIn.substr(0, pos) + strReplacement + strTail;
+	strIn = str2 + strReplacement + strTail;
 
 	return pos;
 }
