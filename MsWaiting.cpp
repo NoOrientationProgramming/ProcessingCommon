@@ -88,7 +88,7 @@ void MsWaiting::processInfo(char *pBuf, char *pBufEnd)
 {
 #if 1
 	//dInfo("State\t\t\t%s\n", ProcStateString[mState]);
-	pBuf += progressStr(pBuf, pBufEnd, mDiffMs, mDurationMs);
+	progressStr(pBuf, pBufEnd, mDiffMs, mDurationMs);
 #endif
 }
 
