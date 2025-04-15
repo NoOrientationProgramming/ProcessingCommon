@@ -297,8 +297,7 @@ bool dirExists(const string &path)
 
 	return true;
 #else
-	(void)path;
-	return false;
+	return path.size();
 #endif
 }
 
