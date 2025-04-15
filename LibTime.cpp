@@ -71,7 +71,7 @@ string nowToStr(const char *pFmt)
 string tpToStr(const TimePoint &tp, const char *pFmt)
 {
 	time_t tt_t = system_clock::to_time_t(tp);
-	tm *tm_t = ::localtime(&tt_t);
+	const tm *tm_t = ::localtime(&tt_t);
 	char timeBuf[32];
 	size_t res;
 
