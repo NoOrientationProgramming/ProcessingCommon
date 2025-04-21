@@ -48,8 +48,8 @@ public:
 	void focusSet(bool foc, bool accept = true);
 	void selectionSet(uint16_t idxStart = 0, uint16_t len = 0);
 
-	void frameEnabledSet(bool val);
-	void paddingEnabledSet(bool val);
+	void frameEnabledSet(bool val = true);
+	void paddingEnabledSet(bool val = true);
 
 	/* input */
 
