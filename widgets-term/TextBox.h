@@ -50,6 +50,7 @@ public:
 
 	void frameEnabledSet(bool val = true);
 	void paddingEnabledSet(bool val = true);
+	void cursorShow(bool val = true);
 
 	/* input */
 
@@ -104,6 +105,7 @@ private:
 	bool mDirty;
 	bool mFrameEnabled;
 	bool mPaddingEnabled;
+	bool mCursorShow;
 
 	/* static functions */
 

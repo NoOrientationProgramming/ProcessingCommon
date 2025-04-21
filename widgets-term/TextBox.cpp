@@ -42,6 +42,7 @@ TextBox::TextBox()
 	, mDirty(false)
 	, mFrameEnabled(true)
 	, mPaddingEnabled(true)
+	, mCursorShow(true)
 {
 	mIdxFront.winSet(mWidth);
 	mIdxBack.winSet(mIdxFront.win());
@@ -125,6 +126,11 @@ void TextBox::frameEnabledSet(bool val)
 void TextBox::paddingEnabledSet(bool val)
 {
 	mPaddingEnabled = val;
+}
+
+void TextBox::cursorShow(bool val)
+{
+	mCursorShow = val;
 }
 
 /* input */
@@ -351,7 +357,9 @@ bool TextBox::print(string &msg)
 			utfStrAdd(ustrPrint, mModifierContent); // restore after reset only
 		}
 
-		cursorPrint = mFocus && idxAbs == mIdxFront.cursorAbs();
+		cursorPrint = mFocus &&
+					mCursorShow &&
+					idxAbs == mIdxFront.cursorAbs();
 
 		if (cursorPrint)
 			utfStrAdd(ustrPrint, "\033[4m");
