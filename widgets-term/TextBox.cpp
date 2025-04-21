@@ -40,6 +40,8 @@ TextBox::TextBox()
 	, mPasswordMode(false)
 	, mNumbersOnly(false)
 	, mDirty(false)
+	, mFrameEnabled(true)
+	, mPaddingEnabled(true)
 {
 	mIdxFront.winSet(mWidth);
 	mIdxBack.winSet(mIdxFront.win());
@@ -113,6 +115,16 @@ void TextBox::selectionSet(uint16_t idxStart, uint16_t len)
 
 	for (; idx < idxEnd; ++idx)
 		mIdxFront.inc();
+}
+
+void TextBox::frameEnabledSet(bool val)
+{
+	mFrameEnabled = val;
+}
+
+void TextBox::paddingEnabledSet(bool val)
+{
+	mPaddingEnabled = val;
 }
 
 /* input */
@@ -294,11 +306,13 @@ bool TextBox::print(string &msg)
 
 	// Frame
 	utfStrAdd(ustrPrint, mModifierFrame);
-	if (mFocus)
-		ustrPrint.push_back('>');
-	else
-		ustrPrint.push_back('|');
-	ustrPrint.push_back(' ');
+
+	if (mFrameEnabled)
+		ustrPrint.push_back(mFocus ? '>' : '|');
+
+	if (mPaddingEnabled)
+		ustrPrint.push_back(' ');
+
 	utfStrAdd(ustrPrint, "\033[0m");
 
 	// Content init
@@ -359,11 +373,13 @@ bool TextBox::print(string &msg)
 
 	// Frame
 	utfStrAdd(ustrPrint, mModifierFrame);
-	ustrPrint.push_back(' ');
-	if (mFocus)
-		ustrPrint.push_back('<');
-	else
-		ustrPrint.push_back('|');
+
+	if (mPaddingEnabled)
+		ustrPrint.push_back(' ');
+
+	if (mFrameEnabled)
+		ustrPrint.push_back(mFocus ? '<' : '|');
+
 	utfStrAdd(ustrPrint, "\033[0m");
 
 	// Output

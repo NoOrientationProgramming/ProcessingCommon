@@ -48,6 +48,9 @@ public:
 	void focusSet(bool foc, bool accept = true);
 	void selectionSet(uint16_t idxStart = 0, uint16_t len = 0);
 
+	void frameEnabledSet(bool val);
+	void paddingEnabledSet(bool val);
+
 	/* input */
 
 	void currentSet(const std::string &str);
@@ -99,6 +102,8 @@ private:
 	bool mPasswordMode;
 	bool mNumbersOnly;
 	bool mDirty;
+	bool mFrameEnabled;
+	bool mPaddingEnabled;
 
 	/* static functions */
 
