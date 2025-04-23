@@ -81,6 +81,7 @@ public:
 	bool print(std::string &msg);
 
 	std::string clipboard(bool clear = false);
+	size_t sizeDisplayed() const;
 
 private:
 

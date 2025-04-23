@@ -416,6 +416,14 @@ string TextBox::clipboard(bool clear)
 	return strRet;
 }
 
+size_t TextBox::sizeDisplayed() const
+{
+	if (mFocus)
+		return mUstrWork.size();
+
+	return mCurrent.size();
+}
+
 /* private */
 
 void TextBox::clipboardSet()
