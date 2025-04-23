@@ -560,14 +560,14 @@ bool TextBox::cursorJump(const KeyUser &key)
 
 ListIdx &TextBox::listIdxLow()
 {
-	return mIdxFront.cursorAbs() > mIdxBack.cursorAbs() ?
-			mIdxBack : mIdxFront;
+	return mIdxFront.cursorAbs() > mIdxBack.cursorAbs()
+			? mIdxBack : mIdxFront;
 }
 
 ListIdx &TextBox::listIdxHigh()
 {
-	return mIdxFront.cursorAbs() > mIdxBack.cursorAbs() ?
-			mIdxFront : mIdxBack;
+	return mIdxFront.cursorAbs() > mIdxBack.cursorAbs()
+			? mIdxFront : mIdxBack;
 }
 
 bool TextBox::dirtySet(bool dirty)
