@@ -81,7 +81,10 @@ public:
 	bool print(std::string &msg);
 
 	std::string clipboard(bool clear = false);
+
 	size_t sizeDisplayed() const;
+	uint32_t cursorAbsFront() const;
+	uint32_t cursorAbsBack() const;
 
 private:
 

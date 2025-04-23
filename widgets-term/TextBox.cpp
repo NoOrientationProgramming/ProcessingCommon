@@ -424,6 +424,16 @@ size_t TextBox::sizeDisplayed() const
 	return mCurrent.size();
 }
 
+uint32_t TextBox::cursorAbsFront() const
+{
+	return mIdxFront.cursorAbs();
+}
+
+uint32_t TextBox::cursorAbsBack() const
+{
+	return mIdxBack.cursorAbs();
+}
+
 /* private */
 
 void TextBox::clipboardSet()
