@@ -59,7 +59,13 @@ void TextBox::widthSet(uint16_t width)
 
 	mWidth = width;
 
-	mIdxFront.winSet(width - dSizeWidthMin);
+	if (mFrameEnabled)
+		width -= 2;
+
+	if (mPaddingEnabled)
+		width -= 2;
+
+	mIdxFront.winSet(width);
 	mIdxBack.winSet(mIdxFront.win());
 }
 
@@ -121,11 +127,13 @@ void TextBox::selectionSet(uint16_t idxStart, uint16_t len)
 void TextBox::frameEnabledSet(bool val)
 {
 	mFrameEnabled = val;
+	widthSet(mWidth);
 }
 
 void TextBox::paddingEnabledSet(bool val)
 {
 	mPaddingEnabled = val;
+	widthSet(mWidth);
 }
 
 void TextBox::cursorShow(bool val)
