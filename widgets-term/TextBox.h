@@ -55,6 +55,7 @@ public:
 	/* input */
 
 	void currentSet(const std::string &str);
+	void ustrWorkSet(const std::u32string &ustr);
 	TextBox &operator=(const std::string &str);
 
 	void paste(const std::string &str);

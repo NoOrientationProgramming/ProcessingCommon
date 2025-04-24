@@ -155,6 +155,19 @@ void TextBox::currentSet(const string &str)
 	mIdxBack = mIdxFront.size();
 }
 
+void TextBox::ustrWorkSet(const std::u32string &ustr)
+{
+	mUstrWork = ustr;
+
+	if (!mFocus)
+		return;
+
+	mIdxFront = mUstrWork.size() + 1;
+	mIdxFront.cursorEndSet();
+
+	mIdxBack = mIdxFront;
+}
+
 TextBox &TextBox::operator=(const string &str)
 {
 	currentSet(str);
