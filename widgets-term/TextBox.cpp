@@ -306,7 +306,7 @@ TextBox::operator string() const
 	return current();
 }
 
-u32string TextBox::ustrWork() const
+const u32string &TextBox::ustrWork() const
 {
 	return mUstrWork;
 }
