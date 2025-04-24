@@ -69,6 +69,7 @@ public:
 	/* output */
 
 	operator std::string() const;
+	std::u32string ustrWork() const;
 
 	// Return
 	// true  .. Widget needs to be redrawn
