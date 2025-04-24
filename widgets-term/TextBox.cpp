@@ -451,7 +451,7 @@ void TextBox::clipboardSet()
 	utfToStr(ustr, mClipboard);
 }
 
-void TextBox::selectionReplace(const std::string &str)
+void TextBox::selectionReplace(const string &str)
 {
 	ListIdx &idxLow = listIdxLow();
 	ListIdx &idxHigh = listIdxHigh();
