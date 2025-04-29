@@ -9,7 +9,7 @@ idf_component_register(
 	INCLUDE_DIRS
 	"."
 	REQUIRES
-	"ProcessingCore"
+	"SystemCore"
 	PRIV_REQUIRES
 	"driver"
 )
