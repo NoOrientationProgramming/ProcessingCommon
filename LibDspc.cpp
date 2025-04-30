@@ -661,12 +661,9 @@ void urlToParts(const string &url,
 	if (find != string::npos)
 	{
 		len = idxRight - find;
+		const string &str = url.substr(find + 1, len);
 
-		try {
-			port = stoi(url.substr(find + 1, len));
-		} catch (...) {
-			port = 0;
-		}
+		port = atoi(str.c_str());
 
 		idxRight = find;
 		if (idxRight) --idxRight;
