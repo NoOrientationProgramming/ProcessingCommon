@@ -7,7 +7,7 @@ Handles incoming events through TCP connections and manages the transfer of data
 
 ## LIBRARY
 
-ProcessingCommon
+LibNaegCommon
 
 ## SYNOPSIS
 
@@ -173,16 +173,16 @@ Depth                 -
 
 ## DEPENDENCIES
 
-### Processing()
+### SystemCore
 
-The base class for all processes in a software system.
+The base structure for all software systems.
 
 ```
 License               MIT
 Required              Yes
 Project Page          https://github.com/NoOrientationProgramming
-Documentation         https://github.com/NoOrientationProgramming/ProcessingCore
-Sources               https://github.com/NoOrientationProgramming/ProcessingCore
+Documentation         https://github.com/NoOrientationProgramming/SystemCore
+Sources               https://github.com/NoOrientationProgramming/SystemCore
 ```
 
 ### jsoncpp

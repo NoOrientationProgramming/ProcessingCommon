@@ -7,7 +7,7 @@ Class for sending emails using SMTP.
 
 ## LIBRARY
 
-ProcessingCommon
+LibNaegCommon
 
 ## SYNOPSIS
 
@@ -241,16 +241,16 @@ Depth                 -
 
 ## DEPENDENCIES
 
-### Processing()
+### SystemCore
 
-The base class for all processes in a software system.
+The base structure for all software systems.
 
 ```
 License               MIT
 Required              Yes
 Project Page          https://github.com/NoOrientationProgramming
-Documentation         https://github.com/NoOrientationProgramming/ProcessingCore
-Sources               https://github.com/NoOrientationProgramming/ProcessingCore
+Documentation         https://github.com/NoOrientationProgramming/SystemCore
+Sources               https://github.com/NoOrientationProgramming/SystemCore
 ```
 
 ### LibDspc
@@ -261,8 +261,8 @@ Sources               https://github.com/NoOrientationProgramming/ProcessingCore
 License               GPLv3
 Required              Yes
 Project Page          https://github.com/NoOrientationProgramming
-Documentation         https://github.com/NoOrientationProgramming/ProcessingCommon
-Sources               https://github.com/NoOrientationProgramming/ProcessingCommon
+Documentation         https://github.com/NoOrientationProgramming/LibNaegCommon
+Sources               https://github.com/NoOrientationProgramming/LibNaegCommon
 ```
 
 ### cURL

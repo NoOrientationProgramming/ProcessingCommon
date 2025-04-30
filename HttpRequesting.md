@@ -7,7 +7,7 @@ Class for making HTTP requests.
 
 ## LIBRARY
 
-ProcessingCommon
+LibNaegCommon
 
 ## SYNOPSIS
 
@@ -280,16 +280,16 @@ Depth                 -
 
 ## DEPENDENCIES
 
-### Processing()
+### SystemCore
 
-The base class for all processes in a software system.
+The base structure for all software systems.
 
 ```
 License               MIT
 Required              Yes
 Project Page          https://github.com/NoOrientationProgramming
-Documentation         https://github.com/NoOrientationProgramming/ProcessingCore
-Sources               https://github.com/NoOrientationProgramming/ProcessingCore
+Documentation         https://github.com/NoOrientationProgramming/SystemCore
+Sources               https://github.com/NoOrientationProgramming/SystemCore
 ```
 
 ### DnsResolving()
@@ -300,8 +300,8 @@ Process for DNS resolution.
 License               GPLv3
 Required              If c-ares is used
 Project Page          https://github.com/NoOrientationProgramming
-Documentation         https://github.com/NoOrientationProgramming/ProcessingCommon
-Sources               https://github.com/NoOrientationProgramming/ProcessingCommon
+Documentation         https://github.com/NoOrientationProgramming/LibNaegCommon
+Sources               https://github.com/NoOrientationProgramming/LibNaegCommon
 ```
 
 ### LibDspc
@@ -312,8 +312,8 @@ Sources               https://github.com/NoOrientationProgramming/ProcessingComm
 License               GPLv3
 Required              Yes
 Project Page          https://github.com/NoOrientationProgramming
-Documentation         https://github.com/NoOrientationProgramming/ProcessingCommon
-Sources               https://github.com/NoOrientationProgramming/ProcessingCommon
+Documentation         https://github.com/NoOrientationProgramming/LibNaegCommon
+Sources               https://github.com/NoOrientationProgramming/LibNaegCommon
 ```
 
 ### cURL

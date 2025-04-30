@@ -7,7 +7,7 @@ Controlling LED pulsing effects for a specified GPIO pin on ESP32.
 
 ## LIBRARY
 
-ProcessingCommon
+LibNaegCommon
 
 ## SYNOPSIS
 
@@ -182,16 +182,16 @@ This means that the lifespan of this process can be the same as that of the pare
 
 ## DEPENDENCIES
 
-### Processing()
+### SystemCore
 
-The base class for all processes in a software system.
+The base structure for all software systems.
 
 ```
 License               MIT
 Required              Yes
 Project Page          https://github.com/NoOrientationProgramming
-Documentation         https://github.com/NoOrientationProgramming/ProcessingCore
-Sources               https://github.com/NoOrientationProgramming/ProcessingCore
+Documentation         https://github.com/NoOrientationProgramming/SystemCore
+Sources               https://github.com/NoOrientationProgramming/SystemCore
 ```
 
 ## SEE ALSO
