@@ -27,13 +27,13 @@ For reference, check out the examples in
 [FileExecuting()](https://github.com/NoOrientationProgramming/LibNaegCommon/blob/main/FileExecuting.md).
 
 | Name | Description | License |
-|:---:|---|:---:|
+|---|---|:---:|
 | [LibNaegCommon](https://github.com/NoOrientationProgramming/LibNaegCommon) | Official processes based on the Processing() class | ![GitHub](https://img.shields.io/github/license/NoOrientationProgramming/LibNaegCommon?style=plastic) |
 
 ## Overview of library LibNaegCommon
 
 | Name | Description |
-|:---:|---|
+|---|---|
 | [HttpRequesting()](https://github.com/NoOrientationProgramming/LibNaegCommon/blob/main/HttpRequesting.md) | Making HTTP requests |
 | [MailSending()](https://github.com/NoOrientationProgramming/LibNaegCommon/blob/main/MailSending.md) | Sending emails using SMTP |
 | [FileExecuting()](https://github.com/NoOrientationProgramming/LibNaegCommon/blob/main/FileExecuting.md) | Executing programs and managing OS processes |
