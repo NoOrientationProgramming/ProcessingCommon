@@ -2,7 +2,7 @@
 ![GitHub](https://img.shields.io/github/license/NoOrientationProgramming/LibNaegCommon?style=plastic)
 <!-- ![Lines of code](https://img.shields.io/tokei/lines/github/NoOrientationProgramming/LibNaegCommon?style=plastic) -->
 
-[![Discord](https://img.shields.io/discord/960639692213190719?style=plastic&logo=discord)](https://discord.gg/FBVKJTaY)
+[![Discord](https://img.shields.io/discord/960639692213190719?style=plastic&color=purple&logo=discord)](https://discord.gg/FBVKJTaY)
 
 Official processes based on the `SystemCore` of  [NoOrientationProgramming](https://github.com/NoOrientationProgramming).
 The use of this repository is entirely optional.
