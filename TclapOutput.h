@@ -37,24 +37,24 @@ public:
 
 	TclapOutput()
 		: package("<package>")
-		, version("<version>")
+		, versionApp("<version>")
 		, nameApp("<appname>")
 		, copyright("<copyright>")
 	{
 	}
 
 	std::string package;
-	std::string version;
+	std::string versionApp;
 	std::string nameApp;
 	std::string copyright;
 
-	virtual void usage(TCLAP::CmdLineInterface& c)
+	virtual void usage(TCLAP::CmdLineInterface &c)
 	{
 		std::string tmp;
 		bool reqPrinted = false;
 
 		std::cout << std::endl << package << std::endl;
-		std::cout << "Version: " << version << std::endl;
+		std::cout << "Version: " << versionApp << std::endl;
 
 		std::cout << std::endl;
 		std::cout << "Usage: " << nameApp << " [OPTION]" << std::endl;
@@ -118,6 +118,12 @@ public:
 		std::cout << std::endl;
 
 		printAppCommands();
+	}
+
+	virtual void version(TCLAP::CmdLineInterface &c)
+	{
+		(void)c;
+		std::cout << versionApp << std::endl;
 	}
 
 private:
